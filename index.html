@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ML Study Hub — Machine Learning Course</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .week1-card{--card-accent:#58a6ff}.week2-card{--card-accent:#3fb950}.week3-card{--card-accent:#d29922}
+    .week4-card{--card-accent:#bc8cff}.week5-card{--card-accent:#f85149}.week6-card{--card-accent:#39d353}
+    .week7-card{--card-accent:#79c0ff}.week8-card{--card-accent:#ff7b72}.week10-card{--card-accent:#56d364}
+    .week11-card{--card-accent:#e3b341}.week12-card{--card-accent:#a5d6ff}.week13-card{--card-accent:#ffa198}
+    .week14-card{--card-accent:#7ee787}.week15-card{--card-accent:#d2a8ff}
+    .features-section{max-width:1200px;margin:0 auto 4rem;padding:0 2rem}
+    .features-section h2{text-align:center;font-size:1.6rem;font-weight:700;margin-bottom:2rem;color:var(--text2)}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+    .feature-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center}
+    .feature-icon{font-size:2rem;margin-bottom:.5rem}
+    .feature-item h3{font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+    .feature-item p{font-size:.8rem;color:var(--text2)}
+    .section-divider{max-width:1200px;margin:2rem auto .5rem;padding:0 2rem;display:flex;align-items:center;gap:1rem}
+    .section-divider h2{font-size:1rem;font-weight:700;color:var(--text2);white-space:nowrap}
+    .section-divider hr{flex:1;border:none;border-top:1px solid var(--border)}
+    .missing-badge{background:rgba(255,255,255,0.05);border:1px dashed var(--border);border-radius:var(--radius);padding:2rem;text-align:center;color:var(--text2);font-size:.9rem}
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="Pages/week1.html">W1</a></li><li><a href="Pages/week2.html">W2</a></li>
+      <li><a href="Pages/week3.html">W3</a></li><li><a href="Pages/week4.html">W4</a></li>
+      <li><a href="Pages/week5.html">W5</a></li><li><a href="Pages/week6.html">W6</a></li>
+      <li><a href="Pages/week7.html">W7</a></li><li><a href="Pages/week8.html">W8</a></li>
+      <li><a href="Pages/week10.html">W10</a></li><li><a href="Pages/week11.html">W11</a></li>
+      <li><a href="Pages/week12.html">W12</a></li><li><a href="Pages/week13.html">W13</a></li>
+      <li><a href="Pages/week14.html">W14</a></li><li><a href="Pages/week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Master Machine Learning<br>Before Your Exam</h1>
+    <p>Interactive visualizations, step-by-step formulae, numerical problems, and quizzes — built from your exact lecture slides.</p>
+    <div class="hero-stats">
+      <div class="stat-card"><div class="stat-number">14</div><div class="stat-label">Weeks Covered</div></div>
+      <div class="stat-card"><div class="stat-number">40+</div><div class="stat-label">Core Topics</div></div>
+      <div class="stat-card"><div class="stat-number">100+</div><div class="stat-label">Practice Problems</div></div>
+      <div class="stat-card"><div class="stat-number">20+</div><div class="stat-label">Visualizations</div></div>
+    </div>
+  </section>
+
+  <!-- WEEKS 1-4 -->
+  <div class="section-divider"><h2>📘 Weeks 1–4 · Supervised Learning Foundations</h2><hr></div>
+  <div class="weeks-grid">
+    <a href="Pages/week1.html" class="week-card week1-card">
+      <div class="week-badge">📅 Week 1</div>
+      <h2>Intro to ML, KNN &amp; Gradient Descent</h2>
+      <p>What is ML, types of learning, KNN algorithm, distance metrics, feature scaling, and gradient descent.</p>
+      <div class="topic-pills"><span class="topic-pill">KNN</span><span class="topic-pill">Euclidean Distance</span><span class="topic-pill">Feature Scaling</span><span class="topic-pill">Gradient Descent</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-intro">Intro</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week2.html" class="week-card week2-card">
+      <div class="week-badge">📅 Week 2</div>
+      <h2>Linear &amp; Polynomial Regression</h2>
+      <p>Cost functions, gradient descent for regression, polynomial models, bias-variance tradeoff, and regularization.</p>
+      <div class="topic-pills"><span class="topic-pill">MSE</span><span class="topic-pill">Normal Equation</span><span class="topic-pill">Bias-Variance</span><span class="topic-pill">Ridge / Lasso</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week3.html" class="week-card week3-card">
+      <div class="week-badge">📅 Week 3</div>
+      <h2>SVM — Theory &amp; Hard Margin</h2>
+      <p>SVMs, linear separability, decision boundary, margins, support vectors, and the primal objective.</p>
+      <div class="topic-pills"><span class="topic-pill">Hard Margin</span><span class="topic-pill">Support Vectors</span><span class="topic-pill">Margin Width</span><span class="topic-pill">Objective Fn</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week4.html" class="week-card week4-card">
+      <div class="week-badge">📅 Week 4</div>
+      <h2>SVM — Soft Margin &amp; Kernel Trick</h2>
+      <p>Slack variables, C parameter, dual form, kernel trick, polynomial and RBF kernels.</p>
+      <div class="topic-pills"><span class="topic-pill">Soft Margin</span><span class="topic-pill">Slack ξ</span><span class="topic-pill">RBF Kernel</span><span class="topic-pill">Dual Form</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-hard">Advanced</span><span class="arrow-btn">→</span></div>
+    </a>
+  </div>
+
+  <!-- WEEKS 5-8 -->
+  <div class="section-divider"><h2>📗 Weeks 5–8 · Trees, Clustering &amp; Anomaly Detection</h2><hr></div>
+  <div class="weeks-grid">
+    <a href="Pages/week5.html" class="week-card week5-card">
+      <div class="week-badge">📅 Week 5</div>
+      <h2>Decision Trees</h2>
+      <p>Entropy, information gain, ID3 algorithm, gain ratio, decision boundaries, overfitting, and pruning strategies.</p>
+      <div class="topic-pills"><span class="topic-pill">Entropy</span><span class="topic-pill">Info Gain</span><span class="topic-pill">ID3</span><span class="topic-pill">Gain Ratio</span><span class="topic-pill">Pruning</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week6.html" class="week-card week6-card">
+      <div class="week-badge">📅 Week 6</div>
+      <h2>K-Means &amp; Unsupervised Learning</h2>
+      <p>K-means algorithm, inertia, elbow method, K-means++ initialisation, X-means with BIC, limitations.</p>
+      <div class="topic-pills"><span class="topic-pill">K-Means</span><span class="topic-pill">Inertia</span><span class="topic-pill">Elbow Method</span><span class="topic-pill">K-Means++</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week7.html" class="week-card week7-card">
+      <div class="week-badge">📅 Week 7</div>
+      <h2>Hierarchical Clustering</h2>
+      <p>Agglomerative clustering, dendrograms, single-link vs complete-link vs average-link, discovering K.</p>
+      <div class="topic-pills"><span class="topic-pill">Agglomerative</span><span class="topic-pill">Dendrogram</span><span class="topic-pill">Single-Link</span><span class="topic-pill">Complete-Link</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week8.html" class="week-card week8-card">
+      <div class="week-badge">📅 Week 8</div>
+      <h2>Anomaly Detection</h2>
+      <p>Isolation forest scoring, Gaussian model for anomaly detection, algorithm evaluation, vs supervised learning.</p>
+      <div class="topic-pills"><span class="topic-pill">Isolation Forest</span><span class="topic-pill">Gaussian Model</span><span class="topic-pill">Anomaly Score</span><span class="topic-pill">Evaluation</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+  </div>
+
+  <!-- WEEK 9 MISSING -->
+  <div class="section-divider"><h2>📙 Week 9</h2><hr></div>
+  <div style="max-width:1200px;margin:0 auto;padding:0 2rem 1rem">
+    <div class="missing-badge"> ⚡ Week 9 is reserved for <code>MIDTERM</code> exam ⚡</div>
+  </div>
+
+  <!-- WEEKS 10-11 -->
+  <div class="section-divider"><h2>📙 Weeks 10–11 · Evaluation &amp; Optimization</h2><hr></div>
+  <div class="weeks-grid">
+    <a href="Pages/week10.html" class="week-card week10-card">
+      <div class="week-badge">📅 Week 10</div>
+      <h2>Model Evaluation</h2>
+      <p>Why accuracy fails on imbalanced data, confusion matrix, precision/recall/F1, SMOTE, cost-sensitive learning.</p>
+      <div class="topic-pills"><span class="topic-pill">Confusion Matrix</span><span class="topic-pill">Precision/Recall</span><span class="topic-pill">F1-Score</span><span class="topic-pill">SMOTE</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week11.html" class="week-card week11-card">
+      <div class="week-badge">📅 Week 11</div>
+      <h2>Model Optimization &amp; Feature Engineering</h2>
+      <p>Grid/random/Bayesian search, Optuna, cross-validation, data leakage, target encoding, cyclical features.</p>
+      <div class="topic-pills"><span class="topic-pill">Optuna / TPE</span><span class="topic-pill">Data Leakage</span><span class="topic-pill">Target Encoding</span><span class="topic-pill">Cyclical Features</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-hard">Advanced</span><span class="arrow-btn">→</span></div>
+    </a>
+  </div>
+
+  <!-- WEEKS 12-14 -->
+  <div class="section-divider"><h2>📕 Weeks 12–14 · MLOps &amp; Deployment</h2><hr></div>
+  <div class="weeks-grid">
+    <a href="Pages/week12.html" class="week-card week12-card">
+      <div class="week-badge">📅 Week 12</div>
+      <h2>MLOps &amp; FastAPI Deployment</h2>
+      <p>87% of models never reach production. MLOps lifecycle, model serialisation, REST APIs, FastAPI /predict endpoint.</p>
+      <div class="topic-pills"><span class="topic-pill">MLOps Lifecycle</span><span class="topic-pill">FastAPI</span><span class="topic-pill">REST API</span><span class="topic-pill">Serialization</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week13.html" class="week-card week13-card">
+      <div class="week-badge">📅 Week 13</div>
+      <h2>Docker &amp; Model Drift</h2>
+      <p>venv vs conda, Docker containers, Dockerfile, data drift (covariate shift), concept drift types, KS test intro.</p>
+      <div class="topic-pills"><span class="topic-pill">Docker</span><span class="topic-pill">Data Drift</span><span class="topic-pill">Concept Drift</span><span class="topic-pill">KS Test</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-mid">Intermediate</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week14.html" class="week-card week14-card">
+      <div class="week-badge">📅 Week 14</div>
+      <h2>Observability &amp; Monitoring</h2>
+      <p>KS test deep dive with worked example, statistical drift tests, three pillars of observability, alerting P1–P4.</p>
+      <div class="topic-pills"><span class="topic-pill">KS Test CDF</span><span class="topic-pill">Observability</span><span class="topic-pill">Grafana Stack</span><span class="topic-pill">P1-P4 Alerts</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-hard">Advanced</span><span class="arrow-btn">→</span></div>
+    </a>
+    <a href="Pages/week15.html" class="week-card week15-card">
+      <div class="week-badge">📅 Week 15</div>
+      <h2>AI Security, Red Teaming &amp; Fairness</h2>
+      <p>Adversarial attacks, LLM jailbreaks, privacy risks, differential privacy, bias sources, fairness metrics.</p>
+      <div class="topic-pills"><span class="topic-pill">Adversarial Inputs</span><span class="topic-pill">Prompt Injection</span><span class="topic-pill">Fairness Metrics</span><span class="topic-pill">Red Teaming</span></div>
+      <div class="week-footer"><span class="difficulty-badge difficulty-hard">Advanced</span><span class="arrow-btn">→</span></div>
+    </a>
+  </div>
+
+  <section class="features-section" style="margin-top:3rem">
+    <h2>How This Site Helps You Learn</h2>
+    <div class="features-grid">
+      <div class="feature-item"><div class="feature-icon">📐</div><h3>LaTeX Formulae</h3><p>Every equation rendered with full derivation context</p></div>
+      <div class="feature-item"><div class="feature-icon">🎮</div><h3>Live Visualizations</h3><p>Interactive canvas animations — tweak parameters and see results</p></div>
+      <div class="feature-item"><div class="feature-icon">🔢</div><h3>Numerical Problems</h3><p>Exam-style questions with full step-by-step solutions</p></div>
+      <div class="feature-item"><div class="feature-icon">🧩</div><h3>Concept Quizzes</h3><p>Test your understanding with instant feedback</p></div>
+      <div class="feature-item"><div class="feature-icon">🗺️</div><h3>Topic Sidebar</h3><p>Jump to any concept with sticky navigation</p></div>
+      <div class="feature-item"><div class="feature-icon">💡</div><h3>Exam Tips</h3><p>Key insights and common mistakes highlighted</p></div>
+    </div>
+  </section>
+</main>
+
+  <!-- REVISION SECTION BANNER -->
+  <div style="max-width:1200px;margin:2rem auto 0;padding:0 2rem">
+    <a href="Revision/index.html" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(210,153,34,0.07);border:1px solid rgba(210,153,34,0.25);border-radius:12px;padding:1.1rem 1.6rem;text-decoration:none;color:inherit;transition:0.2s" onmouseover="this.style.borderColor='rgba(210,153,34,0.5)'" onmouseout="this.style.borderColor='rgba(210,153,34,0.25)'">
+      <div>
+        <p style="font-size:0.7rem;font-weight:800;color:#d29922;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.2rem">⏳ 2-Day Exam Prep</p>
+        <p style="font-size:1rem;font-weight:700">Revision Hub + Cheat Sheet</p>
+        <p style="font-size:0.82rem;color:var(--text2);margin-top:0.15rem">Quick revision of all 14 weeks · All formulas on one page · Exam-trap callouts · Assignment-style scenarios</p>
+      </div>
+      <span style="font-size:1.4rem;color:#d29922;flex-shrink:0">→</span>
+    </a>
+  </div>
+
+  <!-- FOOTER CREDIT -->
+  <footer style="max-width:1200px;margin:3rem auto 0;padding:1.5rem 2rem;border-top:1px solid var(--border);text-align:center">
+    <p style="font-size:0.82rem;color:var(--text2);line-height:1.8">
+      Designed by <strong style="color:var(--text)">Mohsin Raza Ojla</strong>
+      <span style="margin:0 6px;opacity:0.4">·</span>
+      <span style="font-style:italic">Mostly following the lecture slides of the Machine Learning course at ITU,<br>taught by Dr. Muhammad Ahmed Raza</span>
+    </p>
+  </footer>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="script.js"></script>
+</body>
+</html>

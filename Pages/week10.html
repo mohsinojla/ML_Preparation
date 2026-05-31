@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 10 — Model Evaluation | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html" class="active">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 10 — Model Evaluation (Imbalanced Classes)</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#accuracy-problem">Accuracy Problem</a></li>
+      <li><a href="#confusion">Confusion Matrix</a></li>
+      <li><a href="#metrics">Precision, Recall, F1</a></li>
+      <li><a href="#smote">SMOTE</a></li>
+      <li><a href="#cost">Cost-Sensitive Learning</a></li>
+      <li><a href="#viz10">Interactive Matrix</a></li>
+      <li><a href="#quiz10">Quiz</a></li>
+      <li><a href="#numericals10">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 10</div>
+      <h1>Model Evaluation — Imbalanced Classes</h1>
+      <p>Accuracy is a lie when classes are imbalanced. Learn Precision, Recall, F1-score, SMOTE oversampling, and cost-sensitive learning to handle real-world skewed datasets.</p>
+    </div>
+
+    <!-- ACCURACY PROBLEM -->
+    <div class="section" id="accuracy-problem" data-section="accuracy-problem">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">⚠</div>
+        <h2>Why Accuracy Fails</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Consider a dataset where 99% of examples are negative (no fraud) and 1% are positive (fraud). A model that predicts <em>everything negative</em> achieves <strong>99% accuracy</strong> — but it is completely useless!</p>
+        </div>
+        <div class="warning-box">
+          <div class="label">⚠ The 99% Accuracy Trap</div>
+          A "dumb" model that always predicts the majority class can have high accuracy on imbalanced data. Accuracy does not capture whether we catch the rare positive cases that actually matter.
+        </div>
+        <div class="formula-block">
+          $$\text{Accuracy} = \frac{TP + TN}{TP + FP + TN + FN}$$
+          For 99% negative class: predict all negative → Accuracy = TN/(TN+FN) = 0.99. But Recall = TP/(TP+FN) = 0/anything = 0.
+        </div>
+        <div class="key-insight">
+          <div class="label">✅ Solution</div>
+          Use Precision, Recall, and F1-score instead. These focus on the positive class performance.
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFUSION MATRIX -->
+    <div class="section" id="confusion" data-section="confusion">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">📊</div>
+        <h2>Confusion Matrix</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>A confusion matrix tabulates four types of outcomes for a binary classifier:</p>
+        </div>
+        <table class="comparison-table">
+          <tr><th></th><th>Predicted Positive</th><th>Predicted Negative</th></tr>
+          <tr><td><strong>Actual Positive</strong></td><td style="background:rgba(63,185,80,0.15)"><strong>TP</strong> — True Positive</td><td style="background:rgba(248,81,73,0.15)"><strong>FN</strong> — False Negative (Miss)</td></tr>
+          <tr><td><strong>Actual Negative</strong></td><td style="background:rgba(248,81,73,0.15)"><strong>FP</strong> — False Positive (False Alarm)</td><td style="background:rgba(63,185,80,0.15)"><strong>TN</strong> — True Negative</td></tr>
+        </table>
+        <div class="two-col" style="margin-top:1rem">
+          <div class="mini-card">
+            <strong>Type I Error = FP</strong><br>
+            Model says positive but it's negative. "False alarm." E.g., blocking a legitimate transaction.
+          </div>
+          <div class="mini-card">
+            <strong>Type II Error = FN</strong><br>
+            Model says negative but it's positive. "Miss." E.g., missing a fraudulent transaction.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="section" id="metrics" data-section="metrics">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">📐</div>
+        <h2>Precision, Recall, and F1</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="formula-block">
+          <strong>Precision</strong> — of all predicted positives, how many are actually positive?
+          $$\text{Precision} = \frac{TP}{TP + FP}$$
+          <strong>Recall (Sensitivity)</strong> — of all actual positives, how many did we catch?
+          $$\text{Recall} = \frac{TP}{TP + FN}$$
+          <strong>F1-Score</strong> — harmonic mean of Precision and Recall:
+          $$F1 = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
+        </div>
+
+        <div class="two-col" style="margin-top:1rem">
+          <div class="key-insight" style="margin:0">
+            <div class="label">🎯 When to prioritize Precision</div>
+            When false positives are costly. Example: email spam filter — you don't want to wrongly mark important emails as spam.
+          </div>
+          <div class="key-insight" style="margin:0">
+            <div class="label">🎯 When to prioritize Recall</div>
+            When false negatives are costly. Example: cancer screening — missing a real cancer case is far worse than a false alarm.
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 Precision-Recall Trade-off</div>
+          Increasing the classification threshold increases precision but reduces recall. F1 balances both. Choose based on domain requirements.
+        </div>
+      </div>
+    </div>
+
+    <!-- SMOTE -->
+    <div class="section" id="smote" data-section="smote">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔁</div>
+        <h2>SMOTE — Synthetic Minority Over-sampling</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>SMOTE (Synthetic Minority Over-sampling TEchnique) creates synthetic minority class samples to balance the dataset, rather than simply duplicating existing minority examples.</p>
+        </div>
+        <div class="formula-block">
+          <strong>SMOTE synthetic sample generation:</strong>
+          $$x_{\text{new}} = x_i + \lambda \cdot (x_{\text{neighbor}} - x_i), \quad \lambda \in [0, 1] \text{ random}$$
+          where $x_i$ is a minority sample and $x_{\text{neighbor}}$ is one of its k-nearest neighbors in the minority class.
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">For each minority class sample $x_i$, find its k-nearest neighbors in the minority class.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">Randomly select one neighbor $x_{\text{neighbor}}$.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">Generate $x_{\text{new}} = x_i + \lambda(x_{\text{neighbor}} - x_i)$ with random $\lambda \in [0,1]$. This creates a point along the line between them.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">Add $x_{\text{new}}$ to the training set as a positive minority example. Repeat until balanced.</div>
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:0.8rem">
+          <div class="label">✅ Why better than simple duplication</div>
+          Duplication doesn't add new information — the model just memorizes the same points. SMOTE creates new points in the feature space, helping the model generalize to the minority class.
+        </div>
+      </div>
+    </div>
+
+    <!-- COST-SENSITIVE -->
+    <div class="section" id="cost" data-section="cost">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">💰</div>
+        <h2>Cost-Sensitive Learning & Class Weights</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Instead of resampling, assign <em>higher misclassification cost</em> to the minority class. The model will try harder not to miss minority class examples.</p>
+        </div>
+        <div class="info-box">
+          <div class="label">📌 Class weight formula</div>
+          A common heuristic: $w_{\text{minority}} = \frac{N_{\text{majority}}}{N_{\text{minority}}}$. If majority class has 990 samples and minority has 10, weight = 99.
+        </div>
+        <div class="two-col" style="margin-top:1rem">
+          <div class="mini-card">
+            <strong>Mathematically equivalent</strong><br>
+            Cost-sensitive learning is equivalent to oversampling the minority class by the weight factor.
+          </div>
+          <div class="mini-card">
+            <strong>sklearn API</strong><br>
+            Use <code>class_weight='balanced'</code> in sklearn classifiers. Automatically sets weights inversely proportional to class frequencies.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUALIZATION -->
+    <div class="section" id="viz10" data-section="viz10">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎬</div>
+        <h2>Interactive Confusion Matrix</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="confusionCanvas" width="700" height="380"></canvas>
+          <div class="viz-controls" style="flex-wrap:wrap;gap:0.5rem">
+            <label style="color:var(--text2);font-size:0.85rem">TP: <input type="number" id="inTP" value="95" min="0" max="200" style="width:60px;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:4px;border-radius:4px"></label>
+            <label style="color:var(--text2);font-size:0.85rem">FP: <input type="number" id="inFP" value="10" min="0" max="200" style="width:60px;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:4px;border-radius:4px"></label>
+            <label style="color:var(--text2);font-size:0.85rem">FN: <input type="number" id="inFN" value="5" min="0" max="200" style="width:60px;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:4px;border-radius:4px"></label>
+            <label style="color:var(--text2);font-size:0.85rem">TN: <input type="number" id="inTN" value="90" min="0" max="200" style="width:60px;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:4px;border-radius:4px"></label>
+            <button class="viz-btn" id="updateConfusion">Update</button>
+          </div>
+          <div id="metricsDisplay" style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz10" data-section="quiz10">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Model Evaluation</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> A model predicts all examples as negative on a 99% negative dataset. Its accuracy is:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">50%</button>
+            <button class="option-btn" data-correct="true">99% — but the model is useless</button>
+            <button class="option-btn" data-correct="false">0%</button>
+            <button class="option-btn" data-correct="false">Cannot be determined</button>
+          </div>
+          <div class="explanation">Predicting all negative gives 99% accuracy on a 99% negative dataset but recall = 0. It never detects any true positive — completely useless for fraud detection.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> Precision measures:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Of all actual positives, how many did we catch?</button>
+            <button class="option-btn" data-correct="true">Of all predicted positives, how many are actually positive?</button>
+            <button class="option-btn" data-correct="false">Total correct predictions / total predictions</button>
+            <button class="option-btn" data-correct="false">Number of true negatives / total negatives</button>
+          </div>
+          <div class="explanation">Precision = TP/(TP+FP). It answers: "When we predict positive, how often are we right?"</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> F1-score is defined as:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Arithmetic mean of Precision and Recall</button>
+            <button class="option-btn" data-correct="true">Harmonic mean of Precision and Recall</button>
+            <button class="option-btn" data-correct="false">TP/(TP+FP+FN)</button>
+            <button class="option-btn" data-correct="false">Precision + Recall</button>
+          </div>
+          <div class="explanation">F1 = 2·P·R/(P+R). It's the harmonic mean, which is lower than the arithmetic mean and penalizes large imbalances between P and R.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> SMOTE creates new minority samples by:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Duplicating existing minority samples exactly</button>
+            <button class="option-btn" data-correct="true">Interpolating between a minority sample and one of its k-nearest minority neighbors</button>
+            <button class="option-btn" data-correct="false">Adding Gaussian noise to majority samples</button>
+            <button class="option-btn" data-correct="false">Removing majority samples until balanced</button>
+          </div>
+          <div class="explanation">SMOTE formula: x_new = x_i + λ(x_neighbor - x_i), λ∈[0,1]. This creates synthetic points along the line between existing minority examples.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> Which metric should you prioritize for a cancer screening system?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Accuracy</button>
+            <button class="option-btn" data-correct="false">Precision</button>
+            <button class="option-btn" data-correct="true">Recall</button>
+            <button class="option-btn" data-correct="false">Specificity</button>
+          </div>
+          <div class="explanation">Missing a real cancer (FN) is far worse than a false alarm (FP). Recall = TP/(TP+FN) — prioritize it to minimize missed cancers.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> Cost-sensitive learning is mathematically equivalent to:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Undersampling the majority class</button>
+            <button class="option-btn" data-correct="true">Oversampling the minority class by the weight factor</button>
+            <button class="option-btn" data-correct="false">Using a different loss function (log-loss)</button>
+            <button class="option-btn" data-correct="false">Feature selection on minority class features</button>
+          </div>
+          <div class="explanation">Assigning weight w to the minority class in the loss function has the same effect as replicating minority samples w times — both increase attention to minority class errors.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals10" data-section="numericals10">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Confusion Matrix Metrics</div>
+          <div class="numerical-body">
+            <div class="problem-text">Given confusion matrix: [[TP=90, FP=10], [FN=5, TN=95]]. Compute Accuracy, Precision, Recall, and F1-score.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Values</span><span class="step-text">TP=90, FP=10, FN=5, TN=95. Total = 200.</span></div>
+              <div class="solution-step"><span class="step-label">Accuracy</span><span class="step-text">$(TP+TN)/\text{Total} = (90+95)/200 = 185/200 = 0.925 = 92.5\%$</span></div>
+              <div class="solution-step"><span class="step-label">Precision</span><span class="step-text">$TP/(TP+FP) = 90/(90+10) = 90/100 = 0.90$</span></div>
+              <div class="solution-step"><span class="step-label">Recall</span><span class="step-text">$TP/(TP+FN) = 90/(90+5) = 90/95 \approx 0.947$</span></div>
+              <div class="solution-step"><span class="step-label">F1</span><span class="step-text">$F1 = 2 \times 0.90 \times 0.947 / (0.90 + 0.947) = 1.7046/1.847 \approx 0.923$</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — The Accuracy Trap</div>
+          <div class="numerical-body">
+            <div class="problem-text">Dataset: 990 negative examples, 10 positive examples. Model predicts ALL as negative. Compute accuracy, precision, recall, and F1.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Confusion</span><span class="step-text">TP=0 (missed all positives), FP=0 (never predicted positive), FN=10 (all 10 positives missed), TN=990.</span></div>
+              <div class="solution-step"><span class="step-label">Accuracy</span><span class="step-text">$(0+990)/1000 = 99\%$ — looks great!</span></div>
+              <div class="solution-step"><span class="step-label">Precision</span><span class="step-text">$TP/(TP+FP) = 0/(0+0) = \text{undefined}$ (0/0 — never predicted positive)</span></div>
+              <div class="solution-step"><span class="step-label">Recall</span><span class="step-text">$TP/(TP+FN) = 0/(0+10) = 0\%$ — caught ZERO of the 10 actual positives!</span></div>
+              <div class="solution-step"><span class="step-label">F1</span><span class="step-text">$F1 = 0$ (recall = 0 → harmonic mean = 0). The model is completely useless despite 99% accuracy.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — SMOTE Interpolation</div>
+          <div class="numerical-body">
+            <div class="problem-text">Minority sample x_i = [2.0, 3.0]. Its nearest minority neighbor x_neighbor = [4.0, 5.0]. Random λ = 0.3. Compute the SMOTE-generated sample x_new.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><span class="step-text">$x_{\text{new}} = x_i + \lambda(x_{\text{neighbor}} - x_i)$</span></div>
+              <div class="solution-step"><span class="step-label">Difference</span><span class="step-text">$x_{\text{neighbor}} - x_i = [4-2, 5-3] = [2, 2]$</span></div>
+              <div class="solution-step"><span class="step-label">Scaled</span><span class="step-text">$\lambda \times [2,2] = 0.3 \times [2,2] = [0.6, 0.6]$</span></div>
+              <div class="solution-step"><span class="step-label">Result</span><span class="step-text">$x_{\text{new}} = [2.0, 3.0] + [0.6, 0.6] = [2.6, 3.6]$. New synthetic minority sample at [2.6, 3.6].</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week8.html" class="viz-btn" style="text-decoration:none">← Week 8</a>
+      <a href="week11.html" class="viz-btn" style="text-decoration:none">Week 11 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week10.js"></script>
+</body>
+</html>

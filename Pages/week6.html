@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 6 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html" class="active">W6</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 6 — K-Means &amp; Unsupervised Learning</strong>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#unsupervised">Unsupervised Learning</a></li>
+      <li class="sub"><a href="#why-cluster">Why Clustering?</a></li>
+      <li class="sub"><a href="#cluster-types">Clustering Algorithms</a></li>
+      <li><a href="#kmeans-algo">K-Means Algorithm</a></li>
+      <li class="sub"><a href="#kmeans-steps">Steps</a></li>
+      <li class="sub"><a href="#kmeans-math">Math (Objective)</a></li>
+      <li class="sub"><a href="#kmeans-viz">K-Means Visualizer</a></li>
+      <li><a href="#distance-metrics">Distance Metrics</a></li>
+      <li class="sub"><a href="#euclidean6">Euclidean</a></li>
+      <li class="sub"><a href="#manhattan6">Manhattan</a></li>
+      <li class="sub"><a href="#cosine">Cosine Similarity</a></li>
+      <li><a href="#inertia">Inertia</a></li>
+      <li><a href="#elbow">Elbow Method</a></li>
+      <li class="sub"><a href="#elbow-viz">Elbow Visualizer</a></li>
+      <li><a href="#limitations">K-Means Limitations</a></li>
+      <li><a href="#kmeanspp">K-Means++</a></li>
+      <li><a href="#xmeans">X-Means</a></li>
+      <li><a href="#quiz6">Quiz</a></li>
+      <li><a href="#numericals6">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="page-header">
+      <div class="week-tag">Week 6</div>
+      <h1>K-Means &amp; Unsupervised Learning</h1>
+      <p>Discover structure in data without labels. K-Means is one of the most widely used clustering algorithms — deceptively simple but remarkably powerful when understood deeply.</p>
+    </div>
+
+    <!-- ===== UNSUPERVISED ===== -->
+    <div class="section" id="unsupervised" data-section="unsupervised">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🔍</div>
+        <h2>What is Unsupervised Learning?</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "Finding structure in data — without being told the answers."</p>
+          <p style="margin-top:0.6rem">In supervised learning, labels guide the model. In unsupervised learning, the model must <em>discover</em> the structure on its own — no ground truth, no labelled examples.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+            <h4>Supervised Learning</h4>
+            <p>Input + <strong>Label</strong> → learn a mapping. Goal: predict labels for new inputs.</p>
+            <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">KNN, SVM, Decision Trees, Regression</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(57,211,83,0.3)">
+            <h4>Unsupervised Learning</h4>
+            <p>Input <strong>only</strong> → discover hidden structure, groups, or representations.</p>
+            <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">K-Means, PCA, Autoencoders, DBSCAN</p>
+          </div>
+        </div>
+
+        <div id="why-cluster" data-section="why-cluster" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Why Clustering? (From Lecture)</h3>
+          <div class="three-col">
+            <div class="mini-card" style="border-color:rgba(57,211,83,0.3)">
+              <h4>🛍️ Customer Segmentation</h4>
+              <p>Group buyers by purchase behaviour — without knowing in advance how many types exist.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+              <h4>🧬 Genomics</h4>
+              <p>Find genes with similar expression patterns across thousands of samples.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+              <h4>🗞️ Document Grouping</h4>
+              <p>Organize news articles into topics with no pre-defined categories.</p>
+            </div>
+          </div>
+          <div class="two-col" style="margin-top:1rem">
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4>🚨 Anomaly Detection Prep</h4>
+              <p>Cluster normal behaviour first — outliers fall outside every cluster.</p>
+            </div>
+            <div class="mini-card">
+              <h4>🗜️ Data Compression</h4>
+              <p>Replace similar data points with their cluster representative (centroid). Used in vector quantization, image compression.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="cluster-types" data-section="cluster-types" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Types of Clustering Algorithms</h3>
+          <table class="comparison-table">
+            <tr><th>Type</th><th>Algorithm</th><th>Idea</th><th>Needs K?</th></tr>
+            <tr><td><strong>Centroid-based</strong></td><td>K-Means, K-Means++</td><td>Assign to nearest centroid, update centroids</td><td>Yes</td></tr>
+            <tr><td><strong>Hierarchical</strong></td><td>Agglomerative, BIRCH</td><td>Build a tree of merges/splits</td><td>No</td></tr>
+            <tr><td><strong>Density-based</strong></td><td>DBSCAN, OPTICS</td><td>Clusters = dense regions, outliers = sparse</td><td>No</td></tr>
+            <tr><td><strong>Model-based</strong></td><td>GMM (EM)</td><td>Fit mixture of Gaussians, soft assignments</td><td>Yes</td></tr>
+            <tr><td><strong>Adaptive K</strong></td><td>X-Means</td><td>K-Means + BIC to auto-select K</td><td>No</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== K-MEANS ALGO ===== -->
+    <div class="section" id="kmeans-algo" data-section="kmeans-algo">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">⚙️</div>
+        <h2>The K-Means Algorithm</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "An iterative, assignment-update loop." K-Means alternates between two steps — assign each point to the nearest centroid, then recompute centroids as cluster means.</p>
+        </div>
+
+        <div id="kmeans-steps" data-section="kmeans-steps">
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content"><strong>Initialise:</strong> Choose $K$ random centroids $\mu_1, \mu_2, \ldots, \mu_K$ (from the data or random).</div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <strong>Assignment Step (E-step):</strong> Assign each point $\mathbf{x}_i$ to its nearest centroid:
+                $$c_i = \arg\min_{k} \|\mathbf{x}_i - \mu_k\|^2$$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <strong>Update Step (M-step):</strong> Recompute each centroid as the mean of its assigned points:
+                $$\mu_k = \frac{1}{|C_k|}\sum_{i \in C_k} \mathbf{x}_i$$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content"><strong>Repeat</strong> steps 2–3 until centroids stop moving (convergence) or max iterations reached.</div>
+            </div>
+          </div>
+
+          <div class="key-insight" style="margin-top:1rem">
+            <div class="label">🔑 Convergence (From Lecture)</div>
+            "Convergence guaranteed — but may reach a <strong>local optimum</strong>. Run multiple times with different initialisations." The objective (inertia) decreases monotonically at each step, so it always terminates.
+          </div>
+        </div>
+
+        <div id="kmeans-math" data-section="kmeans-math" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">The Math Behind K-Means (From Lecture)</h3>
+
+          <div class="formula-block">
+            <div class="formula-label">Objective Function</div>
+            <div class="formula-name">K-Means minimises total within-cluster variance (Inertia)</div>
+            $$J = \sum_{k=1}^{K} \sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \mu_k\|^2$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$C_k$ = set of points assigned to cluster $k$ | $\mu_k$ = centroid of cluster $k$. K-Means greedily minimises $J$.</p>
+          </div>
+
+          <div class="warning-box">
+            <div class="label">⚠️ Non-Convex Objective</div>
+            From lecture: "K-Means converges to a <strong>local minimum</strong>, not necessarily the global minimum. The objective $J$ is non-convex." Different random starts can give different solutions. Always run multiple times and keep the best.
+          </div>
+
+          <div class="formula-block" style="margin-top:1rem">
+            <div class="formula-label">Why the mean minimises J</div>
+            <div class="formula-name">Optimal centroid for a fixed assignment</div>
+            $$\frac{\partial}{\partial \mu_k}\sum_{i \in C_k}\|\mathbf{x}_i - \mu_k\|^2 = 0 \implies \mu_k = \frac{1}{|C_k|}\sum_{i \in C_k}\mathbf{x}_i$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">Taking derivative and setting to zero proves the centroid must be the arithmetic mean.</p>
+          </div>
+        </div>
+
+        <!-- K-MEANS VISUALIZER -->
+        <div id="kmeans-viz" data-section="kmeans-viz" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Interactive K-Means Visualizer</h3>
+          <div class="viz-container">
+            <h4>Watch K-Means converge step by step</h4>
+            <canvas id="kmeansCanvas" width="560" height="340" style="background:#0d1117;border-radius:8px;cursor:crosshair"></canvas>
+            <div class="viz-controls">
+              <label>K = <strong id="kmVal">3</strong>
+                <input type="range" id="kmSlider" min="2" max="6" step="1" value="3" oninput="updateKM()">
+              </label>
+              <button class="viz-btn" onclick="stepKMeans()">▶ Step</button>
+              <button class="viz-btn" onclick="runKMeans()">▶▶ Run All</button>
+              <button class="viz-btn secondary" onclick="resetKMeans()">Reset</button>
+              <button class="viz-btn secondary" onclick="loadKMSample()">Random Data</button>
+            </div>
+            <div id="kmInfo" style="font-size:0.82rem;color:var(--text2);margin-top:0.5rem">Click "Random Data" then "Step" to watch each iteration</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DISTANCE METRICS ===== -->
+    <div class="section" id="distance-metrics" data-section="distance-metrics">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">📏</div>
+        <h2>Distance Metrics in Clustering</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "How we measure 'closeness' determines what clusters form." and "The choice of distance metric encodes your assumption about what 'similar' means."</p>
+        </div>
+
+        <div class="tab-group">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="eucl6">Euclidean</button>
+            <button class="tab-btn" data-tab="manh6">Manhattan</button>
+            <button class="tab-btn" data-tab="cos6">Cosine</button>
+          </div>
+
+          <div class="tab-content active" data-tab-content="eucl6" id="euclidean6">
+            <div class="formula-block">
+              <div class="formula-label">Euclidean (L2)</div>
+              $$d(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_2 = \sqrt{\sum_{j=1}^d (x_j - y_j)^2}$$
+            </div>
+            <div class="key-insight">
+              <div class="label">From Lecture</div>
+              "Straight-line distance. Sensitive to scale. Default choice." Always standardise features before using Euclidean distance — otherwise features with large ranges dominate.
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="manh6" id="manhattan6">
+            <div class="formula-block">
+              <div class="formula-label">Manhattan (L1)</div>
+              $$d(\mathbf{x}, \mathbf{y}) = \|\mathbf{x} - \mathbf{y}\|_1 = \sum_{j=1}^d |x_j - y_j|$$
+            </div>
+            <div class="key-insight">
+              <div class="label">From Lecture</div>
+              "Sum of absolute differences. More robust to outliers. Grid-like paths." When outliers are present, Manhattan distance is less influenced by a single extreme difference than Euclidean.
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="cos6" id="cosine">
+            <div class="formula-block">
+              <div class="formula-label">Cosine Similarity</div>
+              $$\text{cos}(\mathbf{x}, \mathbf{y}) = \frac{\mathbf{x} \cdot \mathbf{y}}{\|\mathbf{x}\|\|\mathbf{y}\|}$$
+              <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">Cosine <em>distance</em> = $1 - \text{cos}(\mathbf{x}, \mathbf{y})$. Range: [0, 2].</p>
+            </div>
+            <div class="key-insight">
+              <div class="label">From Lecture</div>
+              "Measures angle, not magnitude. Used in text/NLP where direction matters." A document about 'dogs' mentioned 100 times is similar to one mentioning 'dogs' 10 times — cosine handles this, Euclidean does not.
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠️ Metric Choice Changes Everything (From Lecture)</div>
+          "Same dataset, same K=3, different distance → different clusters. Always ask: does straight-line distance make sense for my features? Are my features on the same scale? Is direction more important than magnitude?"
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== INERTIA ===== -->
+    <div class="section" id="inertia" data-section="inertia">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">📊</div>
+        <h2>Inertia — Measuring Cluster Quality</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "The objective function K-Means minimizes. Sum of squared distances from each point to its centroid."</p>
+        </div>
+
+        <div class="formula-block">
+          <div class="formula-label">Inertia</div>
+          <div class="formula-name">Within-Cluster Sum of Squares (WCSS)</div>
+          $$\text{Inertia} = \sum_{k=1}^{K}\sum_{\mathbf{x}_i \in C_k} \|\mathbf{x}_i - \mu_k\|^2$$
+        </div>
+
+        <div class="three-col">
+          <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+            <h4>⬇️ Lower Inertia</h4>
+            <p>Tighter, more compact clusters. Better fit. But always achievable by increasing K.</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4>⬆️ More Clusters K</h4>
+            <p>Always lowers inertia — trivially: if K=N, every point is its own centroid and inertia=0.</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+            <h4>⚠️ Inertia Alone</h4>
+            <p>Cannot tell you the right K. Need the elbow method or other criteria (BIC, silhouette).</p>
+          </div>
+        </div>
+
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠️ From Lecture</div>
+          "Lower inertia = tighter, more compact clusters. More clusters K = always lower inertia (trivial limit). Inertia alone cannot tell you the right K."
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ELBOW METHOD ===== -->
+    <div class="section" id="elbow" data-section="elbow">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">📐</div>
+        <h2>Choosing K — The Elbow Method</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "Plot inertia vs K; pick the bend in the curve."</p>
+        </div>
+
+        <div class="steps">
+          <div class="step"><div class="step-num">①</div><div class="step-content">Start with K=1 and increase up to ~10</div></div>
+          <div class="step"><div class="step-num">②</div><div class="step-content">Record the inertia for each K after fitting</div></div>
+          <div class="step"><div class="step-num">③</div><div class="step-content">Plot K on x-axis, inertia on y-axis</div></div>
+          <div class="step"><div class="step-num">④</div><div class="step-content">Look for the "elbow" — where the marginal gain (decrease in inertia per additional cluster) flattens out</div></div>
+          <div class="step"><div class="step-num">⑤</div><div class="step-content">That K is your best trade-off between fit and complexity</div></div>
+        </div>
+
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠️ From Lecture</div>
+          "The elbow is a heuristic, not a law. Use domain knowledge + the elbow together. Sometimes there is no clear elbow."
+        </div>
+
+        <div id="elbow-viz" data-section="elbow-viz" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Interactive Elbow Curve</h3>
+          <div class="viz-container">
+            <h4>Generate data and see how inertia changes with K</h4>
+            <canvas id="elbowCanvas" width="540" height="280" style="background:#0d1117;border-radius:8px"></canvas>
+            <div class="viz-controls">
+              <label>True clusters: <strong id="trueCVal">3</strong>
+                <input type="range" id="trueCSlider" min="2" max="7" step="1" value="3" oninput="updateElbow()">
+              </label>
+              <button class="viz-btn" onclick="regenElbow()">Regenerate Data</button>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.4rem">The elbow typically appears near the true number of clusters ↑</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== LIMITATIONS ===== -->
+    <div class="section" id="limitations" data-section="limitations">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">⚠️</div>
+        <h2>K-Means Limitations (From Lecture)</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>From lecture: "Know when it fails before you deploy it."</p>
+        </div>
+
+        <div class="two-col">
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">🔢 Must Choose K</h4>
+            <p>"K-Means requires you to specify the number of clusters in advance. The elbow method helps — but it's a heuristic."</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">🔵 Assumes Spherical Clusters</h4>
+            <p>"The algorithm minimises Euclidean distance, so it expects round, equally-sized blobs. Elongated or irregular shapes fail."</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">📍 Sensitive to Initialisation</h4>
+            <p>"Different random starting centroids can yield different final clusters. Use K-Means++ or multiple restarts."</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">📏 Sensitive to Scale</h4>
+            <p>"Features with larger ranges dominate the distance. Always standardise (zero mean, unit variance) before clustering."</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+            <h4 style="color:var(--orange)">⚡ Local Optima</h4>
+            <p>"K-Means converges to a local minimum, not necessarily global. The objective J is non-convex."</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+            <h4 style="color:var(--orange)">📊 High Dimensions Degrade</h4>
+            <p>"In high-dimensional spaces, distances become meaningless (curse of dimensionality). Reduce dimensions first (PCA)."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== K-MEANS++ ===== -->
+    <div class="section" id="kmeanspp" data-section="kmeanspp">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">⚡</div>
+        <h2>K-Means++ — Better Initialisation</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>K-Means++ is a smarter initialisation strategy that spreads the initial centroids far apart — dramatically reducing the chance of a bad local minimum. It is the default in sklearn.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content"><strong>Choose first centroid $\mu_1$</strong> uniformly at random from the data points.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>For each remaining centroid:</strong> choose the next centroid with probability proportional to $d(\mathbf{x})^2$ — the squared distance to the nearest already-chosen centroid:
+              $$P(\mathbf{x} \text{ is chosen}) = \frac{d(\mathbf{x})^2}{\sum_{\mathbf{x}'} d(\mathbf{x}')^2}$$
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content"><strong>Repeat step 2</strong> until all $K$ centroids are selected.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content"><strong>Run standard K-Means</strong> from these better initial centroids.</div>
+          </div>
+        </div>
+
+        <div class="key-insight">
+          <div class="label">🔑 Why It Works</div>
+          By choosing points far from existing centroids (with higher probability), K-Means++ naturally spreads the initial centroids across the data. This leads to faster convergence and significantly better final clustering — provably no more than $O(\log K)$ times worse than optimal.
+        </div>
+
+        <div class="two-col" style="margin-top:1rem">
+          <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+            <h4>K-Means (random init)</h4>
+            <p>Fast init. But can get stuck in bad local optima — especially when clusters are spread out and random starts cluster in one region.</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(57,211,83,0.3)">
+            <h4>K-Means++ ✅</h4>
+            <p>Slightly slower init. But far fewer iterations needed and much better final inertia. Default in sklearn: <code>init='k-means++'</code></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== X-MEANS ===== -->
+    <div class="section" id="xmeans" data-section="xmeans">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔬</div>
+        <h2>X-Means — Automatic K Selection</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> X-Means extends K-Means by automatically determining the optimal number of clusters using the Bayesian Information Criterion (BIC).</p>
+        </div>
+
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Start with small K</strong> (often K=2). Run K-Means.</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Try splitting</strong> each cluster into two sub-clusters.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Evaluate with BIC</strong> — does the split improve the model quality? BIC penalises model complexity.</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Accept split</strong> only if BIC improves. Reject otherwise.</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Repeat</strong> until no more beneficial splits are found. Final K is automatically determined.</div></div>
+        </div>
+
+        <div class="formula-block">
+          <div class="formula-label">BIC</div>
+          <div class="formula-name">Bayesian Information Criterion — penalises model complexity</div>
+          $$\text{BIC} = -2\ln(\hat{L}) + p \cdot \ln(n)$$
+          <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$\hat{L}$ = model likelihood | $p$ = number of parameters | $n$ = number of data points. Lower BIC = better model.</p>
+        </div>
+
+        <table class="comparison-table" style="margin-top:1rem">
+          <tr><th>Property</th><th>K-Means</th><th>X-Means</th></tr>
+          <tr><td>Requires K?</td><td>Yes — must pre-specify</td><td>No — determines automatically</td></tr>
+          <tr><td>Split criterion</td><td>—</td><td>Bayesian Information Criterion (BIC)</td></tr>
+          <tr><td>Computational cost</td><td>Lower</td><td>Higher (tries many splits)</td></tr>
+          <tr><td>Best for</td><td>K is known</td><td>K is unknown</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="section" id="quiz6" data-section="quiz6">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 6 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. In the K-Means update step, the new centroid for cluster $k$ is set to:</p>
+            <div class="options">
+              <button class="option-btn">The data point furthest from all other centroids</button>
+              <button class="option-btn" data-correct="true">The arithmetic mean of all points assigned to cluster $k$</button>
+              <button class="option-btn">The median of points in cluster $k$</button>
+              <button class="option-btn">The data point closest to the current centroid</button>
+            </div>
+            <div class="explanation">The centroid update sets $\mu_k = \frac{1}{|C_k|}\sum_{i \in C_k}\mathbf{x}_i$ — the mean. This can be derived by minimising the within-cluster sum of squares.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. Why does increasing K always decrease inertia?</p>
+            <div class="options">
+              <button class="option-btn">More clusters means better algorithm convergence</button>
+              <button class="option-btn" data-correct="true">More centroids means each point can be closer to its centroid — trivially at K=N, inertia=0</button>
+              <button class="option-btn">More clusters eliminates outliers</button>
+              <button class="option-btn">K-Means++ initialisation improves with K</button>
+            </div>
+            <div class="explanation">At K=N (each point is its own centroid), inertia = 0. More centroids always allow closer assignments. This is why inertia alone can't determine the right K.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. Which distance metric is best for text/NLP clustering, where direction matters more than magnitude?</p>
+            <div class="options">
+              <button class="option-btn">Euclidean</button>
+              <button class="option-btn">Manhattan</button>
+              <button class="option-btn" data-correct="true">Cosine Similarity</button>
+              <button class="option-btn">Minkowski</button>
+            </div>
+            <div class="explanation">From the lecture: "Cosine measures angle, not magnitude. Used in text/NLP where direction matters." A long document and a short document about the same topic have the same direction, so cosine similarity is high.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. K-Means++ improves on standard K-Means by:</p>
+            <div class="options">
+              <button class="option-btn">Running the algorithm K times more</button>
+              <button class="option-btn" data-correct="true">Initialising centroids far apart using a probability proportional to squared distance</button>
+              <button class="option-btn">Using cosine distance instead of Euclidean</button>
+              <button class="option-btn">Automatically selecting K using BIC</button>
+            </div>
+            <div class="explanation">K-Means++ chooses each new centroid with probability $\propto d(\mathbf{x})^2$ — favouring points far from existing centroids. This spreads centroids naturally, avoiding poor local optima.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. X-Means uses ___ to decide whether to split a cluster:</p>
+            <div class="options">
+              <button class="option-btn">Information Gain</button>
+              <button class="option-btn">Inertia reduction</button>
+              <button class="option-btn" data-correct="true">Bayesian Information Criterion (BIC)</button>
+              <button class="option-btn">Elbow method</button>
+            </div>
+            <div class="explanation">From the lecture: "Evaluate whether the split improves the model using a statistical criterion like Bayesian Information Criterion (BIC). Accept the split if BIC improves."</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q6. K-Means assumes clusters are:</p>
+            <div class="options">
+              <button class="option-btn">Arbitrarily shaped (like DBSCAN)</button>
+              <button class="option-btn" data-correct="true">Spherical (round, equally-sized blobs)</button>
+              <button class="option-btn">Hierarchical (nested)</button>
+              <button class="option-btn">Linearly separable</button>
+            </div>
+            <div class="explanation">From lecture: "The algorithm minimises Euclidean distance, so it expects round, equally-sized blobs. Elongated or irregular shapes fail." Use DBSCAN or GMM for non-spherical clusters.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUMERICALS ===== -->
+    <div class="section" id="numericals6" data-section="numericals6">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 1 — One Full K-Means Iteration</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Data points: $A=(1,1)$, $B=(2,1)$, $C=(4,3)$, $D=(5,4)$, $E=(1,2)$.<br>
+              Initial centroids: $\mu_1 = (1,1)$, $\mu_2 = (5,4)$. Use $K=2$ and Euclidean distance.<br>
+              Perform <strong>one full iteration</strong> (assignment + update).
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Distances to μ₁=(1,1)</span><div class="step-text">
+                $d(A,\mu_1)=\sqrt{0+0}=0$, $d(B,\mu_1)=\sqrt{1+0}=1$<br>
+                $d(C,\mu_1)=\sqrt{9+4}=\sqrt{13}\approx3.61$<br>
+                $d(D,\mu_1)=\sqrt{16+9}=5$, $d(E,\mu_1)=\sqrt{0+1}=1$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Distances to μ₂=(5,4)</span><div class="step-text">
+                $d(A,\mu_2)=\sqrt{16+9}=5$, $d(B,\mu_2)=\sqrt{9+9}=\sqrt{18}\approx4.24$<br>
+                $d(C,\mu_2)=\sqrt{1+1}=\sqrt{2}\approx1.41$<br>
+                $d(D,\mu_2)=0$, $d(E,\mu_2)=\sqrt{16+4}=\sqrt{20}\approx4.47$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Assignment</span><div class="step-text">
+                $A$: 0 &lt; 5 → Cluster 1 &nbsp; $B$: 1 &lt; 4.24 → Cluster 1<br>
+                $C$: 3.61 &gt; 1.41 → Cluster 2 &nbsp; $D$: 5 &gt; 0 → Cluster 2<br>
+                $E$: 1 &lt; 4.47 → Cluster 1<br>
+                <strong>Cluster 1</strong>: {A, B, E} &nbsp; <strong>Cluster 2</strong>: {C, D}
+              </div></div>
+              <div class="solution-step"><span class="step-label">Update Centroids</span><div class="step-text">
+                $\mu_1 = \frac{(1,1)+(2,1)+(1,2)}{3} = \left(\frac{4}{3}, \frac{4}{3}\right) \approx (1.33, 1.33)$<br>
+                $\mu_2 = \frac{(4,3)+(5,4)}{2} = (4.5, 3.5)$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 2 — Compute Inertia</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              After clustering, Cluster 1 has points $\{(1,1),(2,1),(1,2)\}$ with centroid $(1.33, 1.33)$.<br>
+              Cluster 2 has points $\{(4,3),(5,4)\}$ with centroid $(4.5, 3.5)$.<br>
+              Compute the total <strong>inertia</strong>.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Cluster 1</span><div class="step-text">
+                $(1-1.33)^2+(1-1.33)^2 = 0.109+0.109 = 0.218$<br>
+                $(2-1.33)^2+(1-1.33)^2 = 0.449+0.109 = 0.558$<br>
+                $(1-1.33)^2+(2-1.33)^2 = 0.109+0.449 = 0.558$<br>
+                Cluster 1 WCSS $= 0.218+0.558+0.558 = \mathbf{1.334}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Cluster 2</span><div class="step-text">
+                $(4-4.5)^2+(3-3.5)^2 = 0.25+0.25 = 0.5$<br>
+                $(5-4.5)^2+(4-3.5)^2 = 0.25+0.25 = 0.5$<br>
+                Cluster 2 WCSS $= 0.5+0.5 = \mathbf{1.0}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Total Inertia</span><div class="step-text">
+                $\text{Inertia} = 1.334 + 1.0 = \mathbf{2.334}$ ✅
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 3 — K-Means++ First Centroid Probability</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              First centroid $\mu_1 = (0,0)$ already chosen. Three candidate points for $\mu_2$:<br>
+              $P_1=(1,0)$, $P_2=(3,0)$, $P_3=(6,0)$.<br>
+              Compute the K-Means++ probability of selecting each point as the second centroid.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Squared distances to μ₁</span><div class="step-text">
+                $d(P_1, \mu_1)^2 = (1-0)^2+(0-0)^2 = 1$<br>
+                $d(P_2, \mu_1)^2 = (3-0)^2 = 9$<br>
+                $d(P_3, \mu_1)^2 = (6-0)^2 = 36$<br>
+                Total $= 1+9+36 = 46$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Probabilities</span><div class="step-text">
+                $P(\text{choose }P_1) = \frac{1}{46} \approx 2.2\%$<br>
+                $P(\text{choose }P_2) = \frac{9}{46} \approx 19.6\%$<br>
+                $P(\text{choose }P_3) = \frac{36}{46} \approx \mathbf{78.3\%}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Interpret</span><div class="step-text">
+                K-Means++ would most likely choose $P_3=(6,0)$ — the point <em>farthest</em> from the first centroid. This ensures the two centroids are well-spread. ✅
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 4 — Cosine Similarity</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Compute the cosine similarity between two document vectors:<br>
+              $\mathbf{x} = [2, 1, 0, 3]$ and $\mathbf{y} = [1, 0, 1, 2]$.<br>
+              Then compute cosine distance.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Dot product</span><div class="step-text">
+                $\mathbf{x}\cdot\mathbf{y} = 2(1)+1(0)+0(1)+3(2) = 2+0+0+6 = 8$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Magnitudes</span><div class="step-text">
+                $\|\mathbf{x}\| = \sqrt{4+1+0+9} = \sqrt{14} \approx 3.742$<br>
+                $\|\mathbf{y}\| = \sqrt{1+0+1+4} = \sqrt{6} \approx 2.449$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Cosine Similarity</span><div class="step-text">
+                $\text{cos}(\mathbf{x},\mathbf{y}) = \frac{8}{3.742 \times 2.449} = \frac{8}{9.165} \approx \mathbf{0.873}$<br>
+                Cosine Distance $= 1 - 0.873 = \mathbf{0.127}$ — very similar documents ✅
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem;display:flex;gap:1rem;justify-content:center">
+      <a href="week5.html" style="background:var(--bg3);color:var(--text);text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block;border:1px solid var(--border)">← Week 5</a>
+      <a href="../index.html" style="background:var(--accent);color:#000;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">🏠 Back to Home</a>
+    </div>
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="../script.js"></script>
+<script src="week6.js"></script>
+</body>
+</html>

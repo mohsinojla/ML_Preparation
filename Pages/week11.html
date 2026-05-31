@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 11 — Model Optimization & Feature Engineering | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html" class="active">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 11 — Model Optimization & Feature Engineering</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#hyperparams">Hyperparameter Tuning</a></li>
+      <li><a href="#search">Grid vs Random vs Bayesian</a></li>
+      <li><a href="#optuna">Optuna & TPE</a></li>
+      <li><a href="#cv">Cross-Validation</a></li>
+      <li><a href="#leakage">Data Leakage</a></li>
+      <li><a href="#encoding">Categorical Encoding</a></li>
+      <li><a href="#cyclical">Cyclical Features</a></li>
+      <li><a href="#viz11">Cyclical Visualizer</a></li>
+      <li><a href="#quiz11">Quiz</a></li>
+      <li><a href="#numericals11">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 11</div>
+      <h1>Model Optimization & Feature Engineering</h1>
+      <p>Squeeze maximum performance from your models — master hyperparameter tuning with Optuna, avoid data leakage pitfalls, and encode features correctly including tricky cyclical features.</p>
+    </div>
+
+    <!-- HYPERPARAMS -->
+    <div class="section" id="hyperparams" data-section="hyperparams">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🎛</div>
+        <h2>Hyperparameter Tuning</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Hyperparameters are settings you choose <em>before</em> training: learning rate, number of trees, max depth, regularization strength. They are not learned from data — you must search for the best values.</p>
+        </div>
+        <div class="two-col">
+          <div class="warning-box" style="margin:0">
+            <div class="label">⚠ Manual Tuning</div>
+            Expert intuition + trial and error. Slow, biased, not reproducible. Fine for quick experiments.
+          </div>
+          <div class="key-insight" style="margin:0">
+            <div class="label">✅ Automated Tuning</div>
+            Systematic search: grid search, random search, or Bayesian optimization. Reproducible and thorough.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH STRATEGIES -->
+    <div class="section" id="search" data-section="search">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🔍</div>
+        <h2>Grid vs Random vs Bayesian Search</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Method</th><th>How it works</th><th>Efficiency</th><th>Best for</th></tr>
+          <tr><td><strong>Grid Search</strong></td><td>Try every combination in a defined grid</td><td>Exhaustive but slow — O(N^k) evaluations</td><td>Few hyperparameters, small search space</td></tr>
+          <tr><td><strong>Random Search</strong></td><td>Sample random combinations uniformly</td><td>Fast — finds good results with fewer evaluations than grid search</td><td>Many hyperparameters, wide ranges</td></tr>
+          <tr><td><strong>Bayesian (Optuna)</strong></td><td>Build a surrogate model of the objective, sample where it's likely best</td><td>Most efficient — learns from past trials</td><td>Expensive evaluations, complex spaces</td></tr>
+        </table>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">📌 Key insight (Random vs Grid)</div>
+          Random search is better than grid search when hyperparameters differ in importance. Grid wastes evaluations testing irrelevant combinations; random covers the important dimensions better.
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTUNA -->
+    <div class="section" id="optuna" data-section="optuna">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">⚡</div>
+        <h2>Optuna & TPE Algorithm</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Optuna</strong> is a hyperparameter optimization framework using <strong>TPE (Tree-structured Parzen Estimator)</strong>. It models the distribution of good and bad hyperparameter configurations.</p>
+        </div>
+        <div class="three-col">
+          <div class="mini-card">
+            <strong>Study</strong><br>
+            A collection of trials. Represents one optimization problem (e.g., tuning XGBoost).
+          </div>
+          <div class="mini-card">
+            <strong>Trial</strong><br>
+            One evaluation of the objective function with a specific set of hyperparameters.
+          </div>
+          <div class="mini-card">
+            <strong>Objective Function</strong><br>
+            Function that takes hyperparams, trains a model, and returns a metric to minimize/maximize.
+          </div>
+        </div>
+        <div class="formula-block" style="margin-top:1rem">
+          <strong>TPE Key Idea:</strong><br>
+          Maintain two distributions based on past trials:
+          $$l(x) = \text{distribution of good hyperparams (high performance)}$$
+          $$g(x) = \text{distribution of bad hyperparams (low performance)}$$
+          Sample next hyperparameter from the ratio: $\arg\max_x \frac{l(x)}{g(x)}$
+        </div>
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 Optuna API Concepts</div>
+          <code>study = optuna.create_study(direction='maximize')</code><br>
+          <code>study.optimize(objective, n_trials=100)</code><br>
+          <code>study.best_params</code> — retrieve the best found configuration.
+        </div>
+      </div>
+    </div>
+
+    <!-- CROSS-VALIDATION -->
+    <div class="section" id="cv" data-section="cv">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🔄</div>
+        <h2>Cross-Validation</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>k-fold cross-validation splits data into k folds. Train on k-1 folds, validate on the remaining fold. Repeat k times and average the metric. Gives robust estimate of model performance.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">Split data into k equal folds (typically k=5 or k=10).</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">Iteration i: train on all folds except fold i, validate on fold i.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">Repeat for all k folds. Average metric across k iterations = CV score.</div>
+          </div>
+        </div>
+        <div class="warning-box" style="margin-top:0.8rem">
+          <div class="label">⚠ Never preprocess on full dataset before CV</div>
+          Fitting a scaler or imputer on the full dataset before cross-validation leaks test data statistics into training. Always fit preprocessing inside each fold.
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA LEAKAGE -->
+    <div class="section" id="leakage" data-section="leakage">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">🚰</div>
+        <h2>Data Leakage</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Data leakage</strong> = inclusion of information about the target variable that would NOT be available at actual prediction time. It causes unrealistically high training/validation scores that don't generalize.</p>
+        </div>
+        <div class="two-col">
+          <div class="warning-box" style="margin:0">
+            <div class="label">Type 1: Train-Test Contamination</div>
+            Preprocessing (scaling, imputation, feature selection) is fit on the <em>full dataset</em> including test data. Test statistics leak into training. Fix: fit preprocessing only on training data, then transform test data.
+          </div>
+          <div class="warning-box" style="margin:0">
+            <div class="label">Type 2: Target Leakage</div>
+            Using features that are collected <em>after</em> the event you're predicting. E.g., using "treatment_received" to predict "got sick" — you only know treatment after diagnosis. Fix: only use features available at prediction time.
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">🔑 Red flag</div>
+          If your model's validation accuracy is suspiciously high (near 100%), suspect data leakage. Real-world models rarely achieve near-perfect performance.
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORICAL ENCODING -->
+    <div class="section" id="encoding" data-section="encoding">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🏷</div>
+        <h2>Categorical Encoding</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Method</th><th>How</th><th>Problem</th><th>When to use</th></tr>
+          <tr><td><strong>Label Encoding</strong></td><td>Assign integer: A=0, B=1, C=2</td><td>Creates false ordinal relationship (C > B > A) — misleads model</td><td>Only for ordinal categories with true order</td></tr>
+          <tr><td><strong>One-Hot Encoding</strong></td><td>Binary column per category</td><td>High cardinality → many columns (curse of dimensionality)</td><td>Nominal categories with few unique values</td></tr>
+          <tr><td><strong>Target Encoding</strong></td><td>Replace category with mean target value</td><td>Can cause leakage if not done within CV folds</td><td>High-cardinality nominal features</td></tr>
+        </table>
+
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 Target Encoding Example (from lecture)</div>
+          Feature: City. Target: bought (1/0). Compute mean target per city:<br>
+          Lahore: mean(1,0,1,1) = 0.75 → replace all Lahore with 0.75<br>
+          Karachi: mean(0,0) = 0.0 → replace with 0.0<br>
+          Multan: mean(1) = 1.0 → replace with 1.0
+        </div>
+      </div>
+    </div>
+
+    <!-- CYCLICAL FEATURES -->
+    <div class="section" id="cyclical" data-section="cyclical">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🕐</div>
+        <h2>Cyclical Feature Encoding</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Time features like hour of day (0–23) are <em>cyclical</em>: hour 23 and hour 0 are only 1 hour apart, but numerically they appear 23 apart. Linear models and trees won't understand this.</p>
+        </div>
+        <div class="warning-box">
+          <div class="label">⚠ Problem with raw encoding</div>
+          If you encode hour as 0–23, the model sees 23:59 and 00:00 as very different (23 units apart). But they are only 1 minute apart in reality.
+        </div>
+        <div class="formula-block">
+          <strong>Cyclical Encoding with period T:</strong>
+          $$x_{\sin} = \sin\!\left(\frac{2\pi \cdot x}{T}\right), \quad x_{\cos} = \cos\!\left(\frac{2\pi \cdot x}{T}\right)$$
+          For hour of day: T = 24. For day of week: T = 7. For month: T = 12.
+        </div>
+        <div class="key-insight" style="margin-top:0.8rem">
+          <div class="label">✅ Why two features?</div>
+          Using only sin is ambiguous (sin(x) = sin(π - x)). Together, sin and cos uniquely encode every point on the cycle and preserve the cyclical distance structure.
+        </div>
+        <div class="info-box" style="margin-top:0.8rem">
+          <div class="label">📌 Hour of day example</div>
+          Hour 0: sin(0)=0, cos(0)=1. Hour 6: sin(π/2)=1, cos(π/2)=0. Hour 12: sin(π)=0, cos(π)=-1. Hour 23: sin(23·2π/24)≈-0.259, cos(...)≈0.966. Note: hour 0 and hour 23 are close in this encoding!
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUALIZATION -->
+    <div class="section" id="viz11" data-section="viz11">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎬</div>
+        <h2>Cyclical Encoding Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="cyclicalCanvas" width="700" height="360"></canvas>
+          <div class="viz-controls">
+            <label style="color:var(--text2);font-size:0.9rem">Hour: <span id="hourVal">0</span></label>
+            <input type="range" id="hourSlider" min="0" max="23" value="0" style="width:200px;margin:0 1rem">
+            <button class="viz-btn" id="animateClock">▶ Animate</button>
+            <button class="viz-btn" id="resetClock">↺ Reset</button>
+          </div>
+          <div id="cyclicalInfo" style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem">
+            Drag slider to see how each hour maps to a point on the unit circle.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz11" data-section="quiz11">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Optimization & Feature Engineering</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> Label encoding a nominal feature (e.g., colors: Red=0, Green=1, Blue=2) creates what problem?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Too many columns</button>
+            <button class="option-btn" data-correct="true">A false ordinal relationship (Blue > Green > Red)</button>
+            <button class="option-btn" data-correct="false">Cannot handle unseen categories</button>
+            <button class="option-btn" data-correct="false">Increases training time</button>
+          </div>
+          <div class="explanation">Label encoding creates integer ordering. For nominal categories with no order, this misleads the model into thinking Blue (2) > Green (1) > Red (0).</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> Bayesian optimization (Optuna/TPE) is more efficient than random search because:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">It tries every combination systematically</button>
+            <button class="option-btn" data-correct="true">It builds a model of the objective to guide sampling toward promising regions</button>
+            <button class="option-btn" data-correct="false">It uses a larger search space</button>
+            <button class="option-btn" data-correct="false">It parallelizes all trials simultaneously</button>
+          </div>
+          <div class="explanation">TPE models distributions l(x) and g(x) of good/bad configs. It samples from l(x)/g(x) ratio — focusing on regions likely to yield improvement, unlike random uniform sampling.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> What is target leakage?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Fitting a scaler on the full dataset including test data</button>
+            <button class="option-btn" data-correct="true">Using post-event features that wouldn't be available at prediction time</button>
+            <button class="option-btn" data-correct="false">The model memorizing training examples</button>
+            <button class="option-btn" data-correct="false">Using the target variable as a feature</button>
+          </div>
+          <div class="explanation">Target leakage: using features collected after the event being predicted. Example: using "hospitalized" to predict "fell ill" — you only know hospitalization after illness.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> To encode hour of day (0–23) cyclically with T=24, you compute:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">hour/24</button>
+            <button class="option-btn" data-correct="true">sin(2π·hour/24) and cos(2π·hour/24)</button>
+            <button class="option-btn" data-correct="false">log(hour + 1)</button>
+            <button class="option-btn" data-correct="false">One-hot encode all 24 hours</button>
+          </div>
+          <div class="explanation">Cyclical encoding: sin(2π·x/T) and cos(2π·x/T). Both sin and cos are needed for a unique representation on the unit circle.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> In target encoding, the city "Lahore" is replaced by:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">An integer label for Lahore</button>
+            <button class="option-btn" data-correct="true">The mean of the target variable for all Lahore examples</button>
+            <button class="option-btn" data-correct="false">A one-hot vector</button>
+            <button class="option-btn" data-correct="false">The count of Lahore occurrences</button>
+          </div>
+          <div class="explanation">Target encoding replaces each category with the mean target value for that category. From lecture: Lahore→0.5 (or 0.75 depending on data), representing the average purchase rate for that city.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> Train-test contamination occurs when:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="true">A scaler or imputer is fit on the full dataset before splitting into train/test</button>
+            <button class="option-btn" data-correct="false">You test on the same data as training</button>
+            <button class="option-btn" data-correct="false">You use cross-validation</button>
+            <button class="option-btn" data-correct="false">The training set is too small</button>
+          </div>
+          <div class="explanation">Fitting preprocessing on the full dataset means test data statistics influence the transformation. The scaler "sees" test data before evaluation — a form of data leakage.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals11" data-section="numericals11">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Cyclical Encoding for Hours</div>
+          <div class="numerical-body">
+            <div class="problem-text">Compute sin and cos cyclical encodings for hours [0, 6, 12, 18] with period T=24. Round to 3 decimal places.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><span class="step-text">$x_{\sin} = \sin(2\pi h/24)$, $x_{\cos} = \cos(2\pi h/24)$</span></div>
+              <div class="solution-step"><span class="step-label">h=0</span><span class="step-text">$\sin(0) = 0.000$, $\cos(0) = 1.000$</span></div>
+              <div class="solution-step"><span class="step-label">h=6</span><span class="step-text">$\sin(\pi/2) = 1.000$, $\cos(\pi/2) = 0.000$</span></div>
+              <div class="solution-step"><span class="step-label">h=12</span><span class="step-text">$\sin(\pi) = 0.000$, $\cos(\pi) = -1.000$</span></div>
+              <div class="solution-step"><span class="step-label">h=18</span><span class="step-text">$\sin(3\pi/2) = -1.000$, $\cos(3\pi/2) = 0.000$</span></div>
+              <div class="solution-step"><span class="step-label">Distance check</span><span class="step-text">h=23: $\sin(23\times2\pi/24)\approx-0.259$, $\cos\approx0.966$. h=0: (0,1). Euclidean distance ≈ $\sqrt{0.259^2+(1-0.966)^2}\approx0.262$ — very close!</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — Target Encoding</div>
+          <div class="numerical-body">
+            <div class="problem-text">City feature with targets (bought=1/0): Lahore:[1,0,1,0], Karachi:[0,0], Multan:[1,1,1]. Compute target encoding for each city.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Lahore</span><span class="step-text">Mean([1,0,1,0]) = 2/4 = 0.5 → encode all Lahore rows as 0.5</span></div>
+              <div class="solution-step"><span class="step-label">Karachi</span><span class="step-text">Mean([0,0]) = 0/2 = 0.0 → encode all Karachi rows as 0.0</span></div>
+              <div class="solution-step"><span class="step-label">Multan</span><span class="step-text">Mean([1,1,1]) = 3/3 = 1.0 → encode all Multan rows as 1.0</span></div>
+              <div class="solution-step"><span class="step-label">Caution</span><span class="step-text">Apply this encoding within CV folds to avoid target leakage.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — Grid Search Size</div>
+          <div class="numerical-body">
+            <div class="problem-text">Grid search over: learning_rate=[0.01, 0.1, 0.5], max_depth=[3,5,7,10], n_estimators=[100,200,500]. How many total evaluations? If each takes 2 seconds and you run 5-fold CV, how long does it take?</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Grid size</span><span class="step-text">3 × 4 × 3 = 36 combinations</span></div>
+              <div class="solution-step"><span class="step-label">With 5-fold CV</span><span class="step-text">36 × 5 = 180 model fits</span></div>
+              <div class="solution-step"><span class="step-label">Total time</span><span class="step-text">180 × 2 seconds = 360 seconds = 6 minutes</span></div>
+              <div class="solution-step"><span class="step-label">Insight</span><span class="step-text">For expensive models (e.g., deep nets taking 10+ min each), grid search becomes infeasible. Use random search or Bayesian optimization instead.</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week10.html" class="viz-btn" style="text-decoration:none">← Week 10</a>
+      <a href="week12.html" class="viz-btn" style="text-decoration:none">Week 12 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week11.js"></script>
+</body>
+</html>

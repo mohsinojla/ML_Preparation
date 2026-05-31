@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 14 — Observability & ML Monitoring | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html" class="active">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 14 — Observability & ML Monitoring</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#ks-deep">KS Test Deep Dive</a></li>
+      <li><a href="#ks-example">KS Example {1,2,3,4} vs {3,4,5,6}</a></li>
+      <li><a href="#stat-tests">Other Statistical Tests</a></li>
+      <li><a href="#three-pillars">3 Pillars of Observability</a></li>
+      <li><a href="#what-to-log">What to Log</a></li>
+      <li><a href="#obs-stack">Observability Stack</a></li>
+      <li><a href="#alerting">Alerting P1-P4</a></li>
+      <li><a href="#viz14">KS ECDF Visualizer</a></li>
+      <li><a href="#quiz14">Quiz</a></li>
+      <li><a href="#numericals14">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 14</div>
+      <h1>Observability & ML Monitoring</h1>
+      <p>Know when your model is failing before your users do. Master the KS test, statistical drift detection, the three pillars of observability, and production monitoring stacks.</p>
+    </div>
+
+    <!-- KS TEST DEEP DIVE -->
+    <div class="section" id="ks-deep" data-section="ks-deep">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">📐</div>
+        <h2>KS Test — Deep Dive</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>The <strong>Kolmogorov-Smirnov (KS) test</strong> is a non-parametric test that compares two distributions by measuring the maximum absolute difference between their empirical CDFs.</p>
+        </div>
+        <div class="formula-block">
+          $$D = \sup_x |F_{\text{train}}(x) - F_{\text{prod}}(x)|$$
+          where $F(x)$ is the empirical CDF: $F(x) = \frac{\text{number of samples} \leq x}{n}$
+        </div>
+        <table class="comparison-table">
+          <tr><th>KS Statistic D</th><th>Interpretation</th><th>Action</th></tr>
+          <tr><td>D &lt; 0.1</td><td>No meaningful drift</td><td>Monitor as usual</td></tr>
+          <tr><td>0.1 ≤ D &lt; 0.2</td><td>Mild drift</td><td>Increase monitoring frequency</td></tr>
+          <tr><td>D ≥ 0.2</td><td>Significant drift</td><td>Investigate and consider retraining</td></tr>
+        </table>
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 p-value interpretation</div>
+          The KS test also produces a p-value. p &lt; 0.05 means statistically significant difference between distributions. Use D for magnitude and p-value for significance.
+        </div>
+      </div>
+    </div>
+
+    <!-- KS EXAMPLE -->
+    <div class="section" id="ks-example" data-section="ks-example">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">📊</div>
+        <h2>KS Test Example: {1,2,3,4} vs {3,4,5,6}</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <p>From the lecture: Reference (training) = {1,2,3,4}. Production = {3,4,5,6}.</p>
+
+        <div class="formula-block">
+          <strong>Step 1: Build ECDF for reference {1,2,3,4}</strong><br>
+          F_ref(1)=0.25, F_ref(2)=0.50, F_ref(3)=0.75, F_ref(4)=1.00<br>
+          F_ref(5)=1.00, F_ref(6)=1.00 (all values ≤ 5 and ≤ 6)
+        </div>
+
+        <div class="formula-block">
+          <strong>Step 2: Build ECDF for production {3,4,5,6}</strong><br>
+          F_prod(1)=0.00, F_prod(2)=0.00, F_prod(3)=0.25, F_prod(4)=0.50<br>
+          F_prod(5)=0.75, F_prod(6)=1.00
+        </div>
+
+        <table class="comparison-table">
+          <tr><th>x</th><th>F_ref(x)</th><th>F_prod(x)</th><th>|diff|</th></tr>
+          <tr><td>1</td><td>0.25</td><td>0.00</td><td style="background:rgba(248,81,73,0.1)"><strong>0.25</strong></td></tr>
+          <tr><td>2</td><td>0.50</td><td>0.00</td><td style="background:rgba(248,81,73,0.2)"><strong>0.50</strong></td></tr>
+          <tr><td>3</td><td>0.75</td><td>0.25</td><td style="background:rgba(248,81,73,0.1)"><strong>0.50</strong></td></tr>
+          <tr><td>4</td><td>1.00</td><td>0.50</td><td style="background:rgba(248,81,73,0.2)"><strong>0.50</strong></td></tr>
+          <tr><td>5</td><td>1.00</td><td>0.75</td><td><strong>0.25</strong></td></tr>
+          <tr><td>6</td><td>1.00</td><td>1.00</td><td>0.00</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">📌 D = 0.50</div>
+          The maximum gap is 0.50, occurring at x=2 (and x=3, x=4). D = 0.50 ≥ 0.2 → <strong>Significant drift detected!</strong> The production distribution is completely shifted right.
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER TESTS -->
+    <div class="section" id="stat-tests" data-section="stat-tests">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🧪</div>
+        <h2>Other Statistical Drift Tests</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Test</th><th>Best for</th><th>What it measures</th></tr>
+          <tr><td><strong>KS Test</strong></td><td>Continuous features</td><td>Max CDF gap D = sup|F1(x)-F2(x)|</td></tr>
+          <tr><td><strong>Chi-Square Test</strong></td><td>Categorical features</td><td>Compares observed vs expected frequencies: $\chi^2 = \sum(O-E)^2/E$</td></tr>
+          <tr><td><strong>Population Stability Index (PSI)</strong></td><td>Banking/credit scoring</td><td>PSI = $\sum (P_\text{act}-P_\text{exp})\ln(P_\text{act}/P_\text{exp})$</td></tr>
+          <tr><td><strong>Jensen-Shannon Divergence</strong></td><td>Probability distributions</td><td>Symmetric version of KL divergence. JS(P||Q) ∈ [0,1].</td></tr>
+          <tr><td><strong>Wasserstein Distance</strong></td><td>Any continuous distribution</td><td>Earth mover's distance — how much "work" to transform P into Q.</td></tr>
+          <tr><td><strong>Maximum Mean Discrepancy (MMD)</strong></td><td>High-dimensional data</td><td>Kernel-based test for multivariate drift.</td></tr>
+          <tr><td><strong>Anderson-Darling</strong></td><td>Distribution tails</td><td>More sensitive than KS test at the extremes/tails.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- THREE PILLARS -->
+    <div class="section" id="three-pillars" data-section="three-pillars">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">🏛</div>
+        <h2>Three Pillars of Observability</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="three-col">
+          <div class="mini-card">
+            <strong>Monitoring</strong><br>
+            Numbers that trigger alerts. Aggregated metrics: CPU usage, request latency, model accuracy rate, prediction distribution. "CPU is at 99%."
+          </div>
+          <div class="mini-card">
+            <strong>Logging</strong><br>
+            Granular timestamped records for debugging. "Line 42 crashed because user_id was null at 2024-01-15 14:23:07." Structured logs in ELK stack.
+          </div>
+          <div class="mini-card">
+            <strong>Distributed Tracing</strong><br>
+            Track a request across microservices. Shows the full path: API gateway → feature service → model server → database, with latency at each hop.
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">🔑 Monitoring vs Logging</div>
+          Monitoring tells you THAT something is wrong (alert fires). Logging tells you WHY it's wrong (debugging). Both are needed.
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT TO LOG -->
+    <div class="section" id="what-to-log" data-section="what-to-log">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">📝</div>
+        <h2>What to Log in ML Systems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content"><strong>Input features</strong> — raw features sent to the model. Enables drift detection and debugging of bad inputs.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content"><strong>Model outputs</strong> — predictions, probabilities, decision scores. Monitor prediction distribution shift.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content"><strong>Ground truth (when available)</strong> — actual outcomes for computing real performance metrics over time.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content"><strong>System metrics</strong> — latency, throughput, error rates, CPU/memory usage per inference.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content"><strong>Metadata</strong> — model version, feature pipeline version, timestamp, request ID for tracing.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OBS STACK -->
+    <div class="section" id="obs-stack" data-section="obs-stack">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔧</div>
+        <h2>ML Observability Stack</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>A production ML system (e.g., fraud detection) uses multiple tools in concert:</p>
+        </div>
+        <table class="comparison-table">
+          <tr><th>Tool</th><th>Role in ML Observability</th></tr>
+          <tr><td><strong>MLflow</strong></td><td>Experiment tracking — log training runs, metrics, models. Model registry.</td></tr>
+          <tr><td><strong>Prometheus</strong></td><td>Metrics collection — scrapes time-series metrics from API endpoints.</td></tr>
+          <tr><td><strong>ELK Stack</strong></td><td>Elasticsearch + Logstash + Kibana — structured log storage, search, visualization. Debugging.</td></tr>
+          <tr><td><strong>BigQuery</strong></td><td>Data warehouse — store prediction logs at scale for offline analysis.</td></tr>
+          <tr><td><strong>Evidently AI</strong></td><td>ML-specific drift detection — generates data and model monitoring reports.</td></tr>
+          <tr><td><strong>Grafana</strong></td><td>Dashboards — visualize Prometheus metrics, alert rules configuration.</td></tr>
+          <tr><td><strong>PagerDuty</strong></td><td>Incident management — routes alerts to on-call engineers based on severity.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALERTING -->
+    <div class="section" id="alerting" data-section="alerting">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">🚨</div>
+        <h2>Alerting Strategy P1–P4</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Priority</th><th>Severity</th><th>Response time</th><th>Example</th></tr>
+          <tr><td style="background:rgba(248,81,73,0.15)"><strong>P1 — Critical</strong></td><td>System down / complete failure</td><td>Immediate (&lt;15 min)</td><td>Model API returning 500 errors for all requests. Wake engineer immediately.</td></tr>
+          <tr><td style="background:rgba(210,153,34,0.2)"><strong>P2 — High</strong></td><td>Significant degradation</td><td>&lt;1 hour</td><td>Model accuracy dropped 20% in last hour. Significant drift detected (D≥0.2).</td></tr>
+          <tr><td style="background:rgba(88,166,255,0.15)"><strong>P3 — Medium</strong></td><td>Mild degradation</td><td>Next business day</td><td>Mild drift (D=0.15). Prediction latency at 200ms (SLA is 100ms).</td></tr>
+          <tr><td style="background:rgba(63,185,80,0.1)"><strong>P4 — Low</strong></td><td>Informational</td><td>Weekly review</td><td>Feature importance shift. Gradual accuracy trend downward (&lt;2%).</td></tr>
+        </table>
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 Alert fatigue</div>
+          Too many alerts = engineers ignore them. Carefully calibrate thresholds. Use P1/P2 sparingly — only for genuinely critical issues that require immediate action.
+        </div>
+      </div>
+    </div>
+
+    <!-- VIZ -->
+    <div class="section" id="viz14" data-section="viz14">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🎬</div>
+        <h2>KS Test ECDF Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <p>Visualizing the lecture example: Reference = {1,2,3,4}, Production = {3,4,5,6}. The red arrow shows the maximum gap D = 0.50.</p>
+        <div class="viz-container">
+          <canvas id="ksCanvas" width="700" height="360"></canvas>
+          <div class="viz-controls">
+            <button class="viz-btn" id="animateKS">▶ Animate</button>
+            <button class="viz-btn" id="resetKS">↺ Reset</button>
+          </div>
+          <div id="ksInfo" style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem">
+            Blue staircase = F_ref({1,2,3,4}). Red staircase = F_prod({3,4,5,6}). Click Animate to step through.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz14" data-section="quiz14">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Observability & Monitoring</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> For the lecture example {1,2,3,4} vs {3,4,5,6}, what is the KS statistic D?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">0.25</button>
+            <button class="option-btn" data-correct="true">0.50</button>
+            <button class="option-btn" data-correct="false">0.75</button>
+            <button class="option-btn" data-correct="false">1.00</button>
+          </div>
+          <div class="explanation">D = max|F_ref - F_prod|. At x=2: |F_ref(2)-F_prod(2)| = |0.50-0.00| = 0.50. This is the maximum gap.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> A KS statistic D = 0.15 indicates:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">No drift — all clear</button>
+            <button class="option-btn" data-correct="true">Mild drift — increase monitoring frequency</button>
+            <button class="option-btn" data-correct="false">Significant drift — retrain immediately</button>
+            <button class="option-btn" data-correct="false">Model failure — system is down</button>
+          </div>
+          <div class="explanation">0.1 ≤ D < 0.2 = mild drift. Increase monitoring frequency but not necessarily retrain yet.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> Which observability pillar is used for debugging "line 42 crashed because user_id was null"?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Monitoring</button>
+            <button class="option-btn" data-correct="true">Logging</button>
+            <button class="option-btn" data-correct="false">Distributed Tracing</button>
+            <button class="option-btn" data-correct="false">Alerting</button>
+          </div>
+          <div class="explanation">Logging provides granular, timestamped text records for debugging. Monitoring gives aggregate numbers (CPU 99%) but can't tell you why a specific request failed.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> Which tool in the ML observability stack is used specifically for drift detection reports?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Grafana</button>
+            <button class="option-btn" data-correct="false">Prometheus</button>
+            <button class="option-btn" data-correct="true">Evidently AI</button>
+            <button class="option-btn" data-correct="false">MLflow</button>
+          </div>
+          <div class="explanation">Evidently AI is ML-specific: it generates data drift, model performance, and data quality monitoring reports. The other tools are general infrastructure tools.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> Which statistical test is best for detecting drift in categorical features?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">KS Test</button>
+            <button class="option-btn" data-correct="true">Chi-Square Test</button>
+            <button class="option-btn" data-correct="false">Anderson-Darling</button>
+            <button class="option-btn" data-correct="false">Wasserstein Distance</button>
+          </div>
+          <div class="explanation">KS test requires continuous data. Chi-square compares observed vs expected frequency counts — perfect for categorical features like city, product category, etc.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> A P1 alert in the alerting framework means:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Weekly review needed</button>
+            <button class="option-btn" data-correct="false">Fix by next business day</button>
+            <button class="option-btn" data-correct="true">System down — wake engineer immediately (&lt;15 min response)</button>
+            <button class="option-btn" data-correct="false">Mild degradation — monitor</button>
+          </div>
+          <div class="explanation">P1 = Critical. System down or complete failure. Requires immediate response (within 15 minutes). Examples: model API returning 500 errors for all requests.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals14" data-section="numericals14">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — KS Test Calculation</div>
+          <div class="numerical-body">
+            <div class="problem-text">Reference: {2, 4, 6, 8}. Production: {1, 3, 5, 7}. Compute the KS statistic D step by step.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">ECDF ref</span><span class="step-text">F_ref(1)=0, F_ref(2)=0.25, F_ref(3)=0.25, F_ref(4)=0.50, F_ref(5)=0.50, F_ref(6)=0.75, F_ref(7)=0.75, F_ref(8)=1.00</span></div>
+              <div class="solution-step"><span class="step-label">ECDF prod</span><span class="step-text">F_prod(1)=0.25, F_prod(2)=0.25, F_prod(3)=0.50, F_prod(4)=0.50, F_prod(5)=0.75, F_prod(6)=0.75, F_prod(7)=1.00, F_prod(8)=1.00</span></div>
+              <div class="solution-step"><span class="step-label">Differences</span><span class="step-text">x=1: |0-0.25|=0.25, x=2: |0.25-0.25|=0, x=3: |0.25-0.50|=0.25, x=4: |0.50-0.50|=0, x=5: |0.50-0.75|=0.25, x=6: |0.75-0.75|=0, x=7: |0.75-1.00|=0.25, x=8: |1.00-1.00|=0</span></div>
+              <div class="solution-step"><span class="step-label">Result</span><span class="step-text">D = max = 0.25. This is mild drift (0.1 ≤ D < 0.2 is mild; 0.25 ≥ 0.2 is actually significant drift — retrain recommended).</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — Lecture Example Verification</div>
+          <div class="numerical-body">
+            <div class="problem-text">Verify the full ECDF table for the lecture example: Reference {1,2,3,4} vs Production {3,4,5,6}. Find all x-values where the gap is exactly 0.50.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">x=1</span><span class="step-text">F_ref(1)=1/4=0.25, F_prod(1)=0/4=0.00. Gap = 0.25</span></div>
+              <div class="solution-step"><span class="step-label">x=2</span><span class="step-text">F_ref(2)=2/4=0.50, F_prod(2)=0/4=0.00. Gap = 0.50 ← max</span></div>
+              <div class="solution-step"><span class="step-label">x=3</span><span class="step-text">F_ref(3)=3/4=0.75, F_prod(3)=1/4=0.25. Gap = 0.50 ← max</span></div>
+              <div class="solution-step"><span class="step-label">x=4</span><span class="step-text">F_ref(4)=4/4=1.00, F_prod(4)=2/4=0.50. Gap = 0.50 ← max</span></div>
+              <div class="solution-step"><span class="step-label">x=5</span><span class="step-text">F_ref(5)=1.00, F_prod(5)=3/4=0.75. Gap = 0.25</span></div>
+              <div class="solution-step"><span class="step-label">x=6</span><span class="step-text">F_ref(6)=1.00, F_prod(6)=4/4=1.00. Gap = 0.00</span></div>
+              <div class="solution-step"><span class="step-label">Conclusion</span><span class="step-text">D = 0.50, achieved at x=2, x=3, and x=4. D ≥ 0.2 → significant drift.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — PSI Calculation</div>
+          <div class="numerical-body">
+            <div class="problem-text">Banking: Credit score buckets. Expected (train): [0.3, 0.4, 0.3] for low/medium/high risk. Actual (prod): [0.5, 0.3, 0.2]. Compute PSI. (PSI = Σ(Actual-Expected)·ln(Actual/Expected))</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Bucket 1 (low)</span><span class="step-text">(0.5-0.3)·ln(0.5/0.3) = 0.2·ln(1.667) = 0.2·0.511 = 0.1022</span></div>
+              <div class="solution-step"><span class="step-label">Bucket 2 (med)</span><span class="step-text">(0.3-0.4)·ln(0.3/0.4) = (-0.1)·ln(0.75) = (-0.1)·(-0.288) = 0.0288</span></div>
+              <div class="solution-step"><span class="step-label">Bucket 3 (high)</span><span class="step-text">(0.2-0.3)·ln(0.2/0.3) = (-0.1)·ln(0.667) = (-0.1)·(-0.405) = 0.0405</span></div>
+              <div class="solution-step"><span class="step-label">PSI</span><span class="step-text">PSI = 0.1022 + 0.0288 + 0.0405 = 0.1715. PSI > 0.1 = moderate shift. PSI > 0.25 = major shift.</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week13.html" class="viz-btn" style="text-decoration:none">← Week 13</a>
+      <a href="week15.html" class="viz-btn" style="text-decoration:none">Week 15 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week14.js"></script>
+</body>
+</html>

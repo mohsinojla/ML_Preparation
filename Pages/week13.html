@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 13 — Containers & Model Drift | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    .code-block { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1.2rem 1.5rem; font-family:'Fira Code',monospace; font-size:0.88rem; line-height:1.7; overflow-x:auto; margin:1rem 0; color:#c9d1d9; }
+    .code-block .kw { color:#ff7b72; }
+    .code-block .cm { color:#8b949e; font-style:italic; }
+    .code-block .str { color:#a5d6ff; }
+    .code-block .cmd { color:#3fb950; }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html" class="active">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 13 — Containers & Model Drift</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#venvs">Virtual Environments</a></li>
+      <li><a href="#docker">Docker Containers</a></li>
+      <li><a href="#dockerfile">Dockerfile</a></li>
+      <li><a href="#commands">Docker Commands</a></li>
+      <li><a href="#data-drift">Data Drift</a></li>
+      <li><a href="#concept-drift">Concept Drift</a></li>
+      <li><a href="#ks-intro">KS Test Intro</a></li>
+      <li><a href="#viz13">Drift Visualizer</a></li>
+      <li><a href="#quiz13">Quiz</a></li>
+      <li><a href="#numericals13">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 13</div>
+      <h1>Containers & Model Drift</h1>
+      <p>Package your ML app with Docker for reproducibility, then learn to detect when real-world data distribution shifts away from your training distribution — causing model degradation.</p>
+    </div>
+
+    <!-- VENVS -->
+    <div class="section" id="venvs" data-section="venvs">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🐍</div>
+        <h2>Virtual Environments</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Virtual environments isolate Python dependencies per project, preventing version conflicts between projects.</p>
+        </div>
+        <table class="comparison-table">
+          <tr><th>Feature</th><th>venv</th><th>conda</th></tr>
+          <tr><td>Type</td><td>Python-only</td><td>Python + system libraries (CUDA, etc.)</td></tr>
+          <tr><td>Weight</td><td>Lightweight</td><td>Heavier</td></tr>
+          <tr><td>Package manager</td><td>pip</td><td>conda + pip</td></tr>
+          <tr><td>GPU/CUDA support</td><td>Manual setup required</td><td>Native: conda install cudatoolkit</td></tr>
+          <tr><td>Industry standard in DS/ML</td><td>General Python projects</td><td>Yes — preferred for ML</td></tr>
+          <tr><td>Create command</td><td>python -m venv env</td><td>conda create -n myenv python=3.10</td></tr>
+        </table>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ Use conda for ML</div>
+          Conda is the industry standard in data science and ML because it manages CUDA, MKL, and other system dependencies that pip cannot handle.
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCKER -->
+    <div class="section" id="docker" data-section="docker">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🐳</div>
+        <h2>Docker Containers</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Docker packages your entire application — code, dependencies, system libraries, and runtime — into a <strong>container</strong>. Like a shipping container: the contents don't change regardless of what ship carries it.</p>
+        </div>
+        <div class="three-col">
+          <div class="mini-card">
+            <strong>Image</strong><br>
+            Read-only blueprint. Like a class. Built from Dockerfile. Contains everything needed to run the app.
+          </div>
+          <div class="mini-card">
+            <strong>Container</strong><br>
+            Running instance of an image. Like an object instantiated from a class. Isolated from the host.
+          </div>
+          <div class="mini-card">
+            <strong>Registry</strong><br>
+            Repository for images (Docker Hub, AWS ECR, GCP Artifact Registry). Pull to deploy anywhere.
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ "Works on my machine" problem solved</div>
+          With Docker, the container runs identically on dev laptop, CI server, and production cloud. The environment is part of the artifact.
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCKERFILE -->
+    <div class="section" id="dockerfile" data-section="dockerfile">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">📄</div>
+        <h2>Dockerfile for ML APIs</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="code-block">
+<span class="cm"># Base Python image (slim = smaller footprint)</span><br>
+<span class="kw">FROM</span> python:3.10-slim<br>
+<br>
+<span class="cm"># Set working directory inside container</span><br>
+<span class="kw">WORKDIR</span> /app<br>
+<br>
+<span class="cm"># Copy requirements first (layer caching optimization)</span><br>
+<span class="kw">COPY</span> requirements.txt .<br>
+<span class="kw">RUN</span> pip install -r requirements.txt<br>
+<br>
+<span class="cm"># Copy application code</span><br>
+<span class="kw">COPY</span> . .<br>
+<br>
+<span class="cm"># Expose port for the API</span><br>
+<span class="kw">EXPOSE</span> 8000<br>
+<br>
+<span class="cm"># Start command</span><br>
+<span class="kw">CMD</span> [<span class="str">"uvicorn"</span>, <span class="str">"main:app"</span>, <span class="str">"--host"</span>, <span class="str">"0.0.0.0"</span>, <span class="str">"--port"</span>, <span class="str">"8000"</span>]
+        </div>
+        <table class="comparison-table" style="margin-top:1rem">
+          <tr><th>Instruction</th><th>Purpose</th></tr>
+          <tr><td><code>FROM</code></td><td>Base image to build upon. Provides OS + Python.</td></tr>
+          <tr><td><code>WORKDIR</code></td><td>Sets working directory for subsequent commands.</td></tr>
+          <tr><td><code>COPY</code></td><td>Copy files from host into container filesystem.</td></tr>
+          <tr><td><code>RUN</code></td><td>Execute a command during image build (install deps).</td></tr>
+          <tr><td><code>EXPOSE</code></td><td>Declare which port the container listens on.</td></tr>
+          <tr><td><code>CMD</code></td><td>Default command to run when container starts.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- DOCKER COMMANDS -->
+    <div class="section" id="commands" data-section="commands">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">⌨</div>
+        <h2>Docker Commands</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="code-block">
+<span class="cm"># Build image from Dockerfile</span><br>
+<span class="cmd">docker build -t my-ml-api .</span><br>
+<br>
+<span class="cm"># Run container, map host port 8080 to container port 8000</span><br>
+<span class="cmd">docker run -p 8080:8000 my-ml-api</span><br>
+<br>
+<span class="cm"># List running containers</span><br>
+<span class="cmd">docker ps</span><br>
+<br>
+<span class="cm"># Stop a container</span><br>
+<span class="cmd">docker stop &lt;container-id&gt;</span><br>
+<br>
+<span class="cm"># Push to Docker Hub</span><br>
+<span class="cmd">docker push username/my-ml-api:latest</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA DRIFT -->
+    <div class="section" id="data-drift" data-section="data-drift">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">📉</div>
+        <h2>Data Drift (Covariate Shift)</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Data drift (covariate shift)</strong> occurs when the distribution of input features $P(X)$ changes between training and production, while the relationship $P(Y|X)$ stays the same.</p>
+        </div>
+        <div class="formula-block">
+          <strong>Covariate shift:</strong> $P_{\text{train}}(X) \neq P_{\text{prod}}(X)$ but $P(Y|X)$ remains the same.
+        </div>
+        <div class="two-col">
+          <div class="mini-card">
+            <strong>Example 1</strong><br>
+            User age distribution skews younger over time. Model trained on older user data may not serve young users as well.
+          </div>
+          <div class="mini-card">
+            <strong>Example 2</strong><br>
+            Model trained on US data, deployed globally. Feature distributions (income, spending patterns) differ across countries.
+          </div>
+        </div>
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠ Even with the same P(Y|X), data drift causes performance degradation</div>
+          The model was optimized for the training distribution. In underrepresented regions of the new distribution, it may perform poorly.
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT DRIFT -->
+    <div class="section" id="concept-drift" data-section="concept-drift">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🔀</div>
+        <h2>Concept Drift</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Concept drift</strong> is more severe: the relationship $P(Y|X)$ itself changes. What was a valid prediction is no longer correct for the same inputs.</p>
+        </div>
+        <div class="formula-block">
+          <strong>Concept drift:</strong> $P_{\text{train}}(Y|X) \neq P_{\text{prod}}(Y|X)$
+        </div>
+
+        <table class="comparison-table">
+          <tr><th>Type</th><th>Description</th><th>Example</th></tr>
+          <tr><td><strong>Sudden</strong></td><td>Abrupt change, immediate</td><td>COVID-19 completely disrupts demand forecasting models overnight</td></tr>
+          <tr><td><strong>Gradual</strong></td><td>Slow shift over months/years</td><td>Customer tastes in music/fashion evolve, recommendation model becomes stale</td></tr>
+          <tr><td><strong>Incremental</strong></td><td>Steady progressive drift</td><td>Inflation erodes price thresholds in fraud detection (₹5000 was suspicious, now ₹50000 is normal)</td></tr>
+          <tr><td><strong>Recurring</strong></td><td>Periodic, cyclical pattern</td><td>Holiday shopping — spending patterns during December are very different from rest of year</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">🔑 Detection strategy</div>
+          Monitor prediction distribution over time. Use statistical tests (KS test, Chi-square) to detect when feature distributions shift significantly from training distribution.
+        </div>
+      </div>
+    </div>
+
+    <!-- KS INTRO -->
+    <div class="section" id="ks-intro" data-section="ks-intro">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">📊</div>
+        <h2>Kolmogorov-Smirnov (KS) Test</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>The KS test measures the maximum difference between two empirical cumulative distribution functions (ECDFs). Used to detect data drift between training and production distributions.</p>
+        </div>
+        <div class="formula-block">
+          $$D = \sup_x |F_{\text{train}}(x) - F_{\text{prod}}(x)|$$
+          p-value &lt; 0.05 → statistically significant drift detected.
+        </div>
+        <div class="info-box">
+          <div class="label">📌 Week 14 covers the full KS test example with {1,2,3,4} vs {3,4,5,6}</div>
+          This week introduces the concept; Week 14 goes deep with thresholds, the full example, and alternative tests.
+        </div>
+      </div>
+    </div>
+
+    <!-- VIZ -->
+    <div class="section" id="viz13" data-section="viz13">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎬</div>
+        <h2>Data Drift Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="driftCanvas" width="700" height="300"></canvas>
+          <div class="viz-controls">
+            <label style="color:var(--text2);font-size:0.9rem">Drift amount: <span id="driftVal">0</span></label>
+            <input type="range" id="driftSlider" min="0" max="100" value="0" style="width:200px;margin:0 1rem">
+            <button class="viz-btn" id="resetDrift">↺ Reset</button>
+          </div>
+          <div style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem">
+            Blue = training distribution. Red = production distribution. Drag slider to shift the production data.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz13" data-section="quiz13">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Containers & Drift</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> In Docker, what is the difference between an image and a container?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">They are the same thing</button>
+            <button class="option-btn" data-correct="true">Image is a read-only blueprint; container is a running instance of an image</button>
+            <button class="option-btn" data-correct="false">Container is stored on disk; image runs in memory</button>
+            <button class="option-btn" data-correct="false">Images run on Linux; containers run on Windows</button>
+          </div>
+          <div class="explanation">Image : Container = Class : Object. The image is the blueprint (built from Dockerfile), the container is the live running instance.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> Data drift (covariate shift) means:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">P(Y|X) changes between train and production</button>
+            <button class="option-btn" data-correct="true">P(X) changes while P(Y|X) remains the same</button>
+            <button class="option-btn" data-correct="false">The model's parameters change over time</button>
+            <button class="option-btn" data-correct="false">The labels in the training set are wrong</button>
+          </div>
+          <div class="explanation">Covariate shift: the input feature distribution P(X) changes (e.g., user demographics shift), but the true relationship P(Y|X) is unchanged.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> COVID-19 suddenly disrupting demand forecasting models is an example of:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="true">Sudden concept drift</button>
+            <button class="option-btn" data-correct="false">Gradual concept drift</button>
+            <button class="option-btn" data-correct="false">Recurring concept drift</button>
+            <button class="option-btn" data-correct="false">Data drift (covariate shift)</button>
+          </div>
+          <div class="explanation">Sudden drift: an abrupt, immediate change in P(Y|X). COVID lockdowns changed consumer behavior overnight — a textbook example of sudden concept drift.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> Which is the industry-standard virtual environment tool for ML/Data Science?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">venv</button>
+            <button class="option-btn" data-correct="true">conda</button>
+            <button class="option-btn" data-correct="false">virtualenv</button>
+            <button class="option-btn" data-correct="false">pyenv</button>
+          </div>
+          <div class="explanation">Conda is the industry standard in DS/ML. It manages Python AND system libraries like CUDA, MKL, etc. — critical for GPU deep learning. venv can only manage Python packages.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> The Dockerfile instruction that runs during image build (to install packages) is:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">CMD</button>
+            <button class="option-btn" data-correct="false">EXPOSE</button>
+            <button class="option-btn" data-correct="true">RUN</button>
+            <button class="option-btn" data-correct="false">WORKDIR</button>
+          </div>
+          <div class="explanation">RUN executes a command during build: RUN pip install -r requirements.txt. CMD is the default command when the container starts (at runtime, not build time).</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> In the KS test for drift detection, a p-value < 0.05 means:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">No drift detected — distributions are the same</button>
+            <button class="option-btn" data-correct="true">Statistically significant drift detected</button>
+            <button class="option-btn" data-correct="false">The model needs to be retrained immediately regardless</button>
+            <button class="option-btn" data-correct="false">The test failed — too few samples</button>
+          </div>
+          <div class="explanation">p-value < 0.05 → we reject the null hypothesis (that the distributions are the same) → statistically significant drift is detected.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals13" data-section="numericals13">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Identifying Drift Types</div>
+          <div class="numerical-body">
+            <div class="problem-text">Classify each scenario as: data drift, sudden concept drift, gradual concept drift, incremental concept drift, or recurring concept drift. (a) Holiday shopping spike every December. (b) A fraud threshold of $500 was correct in 2018 but $2000 is now the typical transaction due to inflation. (c) User age distribution shifts from 35-50 to 18-25 over 3 years. (d) A global pandemic changes buying behavior overnight.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">(a)</span><span class="step-text">Recurring concept drift — predictable seasonal pattern. P(Y|X) changes each December and reverts.</span></div>
+              <div class="solution-step"><span class="step-label">(b)</span><span class="step-text">Incremental concept drift — steady progressive drift. Inflation slowly erodes what constitutes a suspicious transaction amount.</span></div>
+              <div class="solution-step"><span class="step-label">(c)</span><span class="step-text">Data drift (covariate shift) — P(X) changes (younger users), but the actual relationship P(Y|X) may be the same.</span></div>
+              <div class="solution-step"><span class="step-label">(d)</span><span class="step-text">Sudden concept drift — abrupt change. COVID lockdowns changed P(Y|X) for demand models overnight.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — Docker Build & Run</div>
+          <div class="numerical-body">
+            <div class="problem-text">You have a FastAPI ML app in /app/main.py with model.pkl. Write the commands to: (1) build the Docker image, (2) run it mapping host port 9000 to container port 8000, (3) verify it's running, (4) stop it.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Build</span><span class="step-text">docker build -t ml-fraud-api . &nbsp;(run from directory containing Dockerfile)</span></div>
+              <div class="solution-step"><span class="step-label">Run</span><span class="step-text">docker run -d -p 9000:8000 --name fraud-api ml-fraud-api &nbsp;(-d = detached background mode)</span></div>
+              <div class="solution-step"><span class="step-label">Verify</span><span class="step-text">docker ps &nbsp;→ see container ID and status. Then: curl http://localhost:9000/docs</span></div>
+              <div class="solution-step"><span class="step-label">Stop</span><span class="step-text">docker stop fraud-api &nbsp;(by name) or docker stop &lt;container-id&gt;</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — KS Test by Hand (Intro)</div>
+          <div class="numerical-body">
+            <div class="problem-text">Training data: {2, 4, 6, 8}. Production data: {4, 6, 8, 10}. By inspection, does this look like drift? Which test would you apply and why?</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Visual</span><span class="step-text">Training ranges [2,8], production ranges [4,10]. The production distribution has shifted right by ~2 units — this looks like data drift.</span></div>
+              <div class="solution-step"><span class="step-label">Test to use</span><span class="step-text">KS test — because this is a continuous feature and we want to compare two empirical distributions.</span></div>
+              <div class="solution-step"><span class="step-label">KS statistic</span><span class="step-text">D = max|F_train(x) - F_prod(x)|. At x=4: F_train(4)=0.25, F_prod(4)=0.25, diff=0. At x=6: F_train=0.5, F_prod=0.5. At x=2: F_train=0.25, F_prod=0.0, diff=0.25. D ≈ 0.25. Week 14 covers the full KS calculation procedure.</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week12.html" class="viz-btn" style="text-decoration:none">← Week 12</a>
+      <a href="week14.html" class="viz-btn" style="text-decoration:none">Week 14 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week13.js"></script>
+</body>
+</html>

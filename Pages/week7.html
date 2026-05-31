@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 7 — Hierarchical Clustering | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html" class="active">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 7 — Hierarchical Clustering</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#intro">Why Hierarchical?</a></li>
+      <li><a href="#algorithm">Algorithm</a></li>
+      <li><a href="#linkage">Linkage Methods</a></li>
+      <li><a href="#dendrogram">Dendrogram</a></li>
+      <li><a href="#example">6-Point Example</a></li>
+      <li><a href="#choosing-k">Choosing K</a></li>
+      <li><a href="#comparison">vs K-Means</a></li>
+      <li><a href="#viz">Dendrogram Viz</a></li>
+      <li><a href="#quiz7">Quiz</a></li>
+      <li><a href="#numericals7">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 7</div>
+      <h1>Hierarchical Clustering</h1>
+      <p>Move beyond flat partitioning — discover how agglomerative clustering builds a dendrogram tree that reveals cluster structure at every scale, without needing to specify K in advance.</p>
+    </div>
+
+    <!-- INTRO -->
+    <div class="section" id="intro" data-section="intro">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🌳</div>
+        <h2>Limitations of Flat Algorithms</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>K-Means and similar partition algorithms produce a <em>flat</em> clustering — a single assignment of every point to exactly one cluster. This has key limitations:</p>
+        </div>
+        <div class="two-col">
+          <div class="warning-box" style="margin:0">
+            <div class="label">⚠ Problem 1: Must specify K</div>
+            You must decide the number of clusters before running the algorithm. Wrong K gives meaningless results.
+          </div>
+          <div class="warning-box" style="margin:0">
+            <div class="label">⚠ Problem 2: No hierarchy</div>
+            No information about relationships between clusters or sub-cluster structure.
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ Hierarchical Clustering Solution</div>
+          Builds a tree of clusters (dendrogram) that captures structure at every level. K can be chosen <em>after</em> the algorithm finishes by cutting the tree at any height.
+        </div>
+      </div>
+    </div>
+
+    <!-- ALGORITHM -->
+    <div class="section" id="algorithm" data-section="algorithm">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">⚙</div>
+        <h2>Agglomerative Algorithm</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Agglomerative</strong> (bottom-up) is the most common approach. Start with every point as its own cluster, then repeatedly merge the two closest clusters.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content"><strong>Initialize:</strong> Assign each of N data points to its own cluster. You have N clusters.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content"><strong>Compute distances:</strong> Build an N×N distance matrix between all cluster pairs.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content"><strong>Merge closest:</strong> Find the two clusters with minimum distance. Merge them into one new cluster.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content"><strong>Update distances:</strong> Recompute distances from the new merged cluster to all remaining clusters (using chosen linkage method).</div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content"><strong>Repeat:</strong> Go back to step 3 until only 1 cluster remains.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-content"><strong>Cut dendrogram:</strong> Choose a height to cut the tree to obtain K clusters.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINKAGE -->
+    <div class="section" id="linkage" data-section="linkage">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔗</div>
+        <h2>Linkage Methods</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <p>When merging, we need a distance metric between <em>clusters</em> (not just points). The three main options:</p>
+
+        <div class="formula-block">
+          <p><strong>Single Linkage (Minimum):</strong></p>
+          $$d(C_1, C_2) = \min_{x \in C_1,\, y \in C_2} d(x, y)$$
+          <p style="margin-top:0.5rem"><strong>Complete Linkage (Maximum):</strong></p>
+          $$d(C_1, C_2) = \max_{x \in C_1,\, y \in C_2} d(x, y)$$
+          <p style="margin-top:0.5rem"><strong>Average Linkage (UPGMA):</strong></p>
+          $$d(C_1, C_2) = \frac{1}{|C_1||C_2|} \sum_{x \in C_1} \sum_{y \in C_2} d(x, y)$$
+        </div>
+
+        <table class="comparison-table">
+          <tr><th>Linkage</th><th>Distance used</th><th>Cluster shape</th><th>Sensitivity</th></tr>
+          <tr><td><strong>Single</strong></td><td>Minimum pairwise</td><td>Long, chain-like</td><td>Outlier sensitive (chaining effect)</td></tr>
+          <tr><td><strong>Complete</strong></td><td>Maximum pairwise</td><td>Compact, spherical</td><td>Robust to outliers</td></tr>
+          <tr><td><strong>Average</strong></td><td>Mean of all pairs</td><td>Balanced</td><td>Moderate</td></tr>
+        </table>
+
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 Which to use?</div>
+          Complete linkage is preferred for compact clusters. Single linkage is good for elongated or irregular shapes. Average is a safe default.
+        </div>
+      </div>
+    </div>
+
+    <!-- DENDROGRAM -->
+    <div class="section" id="dendrogram" data-section="dendrogram">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">📊</div>
+        <h2>Dendrogram</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>A <strong>dendrogram</strong> is a tree diagram that records the entire merge history. The x-axis shows the data points and the y-axis shows the distance (height) at which merges occurred.</p>
+        </div>
+        <div class="key-insight">
+          <div class="label">🔑 Reading the Dendrogram</div>
+          <ul style="margin:0.5rem 0 0 1rem">
+            <li>Leaves at bottom = individual data points</li>
+            <li>Height of each horizontal bar = distance when those clusters merged</li>
+            <li>A horizontal cut at height h gives clusters = connected components below h</li>
+            <li>Tall vertical lines = large gap between merges = natural cluster boundary</li>
+          </ul>
+        </div>
+        <div class="info-box" style="margin-top:0.8rem">
+          <div class="label">✂ Choosing K from the Dendrogram</div>
+          Look for the largest vertical gap (where the dendrogram bars are tallest before the next merge). Cut there. The number of vertical lines you cross = K.
+        </div>
+      </div>
+    </div>
+
+    <!-- 6-POINT EXAMPLE -->
+    <div class="section" id="example" data-section="example">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">📐</div>
+        <h2>Worked Example: {18, 22, 25, 42, 27, 43}</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <p>Points on a 1D number line: <strong>18, 22, 25, 27, 42, 43</strong> (sorted). Using <strong>Single Linkage</strong> with absolute difference as distance.</p>
+
+        <div class="formula-block">
+          <strong>Initial distances (sorted pairs):</strong><br>
+          |18−22|=4, |22−25|=3, |25−27|=2, |27−42|=15, |42−43|=1
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">M1</div>
+            <div class="step-content"><strong>Merge 42 and 43</strong> — distance = 1 (smallest). New cluster: {42,43}</div>
+          </div>
+          <div class="step">
+            <div class="step-num">M2</div>
+            <div class="step-content"><strong>Merge 25 and 27</strong> — distance = 2. New cluster: {25,27}</div>
+          </div>
+          <div class="step">
+            <div class="step-num">M3</div>
+            <div class="step-content"><strong>Merge 22 and {25,27}</strong> — single link dist = min(|22−25|,|22−27|)=3. New cluster: {22,25,27}</div>
+          </div>
+          <div class="step">
+            <div class="step-num">M4</div>
+            <div class="step-content"><strong>Merge 18 and {22,25,27}</strong> — single link dist = |18−22|=4. New cluster: {18,22,25,27}</div>
+          </div>
+          <div class="step">
+            <div class="step-num">M5</div>
+            <div class="step-content"><strong>Merge {18,22,25,27} and {42,43}</strong> — single link dist = min(|27−42|,|27−43|)=15. Final single cluster.</div>
+          </div>
+        </div>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✂ Cut at height ~10</div>
+          We get 2 clusters: {18,22,25,27} and {42,43}. The large gap (distance 15) between M4 and M5 is the natural cluster boundary.
+        </div>
+      </div>
+    </div>
+
+    <!-- CHOOSING K -->
+    <div class="section" id="choosing-k" data-section="choosing-k">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🎯</div>
+        <h2>Discovering K from the Dendrogram</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>The key advantage of hierarchical clustering: you do <em>not</em> need to specify K before running the algorithm. The dendrogram encodes all possible K values.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">Identify the longest vertical line in the dendrogram (biggest gap between merge heights).</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">Draw a horizontal line through that gap without crossing any horizontal merge bar.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">Count how many vertical lines the horizontal cut intersects. That count = K.</div>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:0.8rem">
+          <div class="label">📌 Domain knowledge</div>
+          The dendrogram suggests K, but domain knowledge is still valuable. The dendrogram shows you where natural breaks occur at multiple granularities simultaneously.
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON -->
+    <div class="section" id="comparison" data-section="comparison">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">⚖</div>
+        <h2>Hierarchical vs K-Means</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Property</th><th>K-Means</th><th>Hierarchical (Agglomerative)</th></tr>
+          <tr><td>Specify K upfront?</td><td>Yes, required</td><td>No — choose after</td></tr>
+          <tr><td>Result</td><td>Flat partition</td><td>Dendrogram tree</td></tr>
+          <tr><td>Time complexity</td><td>O(nKt) — fast</td><td>O(n² log n) — slower</td></tr>
+          <tr><td>Scalability</td><td>Large datasets</td><td>Small–medium datasets</td></tr>
+          <tr><td>Cluster shapes</td><td>Spherical (centroid-based)</td><td>Any shape (depends on linkage)</td></tr>
+          <tr><td>Deterministic?</td><td>No (random init)</td><td>Yes</td></tr>
+          <tr><td>Interpretability</td><td>Low</td><td>High (visual tree)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- VISUALIZATION -->
+    <div class="section" id="viz" data-section="viz">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎬</div>
+        <h2>Interactive Dendrogram</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="dendrogramCanvas" width="700" height="400"></canvas>
+          <div class="viz-controls">
+            <button class="viz-btn" id="stepBtn">▶ Next Merge</button>
+            <button class="viz-btn" id="resetDendroBtn">↺ Reset</button>
+          </div>
+          <div id="mergeLabel" style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem">Click "Next Merge" to animate the dendrogram step by step.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz7" data-section="quiz7">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Hierarchical Clustering</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> In agglomerative clustering, what is the starting state?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">All points in one cluster</button>
+            <button class="option-btn" data-correct="true">Each point is its own cluster</button>
+            <button class="option-btn" data-correct="false">K randomly chosen clusters</button>
+            <button class="option-btn" data-correct="false">Two clusters based on mean</button>
+          </div>
+          <div class="explanation">Agglomerative means bottom-up. We start with N clusters (each point alone) and merge until 1 cluster remains.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> Single linkage distance between two clusters is defined as:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Maximum distance between any two points across clusters</button>
+            <button class="option-btn" data-correct="true">Minimum distance between any two points across clusters</button>
+            <button class="option-btn" data-correct="false">Distance between cluster centroids</button>
+            <button class="option-btn" data-correct="false">Average of all pairwise distances</button>
+          </div>
+          <div class="explanation">Single linkage uses the minimum (closest pair) distance. This can cause chaining — long elongated clusters.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> In the example {18,22,25,42,27,43} with single linkage, which two points merge first?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">18 and 22 (distance 4)</button>
+            <button class="option-btn" data-correct="false">25 and 27 (distance 2)</button>
+            <button class="option-btn" data-correct="true">42 and 43 (distance 1)</button>
+            <button class="option-btn" data-correct="false">22 and 25 (distance 3)</button>
+          </div>
+          <div class="explanation">42 and 43 have distance 1 — the smallest pairwise distance, so they merge first.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> How do you determine K from a dendrogram?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Count the number of leaves</button>
+            <button class="option-btn" data-correct="true">Cut horizontally at the largest vertical gap and count intersected lines</button>
+            <button class="option-btn" data-correct="false">Use the elbow method on inertia</button>
+            <button class="option-btn" data-correct="false">Set K to the square root of n</button>
+          </div>
+          <div class="explanation">The largest vertical gap in the dendrogram indicates a natural cluster boundary. A horizontal cut there, counting vertical line crossings, gives K.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> Complete linkage tends to produce:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Long, chain-like clusters</button>
+            <button class="option-btn" data-correct="true">Compact, roughly spherical clusters</button>
+            <button class="option-btn" data-correct="false">Identical results to K-Means</button>
+            <button class="option-btn" data-correct="false">Extremely noisy clusters</button>
+          </div>
+          <div class="explanation">Complete linkage uses the maximum distance, which prevents the chaining effect and tends to produce more compact clusters.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> What is the time complexity of agglomerative hierarchical clustering?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">O(n)</button>
+            <button class="option-btn" data-correct="false">O(nK)</button>
+            <button class="option-btn" data-correct="true">O(n² log n)</button>
+            <button class="option-btn" data-correct="false">O(2^n)</button>
+          </div>
+          <div class="explanation">The O(n² log n) complexity makes hierarchical clustering impractical for very large datasets compared to K-Means.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals7" data-section="numericals7">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Single Linkage Step-by-Step</div>
+          <div class="numerical-body">
+            <div class="problem-text">Apply agglomerative clustering with single linkage to points {18, 22, 25, 42, 27, 43}. Show all merge steps and the final dendrogram height for each merge.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><span class="step-text">Sort: 18, 22, 25, 27, 42, 43. Compute all pairwise distances (1D absolute difference).</span></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><span class="step-text">Smallest distance: |42−43|=1. Merge {42} and {43} → cluster A={42,43} at height 1.</span></div>
+              <div class="solution-step"><span class="step-label">Step 3</span><span class="step-text">Next smallest: |25−27|=2. Merge {25} and {27} → cluster B={25,27} at height 2.</span></div>
+              <div class="solution-step"><span class="step-label">Step 4</span><span class="step-text">Next: {22} to B={25,27}: single link = min(|22−25|,|22−27|)=3. Merge → cluster C={22,25,27} at height 3.</span></div>
+              <div class="solution-step"><span class="step-label">Step 5</span><span class="step-text">Next: {18} to C: single link = min(|18−22|,|18−25|,|18−27|)=4. Merge → cluster D={18,22,25,27} at height 4.</span></div>
+              <div class="solution-step"><span class="step-label">Step 6</span><span class="step-text">Final merge: D={18,22,25,27} to A={42,43}: single link = |27−42|=15. Merge at height 15.</span></div>
+              <div class="solution-step"><span class="step-label">Result</span><span class="step-text">Cut at height ~10 gives 2 clusters: {18,22,25,27} and {42,43}. The gap of 11 (from h=4 to h=15) is the natural boundary.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — Complete Linkage Distance</div>
+          <div class="numerical-body">
+            <div class="problem-text">After merge M2, we have clusters C1={18,22} and C2={25,27,42}. Compute the complete linkage distance between C1 and C2.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><span class="step-text">Complete linkage: $d(C_1,C_2) = \max_{x \in C_1, y \in C_2} |x-y|$</span></div>
+              <div class="solution-step"><span class="step-label">Pairs</span><span class="step-text">|18−25|=7, |18−27|=9, |18−42|=24, |22−25|=3, |22−27|=5, |22−42|=20</span></div>
+              <div class="solution-step"><span class="step-label">Answer</span><span class="step-text">Max = 24. Complete linkage distance = 24.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — Average Linkage Distance</div>
+          <div class="numerical-body">
+            <div class="problem-text">Compute the average linkage distance between cluster C1={18,22} and C2={42,43}.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><span class="step-text">Average linkage: $d = \frac{1}{|C_1||C_2|}\sum_{x\in C_1}\sum_{y\in C_2}|x-y|$</span></div>
+              <div class="solution-step"><span class="step-label">Compute</span><span class="step-text">|18−42|=24, |18−43|=25, |22−42|=20, |22−43|=21. Sum = 24+25+20+21 = 90.</span></div>
+              <div class="solution-step"><span class="step-label">Answer</span><span class="step-text">$d = 90 / (2 \times 2) = 22.5$</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week6.html" class="viz-btn" style="text-decoration:none">← Week 6</a>
+      <a href="week8.html" class="viz-btn" style="text-decoration:none">Week 8 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week7.js"></script>
+</body>
+</html>

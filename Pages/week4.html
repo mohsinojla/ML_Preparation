@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 4 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">Week 1</a></li>
+      <li><a href="week2.html">Week 2</a></li>
+      <li><a href="week3.html">Week 3</a></li>
+      <li><a href="week4.html" class="active">Week 4</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 4 — SVM: Soft Margin &amp; Kernel Trick</strong>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#hard-problems">Hard Margin Problems</a></li>
+      <li class="sub"><a href="#non-separable">Non-Separable Data</a></li>
+      <li class="sub"><a href="#outlier-sensitivity">Outlier Sensitivity</a></li>
+      <li><a href="#soft-margin">Soft Margin SVM</a></li>
+      <li class="sub"><a href="#slack-vars">Slack Variables ξ</a></li>
+      <li class="sub"><a href="#c-param">C Parameter</a></li>
+      <li class="sub"><a href="#full-objective">Full Objective Function</a></li>
+      <li><a href="#dual-form">Dual Form</a></li>
+      <li class="sub"><a href="#dual-derivation">Dual Derivation</a></li>
+      <li class="sub"><a href="#dual-solution">Dual Solution</a></li>
+      <li><a href="#kernel-trick">Kernel Trick</a></li>
+      <li class="sub"><a href="#feature-map">Feature Map φ</a></li>
+      <li class="sub"><a href="#kernel-def">Kernel Definition</a></li>
+      <li class="sub"><a href="#kernel-svm">SVM with Kernels</a></li>
+      <li><a href="#common-kernels">Common Kernels</a></li>
+      <li class="sub"><a href="#linear-kernel">Linear</a></li>
+      <li class="sub"><a href="#poly-kernel">Polynomial</a></li>
+      <li class="sub"><a href="#rbf-kernel">RBF / Gaussian</a></li>
+      <li><a href="#kernel-viz">Kernel Visualizer</a></li>
+      <li><a href="#quiz4">Quiz</a></li>
+      <li><a href="#numericals4">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="page-header">
+      <div class="week-tag">Week 4</div>
+      <h1>SVM — Soft Margin &amp; Kernel Trick</h1>
+      <p>Real data is messy. Extend SVM to handle non-separable data with slack variables, then unleash the power of kernels to classify non-linear data in high-dimensional spaces.</p>
+    </div>
+
+    <!-- ===== HARD MARGIN PROBLEMS ===== -->
+    <div class="section" id="hard-problems" data-section="hard-problems">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">⚠️</div>
+        <h2>Problems with Hard Margin SVM</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>From the lecture:</strong> The hard margin classifier has a "complete lack of flexibility." Real-world data is rarely perfectly linearly separable — it has noise, outliers, and complex boundaries.</p>
+        </div>
+
+        <div id="non-separable" data-section="non-separable">
+          <div class="three-col">
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4 style="color:var(--red)">❌ Non-Linearly Separable</h4>
+              <p>If classes overlap, no hyperplane can separate them without error — hard margin SVM has no solution.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4 style="color:var(--red)">❌ Outlier Sensitivity</h4>
+              <p>A single outlier can drastically move the decision boundary or make the problem infeasible.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4 style="color:var(--red)">❌ Overfitting Risk</h4>
+              <p>Trying to perfectly fit every training point creates a tight, fragile boundary — poor generalisation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="outlier-sensitivity" data-section="outlier-sensitivity" style="margin-top:1rem">
+          <div class="viz-container">
+            <h4>Hard Margin vs Soft Margin: Effect of Outliers</h4>
+            <canvas id="outlierCanvas" width="560" height="260" style="background:#0d1117;border-radius:8px"></canvas>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.5rem">Left: Hard margin forced to adapt to outlier (small margin). Right: Soft margin ignores outlier (large margin).</p>
+          </div>
+        </div>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">💡 Solution: Allow Some Misclassification</div>
+          Instead of requiring <em>all</em> points to be outside the margin, we allow some points to be inside the margin or even on the wrong side — but we penalise them. This gives the model flexibility while still controlling errors.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SOFT MARGIN ===== -->
+    <div class="section" id="soft-margin" data-section="soft-margin">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🌊</div>
+        <h2>Soft Margin SVM</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div id="slack-vars" data-section="slack-vars">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Slack Variables $\xi_i$ (From Lecture)</h3>
+          <div class="concept-intro">
+            <p>We introduce a <strong>slack variable</strong> $\xi_i \geq 0$ for each training point. It measures how much the constraint is violated for point $i$.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Soft Constraint</div>
+            <div class="formula-name">Modified Constraint with Slack Variable</div>
+            $$y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1 - \xi_i \quad \forall i, \quad \xi_i \geq 0$$
+          </div>
+
+          <div class="three-col" style="margin-top:1rem">
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4 style="color:var(--green)">$\xi_i = 0$</h4>
+              <p>Point correctly classified and <em>outside</em> the margin. No violation. Perfect.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+              <h4 style="color:var(--orange)">$0 &lt; \xi_i &lt; 1$</h4>
+              <p>Point is <em>inside</em> the margin but on the correct side of the decision boundary. Margin violation.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4 style="color:var(--red)">$\xi_i \geq 1$</h4>
+              <p>Point is <em>misclassified</em> — on the wrong side of the decision boundary. A true error.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="c-param" data-section="c-param" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">The C Hyperparameter (Regularisation)</h3>
+          <div class="concept-intro">
+            <p>$C$ controls the <strong>trade-off between maximising the margin and minimising violations</strong>. It is the most important hyperparameter to tune in SVM.</p>
+          </div>
+
+          <div class="two-col">
+            <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+              <h4>Large C</h4>
+              <p>Strongly penalise misclassifications → <strong>small margin</strong>, few violations. Approaches hard-margin SVM. Risk of <em>overfitting</em>.</p>
+              <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">C → ∞: hard margin</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4>Small C</h4>
+              <p>Allow many violations → <strong>large margin</strong>, more misclassifications. More flexibility. Risk of <em>underfitting</em>.</p>
+              <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">C → 0: all points ignored</p>
+            </div>
+          </div>
+
+          <div class="key-insight" style="margin-top:1rem">
+            <div class="label">🔑 C vs λ (Regularization)</div>
+            Note: $C = \frac{1}{\lambda}$ where $\lambda$ is the regularization strength from regression. <strong>Large C = weak regularization</strong> (fits data tightly). <strong>Small C = strong regularization</strong> (allows violations). This is the opposite convention from $\lambda$.
+          </div>
+        </div>
+
+        <div id="full-objective" data-section="full-objective" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Complete Objective Function (From Lecture)</h3>
+
+          <div class="formula-block">
+            <div class="formula-label">Soft Margin SVM</div>
+            <div class="formula-name">Complete Primal Objective (C-SVM)</div>
+            $$\min_{\mathbf{w}, b, \boldsymbol{\xi}} \frac{1}{2}\|\mathbf{w}\|^2 + C\sum_{i=1}^{m}\xi_i$$
+            $$\text{subject to: } y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1 - \xi_i, \quad \xi_i \geq 0 \quad \forall i$$
+          </div>
+
+          <table class="comparison-table" style="margin-top:1rem">
+            <tr><th>Term</th><th>Meaning</th><th>Effect</th></tr>
+            <tr>
+              <td>$\frac{1}{2}\|\mathbf{w}\|^2$</td>
+              <td>Margin maximisation</td>
+              <td>Pushes hyperplane away from all points</td>
+            </tr>
+            <tr>
+              <td>$C\sum\xi_i$</td>
+              <td>Penalty for violations</td>
+              <td>Penalises points inside/crossing the margin</td>
+            </tr>
+            <tr>
+              <td>$C$</td>
+              <td>Trade-off parameter</td>
+              <td>Balances margin size vs constraint violations</td>
+            </tr>
+            <tr>
+              <td>$\xi_i \geq 0$</td>
+              <td>Slack variable</td>
+              <td>Measures how much constraint $i$ is violated</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DUAL FORM ===== -->
+    <div class="section" id="dual-form" data-section="dual-form">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">🔄</div>
+        <h2>SVM Dual Form</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p>The dual form is <strong>crucial for the kernel trick</strong>. By solving the dual problem (using Lagrangian duality), we can express the SVM entirely in terms of inner products $\langle \mathbf{x}_i, \mathbf{x}_j \rangle$ — which can be replaced by kernel functions.</p>
+        </div>
+
+        <div id="dual-derivation" data-section="dual-derivation">
+          <h3 style="margin:1.2rem 0 0.8rem;font-size:1.05rem">Deriving the Dual (From Lecture)</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <strong>Set up Lagrangian</strong> with multipliers $\alpha_i \geq 0$ and $\mu_i \geq 0$:
+                $$\mathcal{L} = \frac{1}{2}\|\mathbf{w}\|^2 + C\sum\xi_i - \sum\alpha_i[y_i(\mathbf{w}^T\mathbf{x}_i+b)-1+\xi_i] - \sum\mu_i\xi_i$$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <strong>KKT stationarity conditions</strong> (set partial derivatives to zero):
+                $$\frac{\partial\mathcal{L}}{\partial\mathbf{w}} = 0 \Rightarrow \mathbf{w} = \sum_{i=1}^m \alpha_i y_i \mathbf{x}_i$$
+                $$\frac{\partial\mathcal{L}}{\partial b} = 0 \Rightarrow \sum_{i=1}^m \alpha_i y_i = 0$$
+                $$\frac{\partial\mathcal{L}}{\partial\xi_i} = 0 \Rightarrow C - \alpha_i - \mu_i = 0 \Rightarrow \alpha_i \leq C$$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <strong>Substitute back</strong> into Lagrangian to get the dual — a function only of $\alpha_i$.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="dual-solution" data-section="dual-solution" style="margin-top:1.5rem">
+          <div class="formula-block">
+            <div class="formula-label">Dual Problem</div>
+            <div class="formula-name">SVM Dual Optimisation</div>
+            $$\max_{\boldsymbol{\alpha}} \sum_{i=1}^m \alpha_i - \frac{1}{2}\sum_{i=1}^m\sum_{j=1}^m \alpha_i\alpha_j y_i y_j \langle\mathbf{x}_i, \mathbf{x}_j\rangle$$
+            $$\text{subject to: } \sum_{i=1}^m \alpha_i y_i = 0, \quad 0 \leq \alpha_i \leq C$$
+          </div>
+
+          <div class="formula-block" style="margin-top:1rem">
+            <div class="formula-label">Prediction</div>
+            <div class="formula-name">Decision function using dual variables</div>
+            $$\hat{y} = \text{sign}\left(\sum_{i=1}^m \alpha_i y_i \langle\mathbf{x}_i, \mathbf{x}\rangle + b\right)$$
+          </div>
+
+          <div class="key-insight">
+            <div class="label">🔑 The Key Insight</div>
+            Both the dual objective and the prediction function depend on data only through <strong>inner products</strong> $\langle \mathbf{x}_i, \mathbf{x}_j \rangle$. This is what the kernel trick exploits!
+          </div>
+
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">Alpha Values</div>
+            <ul style="padding-left:1.2rem;font-size:0.88rem">
+              <li>$\alpha_i = 0$: Point is correctly classified outside margin → NOT a support vector</li>
+              <li>$0 &lt; \alpha_i &lt; C$: Point is exactly on the margin boundary → support vector</li>
+              <li>$\alpha_i = C$: Point violates the margin (inside or misclassified) → bounded support vector</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== KERNEL TRICK ===== -->
+    <div class="section" id="kernel-trick" data-section="kernel-trick">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">✨</div>
+        <h2>The Kernel Trick</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p>Many real datasets are <em>not</em> linearly separable in the original feature space. The kernel trick allows SVM to find non-linear decision boundaries by implicitly mapping data to a higher-dimensional space — <em>without ever computing the mapping explicitly</em>.</p>
+        </div>
+
+        <div id="feature-map" data-section="feature-map">
+          <h3 style="margin:1.2rem 0 0.8rem;font-size:1.05rem">Feature Map $\phi$</h3>
+          <div class="concept-intro">
+            <p>Idea: map data from original space to a higher-dimensional space where it <em>is</em> linearly separable. Then run the linear SVM in that space.</p>
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Feature Map</div>
+            <div class="formula-name">Mapping to higher-dimensional space</div>
+            $$\phi: \mathbb{R}^d \to \mathbb{R}^D \quad (D \gg d, \text{ possibly } D = \infty)$$
+            $$\mathbf{x} \mapsto \phi(\mathbf{x})$$
+          </div>
+
+          <div class="warning-box">
+            <div class="label">⚠️ Problem with explicit mapping</div>
+            If $D$ is very large (or infinite, like with RBF), computing $\phi(\mathbf{x})$ is computationally impossible. But the dual SVM only needs $\langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ — the inner product. The kernel trick computes this cheaply!
+          </div>
+        </div>
+
+        <div id="kernel-def" data-section="kernel-def" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Kernel Definition</h3>
+          <div class="formula-block">
+            <div class="formula-label">Kernel Function</div>
+            <div class="formula-name">Computes inner product in feature space</div>
+            $$K(\mathbf{x}_i, \mathbf{x}_j) = \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$$
+          </div>
+
+          <div class="key-insight">
+            <div class="label">🔑 The Trick</div>
+            We replace every inner product $\langle\mathbf{x}_i, \mathbf{x}_j\rangle$ in the dual with $K(\mathbf{x}_i, \mathbf{x}_j)$. The kernel function computes the dot product in the high-dimensional space <strong>cheaply in the original space</strong>. No explicit $\phi(\mathbf{x})$ needed!
+          </div>
+
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">Mercer's Condition</div>
+            A function $K(\mathbf{x}_i, \mathbf{x}_j)$ is a valid kernel if and only if the kernel matrix $K$ (with $K_{ij} = K(\mathbf{x}_i, \mathbf{x}_j)$) is <strong>symmetric positive semi-definite</strong>.
+          </div>
+        </div>
+
+        <div id="kernel-svm" data-section="kernel-svm" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">SVM with Kernel (From Lecture)</h3>
+          <div class="formula-block">
+            <div class="formula-label">Kernelized SVM Dual</div>
+            <div class="formula-name">Replace inner products with kernel</div>
+            $$\max_{\boldsymbol{\alpha}} \sum_i\alpha_i - \frac{1}{2}\sum_i\sum_j\alpha_i\alpha_j y_i y_j K(\mathbf{x}_i, \mathbf{x}_j)$$
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Prediction</div>
+            <div class="formula-name">Kernelized decision function</div>
+            $$\hat{y} = \text{sign}\left(\sum_{i=1}^m \alpha_i y_i K(\mathbf{x}_i, \mathbf{x}) + b\right)$$
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== COMMON KERNELS ===== -->
+    <div class="section" id="common-kernels" data-section="common-kernels">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">📐</div>
+        <h2>Common Kernels (From Lecture)</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="tab-group">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="linear">Linear</button>
+            <button class="tab-btn" data-tab="poly">Polynomial</button>
+            <button class="tab-btn" data-tab="rbf">RBF / Gaussian</button>
+            <button class="tab-btn" data-tab="sigmoid">Sigmoid</button>
+          </div>
+
+          <div class="tab-content active" data-tab-content="linear" id="linear-kernel">
+            <div class="formula-block">
+              <div class="formula-label">Linear Kernel</div>
+              $$K(\mathbf{x}_i, \mathbf{x}_j) = \mathbf{x}_i^T\mathbf{x}_j$$
+            </div>
+            <div class="key-insight">
+              <div class="label">When to use</div>
+              <ul style="padding-left:1.2rem;font-size:0.88rem">
+                <li>Linearly separable data</li>
+                <li>High-dimensional sparse data (e.g., text classification)</li>
+                <li>Large datasets — fastest to compute</li>
+                <li>Same as standard linear SVM (no mapping)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="poly" id="poly-kernel">
+            <div class="formula-block">
+              <div class="formula-label">Polynomial Kernel</div>
+              $$K(\mathbf{x}_i, \mathbf{x}_j) = (\mathbf{x}_i^T\mathbf{x}_j + c)^d$$
+              <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$d$ = degree, $c \geq 0$ = constant (often $c=1$)</p>
+            </div>
+            <div class="info-box">
+              <div class="label">Math Example (From Lecture)</div>
+              <p>For $d=2$, $c=0$, $\mathbf{x} = [x_1, x_2]^T$:</p>
+              <p style="margin-top:0.4rem">$K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}^T\mathbf{z})^2 = (x_1z_1 + x_2z_2)^2$</p>
+              <p style="margin-top:0.4rem">$= x_1^2z_1^2 + 2x_1x_2z_1z_2 + x_2^2z_2^2$</p>
+              <p style="margin-top:0.4rem">$= \langle [x_1^2, \sqrt{2}x_1x_2, x_2^2], [z_1^2, \sqrt{2}z_1z_2, z_2^2] \rangle$</p>
+              <p style="margin-top:0.4rem;color:var(--accent)">So $\phi(\mathbf{x}) = [x_1^2, \sqrt{2}x_1x_2, x_2^2]$ — computes 3D inner product with just a 2D dot product!</p>
+            </div>
+            <div class="key-insight" style="margin-top:1rem">
+              <div class="label">When to use</div>
+              Natural for data with polynomial relationships. Image classification. Degree $d$ is a hyperparameter (usually 2 or 3).
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="rbf" id="rbf-kernel">
+            <div class="formula-block">
+              <div class="formula-label">RBF / Gaussian Kernel</div>
+              $$K(\mathbf{x}_i, \mathbf{x}_j) = \exp\left(-\frac{\|\mathbf{x}_i - \mathbf{x}_j\|^2}{2\sigma^2}\right) = \exp\left(-\gamma\|\mathbf{x}_i - \mathbf{x}_j\|^2\right)$$
+              <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$\gamma = \frac{1}{2\sigma^2}$ — controls the "width" of the Gaussian</p>
+            </div>
+
+            <div class="key-insight">
+              <div class="label">🔑 RBF Facts</div>
+              <ul style="padding-left:1.2rem;font-size:0.88rem">
+                <li>Maps to <strong>infinite-dimensional</strong> feature space! Yet computed in O(d) time.</li>
+                <li>$K(\mathbf{x}_i, \mathbf{x}_j) \in (0, 1]$ — always positive, 1 when $\mathbf{x}_i = \mathbf{x}_j$</li>
+                <li>Default choice when no prior knowledge about data shape</li>
+                <li>Very powerful but needs careful tuning of $\gamma$ and $C$</li>
+              </ul>
+            </div>
+
+            <h3 style="margin:1.2rem 0 0.8rem;font-size:1rem">Effect of $\gamma$ (inverse of bandwidth)</h3>
+            <div class="two-col">
+              <div class="mini-card">
+                <h4>Large $\gamma$ (small $\sigma$)</h4>
+                <p>Narrow Gaussian — each SV influences a very small region. Very wiggly decision boundary. Risk of <strong>overfitting</strong>.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Small $\gamma$ (large $\sigma$)</h4>
+                <p>Wide Gaussian — each SV influences a large region. Smooth decision boundary. Risk of <strong>underfitting</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="sigmoid">
+            <div class="formula-block">
+              <div class="formula-label">Sigmoid Kernel</div>
+              $$K(\mathbf{x}_i, \mathbf{x}_j) = \tanh(\kappa \mathbf{x}_i^T\mathbf{x}_j + c)$$
+            </div>
+            <div class="warning-box">
+              <div class="label">⚠️ Note</div>
+              The sigmoid kernel is not always positive semi-definite (not always a valid Mercer kernel). Used less commonly. Similar to a 2-layer neural network.
+            </div>
+          </div>
+        </div>
+
+        <!-- KERNEL COMPARISON TABLE -->
+        <table class="comparison-table" style="margin-top:1.5rem">
+          <tr><th>Kernel</th><th>Formula</th><th>Parameters</th><th>Best For</th></tr>
+          <tr>
+            <td><strong>Linear</strong></td>
+            <td>$\mathbf{x}_i^T\mathbf{x}_j$</td>
+            <td>None</td>
+            <td>Text, linearly separable</td>
+          </tr>
+          <tr>
+            <td><strong>Polynomial</strong></td>
+            <td>$(\mathbf{x}_i^T\mathbf{x}_j + c)^d$</td>
+            <td>$d, c$</td>
+            <td>Image recognition</td>
+          </tr>
+          <tr>
+            <td><strong>RBF/Gaussian</strong></td>
+            <td>$\exp(-\gamma\|\mathbf{x}_i-\mathbf{x}_j\|^2)$</td>
+            <td>$\gamma$ (or $\sigma$)</td>
+            <td>General purpose, default choice</td>
+          </tr>
+          <tr>
+            <td><strong>Sigmoid</strong></td>
+            <td>$\tanh(\kappa\mathbf{x}_i^T\mathbf{x}_j + c)$</td>
+            <td>$\kappa, c$</td>
+            <td>Neural network analogy</td>
+          </tr>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- ===== KERNEL VISUALIZER ===== -->
+    <div class="section" id="kernel-viz" data-section="kernel-viz">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎮</div>
+        <h2>Kernel Decision Boundary Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <h4>See how different kernels create different decision boundaries</h4>
+          <canvas id="kernelCanvas" width="560" height="340" style="background:#0d1117;border-radius:8px"></canvas>
+          <div class="viz-controls">
+            <label>Kernel:
+              <select id="kernelSelect" onchange="drawKernelViz()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px">
+                <option value="linear">Linear</option>
+                <option value="rbf" selected>RBF (Gaussian)</option>
+                <option value="poly">Polynomial (d=2)</option>
+              </select>
+            </label>
+            <label>C = <strong id="cVal">1.0</strong>
+              <input type="range" id="cSlider" min="0.1" max="10" step="0.1" value="1" oninput="updateC()">
+            </label>
+            <button class="viz-btn" onclick="loadKernelSample('xor')">XOR Data</button>
+            <button class="viz-btn secondary" onclick="loadKernelSample('circles')">Circles Data</button>
+          </div>
+          <div id="kernelInfo" style="font-size:0.82rem;color:var(--text2);margin-top:0.5rem">Load a dataset to visualise kernel boundaries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="section" id="quiz4" data-section="quiz4">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 4 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. A slack variable $\xi_i = 0.7$. This point is:</p>
+            <div class="options">
+              <button class="option-btn">Correctly classified and outside the margin</button>
+              <button class="option-btn" data-correct="true">Inside the margin but on the correct side of the decision boundary</button>
+              <button class="option-btn">Misclassified (on the wrong side)</button>
+              <button class="option-btn">A support vector</button>
+            </div>
+            <div class="explanation">$0 < \xi_i < 1$ means the point is inside the margin but still on the correct side. $\xi_i \geq 1$ would mean misclassification.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. In soft margin SVM, using a very large C value results in:</p>
+            <div class="options">
+              <button class="option-btn">Large margin, many violations allowed</button>
+              <button class="option-btn" data-correct="true">Small margin, almost no violations (approaches hard margin SVM)</button>
+              <button class="option-btn">Maximum regularization</button>
+              <button class="option-btn">Infinite margin</button>
+            </div>
+            <div class="explanation">Large C strongly penalises margin violations, forcing the SVM to find a perfect or near-perfect separator — equivalent to hard-margin SVM when C→∞.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. The kernel trick works because the SVM dual problem depends on data only through:</p>
+            <div class="options">
+              <button class="option-btn">Individual feature values $x_i$</button>
+              <button class="option-btn" data-correct="true">Inner products $\langle \mathbf{x}_i, \mathbf{x}_j \rangle$ between data points</button>
+              <button class="option-btn">The weight vector $\mathbf{w}$</button>
+              <button class="option-btn">The slack variables $\xi_i$</button>
+            </div>
+            <div class="explanation">The dual objective and prediction function only use data through inner products. By replacing $\langle \mathbf{x}_i, \mathbf{x}_j \rangle$ with $K(\mathbf{x}_i, \mathbf{x}_j)$, we implicitly work in a higher-dimensional space.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. The RBF kernel maps data to:</p>
+            <div class="options">
+              <button class="option-btn">2D space</button>
+              <button class="option-btn">d+1 dimensional space</button>
+              <button class="option-btn" data-correct="true">Infinite-dimensional space</button>
+              <button class="option-btn">The same original space</button>
+            </div>
+            <div class="explanation">The RBF/Gaussian kernel implicitly corresponds to an infinite-dimensional feature map (proven by Taylor expansion of the exponential). Yet computing $K(\mathbf{x}_i, \mathbf{x}_j)$ only takes O(d) time!</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. In the dual SVM, a training point has $\alpha_i = C$. What does this mean?</p>
+            <div class="options">
+              <button class="option-btn">It's a perfectly classified non-support vector</button>
+              <button class="option-btn">It's exactly on the margin boundary</button>
+              <button class="option-btn" data-correct="true">It's a support vector that violates the margin ($\xi_i > 0$)</button>
+              <button class="option-btn">It's the decision boundary itself</button>
+            </div>
+            <div class="explanation">In the soft-margin dual: $\alpha_i = 0$ (not SV), $0 < \alpha_i < C$ (on margin boundary, perfect SV), $\alpha_i = C$ (violates margin — the point has $\xi_i > 0$).</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q6. For polynomial kernel $K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}^T\mathbf{z})^2$ with $\mathbf{x}=[1,2]$ and $\mathbf{z}=[3,4]$, compute $K$:</p>
+            <div class="options">
+              <button class="option-btn">11</button>
+              <button class="option-btn" data-correct="true">121 — because $(1\cdot3 + 2\cdot4)^2 = (3+8)^2 = 11^2 = 121$</button>
+              <button class="option-btn">22</button>
+              <button class="option-btn">√121</button>
+            </div>
+            <div class="explanation">$K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}^T\mathbf{z})^2 = (1×3 + 2×4)^2 = (3+8)^2 = 11^2 = 121$</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUMERICALS ===== -->
+    <div class="section" id="numericals4" data-section="numericals4">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 1 — Kernel Computation (Polynomial)</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Using the polynomial kernel $K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}^T\mathbf{z} + 1)^2$, compute $K(\mathbf{x}, \mathbf{z})$ for $\mathbf{x} = [2, 3]^T$ and $\mathbf{z} = [1, 4]^T$. Also write out the implied feature map $\phi(\mathbf{x})$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                $\mathbf{x}^T\mathbf{z} = 2(1) + 3(4) = 2 + 12 = 14$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                $K(\mathbf{x}, \mathbf{z}) = (14 + 1)^2 = 15^2 = \mathbf{225}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Feature Map</span><div class="step-text">
+                Expand $(x_1z_1 + x_2z_2 + 1)^2 = x_1^2z_1^2 + x_2^2z_2^2 + 1 + 2x_1x_2z_1z_2 + 2x_1z_1 + 2x_2z_2$<br>
+                So $\phi(\mathbf{x}) = [x_1^2, x_2^2, 1, \sqrt{2}x_1x_2, \sqrt{2}x_1, \sqrt{2}x_2]$<br>
+                $\phi([2,3]) = [4, 9, 1, \sqrt{2}(6), \sqrt{2}(2), \sqrt{2}(3)] = [4, 9, 1, 6\sqrt{2}, 2\sqrt{2}, 3\sqrt{2}]$<br>
+                Verify: $\langle\phi(\mathbf{x}), \phi(\mathbf{z})\rangle = 4(1)+9(16)+1+72+2(2\sqrt{2})^2... = 225$ ✅
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 2 — RBF Kernel Computation</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Compute the RBF kernel $K(\mathbf{x}, \mathbf{z}) = \exp(-\gamma\|\mathbf{x}-\mathbf{z}\|^2)$ with $\gamma = 0.5$ for:<br>
+              (a) $\mathbf{x} = [1,1]^T$, $\mathbf{z} = [1,1]^T$ (same point)<br>
+              (b) $\mathbf{x} = [0,0]^T$, $\mathbf{z} = [2,2]^T$<br>
+              (c) $\mathbf{x} = [0,0]^T$, $\mathbf{z} = [10,10]^T$
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Part (a)</span><div class="step-text">
+                $\|\mathbf{x}-\mathbf{z}\|^2 = 0$<br>
+                $K = \exp(-0.5 \times 0) = e^0 = \mathbf{1.0}$<br>
+                RBF is always 1 when two points are identical ✅
+              </div></div>
+              <div class="solution-step"><span class="step-label">Part (b)</span><div class="step-text">
+                $\|\mathbf{x}-\mathbf{z}\|^2 = (0-2)^2 + (0-2)^2 = 4+4 = 8$<br>
+                $K = \exp(-0.5 \times 8) = e^{-4} \approx \mathbf{0.0183}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Part (c)</span><div class="step-text">
+                $\|\mathbf{x}-\mathbf{z}\|^2 = 100+100 = 200$<br>
+                $K = \exp(-0.5 \times 200) = e^{-100} \approx \mathbf{3.7 \times 10^{-44}}$ (essentially 0)<br>
+                Far-apart points have near-zero kernel value → don't influence each other's classification.
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 3 — Classify with Soft Margin SVM</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              A soft-margin SVM (linear kernel) has been trained with 3 support vectors:<br>
+              $\mathbf{x}_1 = [1,0]$, $y_1=+1$, $\alpha_1=0.5$<br>
+              $\mathbf{x}_2 = [0,1]$, $y_2=+1$, $\alpha_2=0.3$<br>
+              $\mathbf{x}_3 = [2,2]$, $y_3=-1$, $\alpha_3=0.8$<br>
+              Bias $b = -0.5$. Classify new point $\mathbf{x}^* = [1,1]$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><div class="step-text">
+                $f(\mathbf{x}^*) = \sum_i \alpha_i y_i K(\mathbf{x}_i, \mathbf{x}^*) + b$ with linear kernel $K(\mathbf{x}_i, \mathbf{x}^*) = \mathbf{x}_i^T\mathbf{x}^*$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Kernel Values</span><div class="step-text">
+                $K(\mathbf{x}_1, \mathbf{x}^*) = [1,0]\cdot[1,1] = 1$<br>
+                $K(\mathbf{x}_2, \mathbf{x}^*) = [0,1]\cdot[1,1] = 1$<br>
+                $K(\mathbf{x}_3, \mathbf{x}^*) = [2,2]\cdot[1,1] = 4$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Decision</span><div class="step-text">
+                $f = (0.5)(+1)(1) + (0.3)(+1)(1) + (0.8)(-1)(4) + (-0.5)$<br>
+                $f = 0.5 + 0.3 - 3.2 - 0.5 = \mathbf{-2.9}$<br>
+                $\hat{y} = \text{sign}(-2.9) = \mathbf{-1}$ ✅ → Classified as Class -1
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SUMMARY SECTION -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">📋</div>
+        <h2>Complete SVM Cheat Sheet</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Concept</th><th>Hard Margin SVM</th><th>Soft Margin SVM</th></tr>
+          <tr><td>Data requirement</td><td>Linearly separable</td><td>Any (allows violations)</td></tr>
+          <tr><td>Objective</td><td>$\min \frac{1}{2}\|\mathbf{w}\|^2$</td><td>$\min \frac{1}{2}\|\mathbf{w}\|^2 + C\sum\xi_i$</td></tr>
+          <tr><td>Constraint</td><td>$y_i(\mathbf{w}^T\mathbf{x}_i+b) \geq 1$</td><td>$y_i(\mathbf{w}^T\mathbf{x}_i+b) \geq 1-\xi_i$</td></tr>
+          <tr><td>Dual constraint on $\alpha$</td><td>$\alpha_i \geq 0$</td><td>$0 \leq \alpha_i \leq C$</td></tr>
+          <tr><td>Flexibility</td><td>None</td><td>Controlled by $C$</td></tr>
+        </table>
+        <div class="two-col" style="margin-top:1.5rem">
+          <div>
+            <h3 style="margin:0 0 0.8rem;font-size:1rem">Kernel Selection Guide</h3>
+            <ul style="font-size:0.88rem;padding-left:1.2rem;line-height:2">
+              <li>Start with <strong>Linear</strong> — fast, interpretable</li>
+              <li>Data has unknown shape → try <strong>RBF</strong> first</li>
+              <li>Known polynomial relationships → <strong>Polynomial</strong></li>
+              <li>Always tune $C$ (and $\gamma$ for RBF) via cross-validation</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="margin:0 0 0.8rem;font-size:1rem">Tuning SVM</h3>
+            <ul style="font-size:0.88rem;padding-left:1.2rem;line-height:2">
+              <li><strong>C</strong>: controls margin vs violations (key!)</li>
+              <li><strong>$\gamma$</strong> (RBF): controls locality of influence</li>
+              <li><strong>$d$</strong> (Poly): degree of polynomial</li>
+              <li>Use grid search + cross-validation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem;display:flex;gap:1rem;justify-content:center">
+      <a href="week3.html" style="background:var(--bg3);color:var(--text);text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block;border:1px solid var(--border)">← Week 3</a>
+      <a href="../index.html" style="background:var(--accent);color:#000;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">🏠 Back to Home</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="../script.js"></script>
+<script src="week4.js"></script>
+</body>
+</html>

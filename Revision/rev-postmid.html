@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Mid Revision — ML Study Hub</title>
+  <link rel="stylesheet" href="revision.css" />
+  <script>window.MathJax={tex:{inlineMath:[['$','$']]}};</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header><nav>
+  <a href="../index.html" class="logo">🧠 ML Study Hub</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Full Notes</a></li>
+    <li><a href="index.html">Revision Hub</a></li>
+    <li><a href="rev-premid.html">Pre-Mid</a></li>
+    <li><a href="rev-postmid.html" class="active">Post-Mid</a></li>
+    <li><a href="cheatsheet.html">Cheat Sheet</a></li>
+  </ul>
+</nav></header>
+
+<div class="page-wrap">
+  <div class="rev-header">
+    <div class="tag" style="background:rgba(248,81,73,0.12);color:#f85149;border-color:rgba(248,81,73,0.3)">📕 Weeks 10–15 · Higher Priority</div>
+    <h1>Post-Mid Quick Revision</h1>
+    <p>Midterm was Week 9 — these topics have <strong>higher weight</strong> in the final exam. Assignment 2 tests exactly these.</p>
+  </div>
+
+  <!-- ===== MODEL EVALUATION ===== -->
+  <div class="topic" id="eval">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📊</span><h2>Model Evaluation — Confusion Matrix &amp; Metrics</h2>
+      <span class="topic-tag tag-postmid">W10 · Assignment Q1</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <table class="rtable">
+            <tr><th></th><th>Predicted +</th><th>Predicted −</th></tr>
+            <tr><td><strong>Actual +</strong></td><td style="color:#3fb950">TP</td><td style="color:#f85149">FN</td></tr>
+            <tr><td><strong>Actual −</strong></td><td style="color:#f85149">FP</td><td style="color:#3fb950">TN</td></tr>
+          </table>
+          <div class="formula" style="margin-top:0.6rem"><div class="flabel">Accuracy</div>$$\text{Acc}=\frac{TP+TN}{TP+TN+FP+FN}$$</div>
+          <div class="formula"><div class="flabel">Precision</div>$$P=\frac{TP}{TP+FP}$$<p class="small">"Of all predicted positive, how many actually are?"</p></div>
+          <div class="formula"><div class="flabel">Recall (Sensitivity)</div>$$R=\frac{TP}{TP+FN}$$<p class="small">"Of all actual positive, how many did we catch?"</p></div>
+          <div class="formula"><div class="flabel">F1-Score</div>$$F1=\frac{2\cdot P\cdot R}{P+R}=\frac{2\cdot TP}{2\cdot TP+FP+FN}$$<p class="small">Harmonic mean — penalises if either P or R is very low</p></div>
+        </div>
+        <div>
+          <div class="trap"><div class="tlabel">Core Exam Trap (Assignment Q1)</div>
+            Dataset: 10,000 transactions, 50 fraud. Model predicts all negative.<br>
+            <ul style="padding-left:1.1rem;margin-top:0.4rem;line-height:1.9;font-size:0.83rem">
+              <li>TP=0, FP=0, FN=50, TN=9950</li>
+              <li>Accuracy = 9950/10000 = <strong>99.5%</strong> ← looks great, is useless</li>
+              <li>Recall = 0/50 = <strong>0%</strong> ← catches zero frauds!</li>
+              <li>F1 = 0 ← the honest metric</li>
+            </ul>
+            Why Accuracy fails: when classes are severely imbalanced, always predicting majority = high accuracy but no learning. Use F1, Precision, Recall instead.
+          </div>
+          <div class="exam-q" style="margin-top:0.6rem"><div class="elabel">How to Answer "Construct Confusion Matrix"</div>
+            1. Identify TP, FP, FN, TN from the scenario.<br>
+            2. Draw the 2×2 table and label all cells.<br>
+            3. Calculate requested metrics with formula.
+          </div>
+          <div class="scenario" style="margin-top:0.6rem">
+            <p class="s-q">Confusion matrix: [[90,10],[5,95]]. Compute Precision, Recall, F1.</p>
+            <details><summary>Show Answer</summary><div class="ans">
+              TP=95, FP=10, FN=5, TN=90<br>
+              Precision = 95/(95+10) = <strong>0.905</strong><br>
+              Recall = 95/(95+5) = <strong>0.950</strong><br>
+              F1 = 2(0.905)(0.950)/(0.905+0.950) = <strong>0.927</strong>
+            </div></details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SMOTE ===== -->
+  <div class="topic" id="smote">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🧬</span><h2>SMOTE &amp; Cost-Sensitive Learning</h2>
+      <span class="topic-tag tag-postmid">W10 · Assignment Q1.3</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.4rem">SMOTE — Synthetic Minority Over-sampling:</p>
+          <div class="key"><div class="klabel">Geometric Mechanism (How to explain in exam)</div>
+            For each minority sample $\mathbf{x}_i$, find its K nearest neighbours <em>within the minority class</em>. Select a random neighbour $\mathbf{x}_{nn}$. Generate a new synthetic sample by <strong>interpolating</strong>:
+            $$\mathbf{x}_{new} = \mathbf{x}_i + \lambda(\mathbf{x}_{nn}-\mathbf{x}_i), \quad \lambda\in[0,1]$$
+            Creates points along the line segment between two minority neighbours — not random noise.
+          </div>
+          <p class="bold mt" style="font-size:0.84rem">Advantage:</p> Increases minority class density without pure duplication. Better generalisation than simple oversampling.
+          <p class="bold mt" style="font-size:0.84rem">Limitation:</p> Can create noisy synthetic samples in overlapping regions. Doesn't clean majority class.
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.4rem">Cost-Sensitive Learning:</p>
+          <div class="info"><div class="ilabel">Mechanism</div>Modify the loss function to penalise misclassifying minority class more heavily. E.g., weight fraud misclassification 100× more than non-fraud. No new data created — the model learns to care more about minority errors.</div>
+          <p class="bold mt" style="font-size:0.84rem">Advantage:</p> No data augmentation risk. Directly targets the optimisation objective.
+          <p class="bold mt" style="font-size:0.84rem">Limitation:</p> Requires choosing good class weights (often domain-knowledge). Doesn't add information to the model.
+          <table class="rtable" style="margin-top:0.6rem">
+            <tr><th></th><th>SMOTE</th><th>Cost-Sensitive</th></tr>
+            <tr><td>Modifies</td><td>Data</td><td>Loss function</td></tr>
+            <tr><td>New samples</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Risk</td><td>Noisy synthetics</td><td>Hard to tune weights</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HPO ===== -->
+  <div class="topic" id="hpo">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🔧</span><h2>Hyperparameter Optimization (Grid, Random, Bayesian / Optuna)</h2>
+      <span class="topic-tag tag-postmid">W11</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <table class="rtable">
+        <tr><th>Method</th><th>How It Works</th><th>Advantage</th><th>Limitation</th></tr>
+        <tr><td><strong>Grid Search</strong></td><td>Try every combination of specified values</td><td>Exhaustive, reproducible</td><td>Exponential cost, inefficient</td></tr>
+        <tr><td><strong>Random Search</strong></td><td>Sample random combinations</td><td>Faster, finds good solutions often</td><td>Not systematic</td></tr>
+        <tr><td><strong>Bayesian (Optuna)</strong></td><td>Build probabilistic model of results, pick next point wisely</td><td>Learns from history, most efficient</td><td>Complex, harder to parallelise</td></tr>
+      </table>
+      <div class="key" style="margin-top:0.6rem"><div class="klabel">Optuna TPE</div>
+        Maintains two distributions: $l(x)$ = "good" trials, $g(x)$ = "bad" trials. Picks next point that maximises $l(x)/g(x)$. Explores areas neither distribution has visited (exploration vs exploitation).
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DATA LEAKAGE ===== -->
+  <div class="topic" id="leakage">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">💧</span><h2>Data Leakage — Most Tested Post-Mid Topic</h2>
+      <span class="topic-tag tag-postmid">W11 · Assignment Q3</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="trap"><div class="tlabel">Definition</div>Data leakage = including information about the <strong>target variable</strong> in training data that would NOT be available at prediction time.</div>
+      <div class="rev-grid" style="margin-top:0.8rem">
+        <div>
+          <p class="bold hl-red" style="font-size:0.84rem;margin-bottom:0.3rem">Type 1: Train-Test Contamination</p>
+          <p style="font-size:0.83rem;color:var(--text2)">Fitting preprocessing (StandardScaler, TargetEncoder) on the <em>full dataset</em> before splitting. Test set statistics "leak" into the training pipeline.</p>
+          <div class="trap" style="margin-top:0.5rem"><div class="tlabel">Wrong Order (Assignment Q3)</div>
+            ❌ Fit scaler on all data → split → train model<br>
+            ✅ Split first → fit scaler on train only → apply to test
+          </div>
+          <p class="bold" style="font-size:0.84rem;margin-top:0.6rem">Correct Pipeline:</p>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="st">Split into train/test FIRST</div></div>
+            <div class="step"><div class="sn">2</div><div class="st">Fit StandardScaler on <strong>train only</strong></div></div>
+            <div class="step"><div class="sn">3</div><div class="st">Transform (apply) scaler to both train and test</div></div>
+            <div class="step"><div class="sn">4</div><div class="st">Fit TargetEncoder on <strong>train only</strong></div></div>
+            <div class="step"><div class="sn">5</div><div class="st">Transform test with the train-fitted encoder</div></div>
+            <div class="step"><div class="sn">6</div><div class="st">Train model on transformed train set</div></div>
+          </div>
+        </div>
+        <div>
+          <p class="bold hl-red" style="font-size:0.84rem;margin-bottom:0.3rem">Type 2: Target Leakage</p>
+          <p style="font-size:0.83rem;color:var(--text2)">Using features that are only available <em>after</em> the event you're predicting. E.g., using a patient's post-diagnosis treatment data to predict the diagnosis.</p>
+          <div class="exam-q" style="margin-top:0.5rem"><div class="elabel">Assignment Q3.3 — Refuting "20% leakage is negligible"</div>
+            The argument fails because: even 20% of test data having inflated (over-optimistic) evaluation metrics causes you to select worse models, tune hyperparameters incorrectly, and deploy overconfident systems. The leakage affects the <em>validity of your evaluation</em> — not just 20% of data. A model selected under leakage may perform significantly worse in production, regardless of leakage proportion.
+          </div>
+          <p class="bold" style="font-size:0.84rem;margin-top:0.6rem">TargetEncoder Leakage Trap:</p>
+          <p style="font-size:0.83rem;color:var(--text2)">If you compute city→mean(target) on the full dataset including test, test labels flow back into features. Must compute target encoding statistics on train data only.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ENCODING ===== -->
+  <div class="topic" id="encoding">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🔤</span><h2>Feature Encoding &amp; Cyclical Features</h2>
+      <span class="topic-tag tag-postmid">W11</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <table class="rtable">
+            <tr><th>Encoding</th><th>How</th><th>Problem</th></tr>
+            <tr><td>Label Encoding</td><td>Cat→integer (0,1,2…)</td><td>False ordinal: Karachi(2) &gt; Lahore(1) is meaningless</td></tr>
+            <tr><td>One-Hot Encoding</td><td>Binary column per category</td><td>High dimensionality; 1000 cities → 1000 cols</td></tr>
+            <tr><td>Target Encoding</td><td>Replace category with mean(target)</td><td>Leakage if fit on full data!</td></tr>
+          </table>
+          <div class="key" style="margin-top:0.6rem"><div class="klabel">Target Encoding Example</div>
+            City=Lahore appears in rows with bought=[1,0] → mean=0.5<br>
+            City=Karachi rows: bought=[0,0] → mean=0.0<br>
+            City=Multan rows: bought=[1] → mean=1.0
+          </div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Cyclical Features (hour, day, season):</p>
+          <div class="trap"><div class="tlabel">The Problem</div>Hour 23 and hour 0 are 1 hour apart, but numerically $|23-0|=23$ — model sees them as far apart.</div>
+          <div class="formula"><div class="flabel">Cyclical Encoding</div>$$x_{\sin}=\sin\!\left(\frac{2\pi x}{T}\right), \quad x_{\cos}=\cos\!\left(\frac{2\pi x}{T}\right)$$<p class="small">$T=$ period (T=24 for hours, T=7 for days of week)</p></div>
+          <p style="font-size:0.83rem;color:var(--text2);margin-top:0.4rem">Hour 23: $\sin(2\pi\cdot23/24)=-0.26$, $\cos=-0.97$. Hour 0: $\sin=0$, $\cos=1$. Distance in sin/cos space is small — correctly close!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MLOPS ===== -->
+  <div class="topic" id="mlops">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🚀</span><h2>MLOps &amp; FastAPI Deployment</h2>
+      <span class="topic-tag tag-postmid">W12</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">MLOps Lifecycle (7 stages):</p>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="st">Data Collection</div></div>
+            <div class="step"><div class="sn">2</div><div class="st">Data Preparation</div></div>
+            <div class="step"><div class="sn">3</div><div class="st">Model Training</div></div>
+            <div class="step"><div class="sn">4</div><div class="st">Model Evaluation</div></div>
+            <div class="step"><div class="sn">5</div><div class="st">Model Packaging (serialisation)</div></div>
+            <div class="step"><div class="sn">6</div><div class="st">Deploy &amp; Serve (API)</div></div>
+            <div class="step"><div class="sn">7</div><div class="st">Monitor &amp; Retrain ← feedback loop</div></div>
+          </div>
+          <div class="key" style="margin-top:0.5rem"><div class="klabel">Key Stat (from lecture)</div>87% of ML models never reach production (Gartner). MLOps exists to fix this.</div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">FastAPI /predict endpoint pattern:</p>
+          <div style="background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:0.8rem;font-family:monospace;font-size:0.78rem;color:#a5d6ff;line-height:1.8">
+            from fastapi import FastAPI<br>
+            import joblib<br>
+            app = FastAPI()<br>
+            model = joblib.load("model.pkl")<br><br>
+            @app.post("/predict")<br>
+            def predict(features: list):<br>
+            &nbsp;&nbsp;pred = model.predict([features])<br>
+            &nbsp;&nbsp;return {"prediction": pred[0]}
+          </div>
+          <div class="key" style="margin-top:0.5rem"><div class="klabel">REST vs FastAPI</div>REST = rules of the road (architecture style). FastAPI = the car (tool to build REST APIs). HTTP POST = send data to server (for predictions).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DRIFT ===== -->
+  <div class="topic" id="drift">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📉</span><h2>Data Drift vs Concept Drift</h2>
+      <span class="topic-tag tag-postmid">W13–W14 · Assignment Q4.1</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="card" style="border-color:rgba(88,166,255,0.3);margin-bottom:0.7rem">
+            <h4 class="hl-blue">Data Drift (Covariate Shift)</h4>
+            <p>$P(X)$ changes — input distribution shifts. But $P(Y|X)$ stays same — true relationship unchanged.</p>
+            <p class="mt"><strong>Ride-sharing example:</strong> Model trained on pre-COVID commuting patterns. After COVID, work-from-home changes who requests rides (population mix shifts). Same model logic, different data.</p>
+            <p class="mt">Detected by: feature statistics, KS test on input features.</p>
+          </div>
+          <div class="card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 class="hl-red">Concept Drift</h4>
+            <p>$P(Y|X)$ changes — the true mapping changes. Same inputs now produce different correct outputs.</p>
+            <p class="mt"><strong>Ride-sharing example:</strong> New ride-share competitors enter market, changing demand patterns for same time/location features. The true relationship between features and demand has changed.</p>
+            <p class="mt">Detected by: model accuracy metrics, label comparison.</p>
+          </div>
+        </div>
+        <div>
+          <table class="rtable">
+            <tr><th>Aspect</th><th>Data Drift</th><th>Concept Drift</th></tr>
+            <tr><td>What changes</td><td>$P(X)$</td><td>$P(Y|X)$</td></tr>
+            <tr><td>Inputs different?</td><td>Yes</td><td>Not necessarily</td></tr>
+            <tr><td>Labels shift?</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Risk</td><td>Medium</td><td>High — model fundamentally wrong</td></tr>
+            <tr><td>Action</td><td>Monitor, maybe retrain</td><td>Retrain immediately</td></tr>
+          </table>
+          <p class="bold mt" style="font-size:0.84rem">Types of Concept Drift:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li><strong>Sudden</strong>: COVID disrupts demand overnight</li>
+            <li><strong>Gradual</strong>: Customer tastes evolve over months</li>
+            <li><strong>Incremental</strong>: Inflation slowly erodes price-based fraud thresholds</li>
+            <li><strong>Recurring</strong>: Holiday shopping patterns repeat seasonally</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KS TEST ===== -->
+  <div class="topic" id="kstest">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📐</span><h2>KS Test — Kolmogorov–Smirnov</h2>
+      <span class="topic-tag tag-postmid">W13–W14 · Assignment Q4.2</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">KS Statistic</div>$$D=\sup_x|F_{train}(x)-F_{prod}(x)|$$<p class="small">$F$ = empirical CDF | $D\in[0,1]$ | $D=0$ → identical distributions</p></div>
+          <table class="rtable" style="margin-top:0.5rem">
+            <tr><th>D value</th><th>Interpretation</th><th>Action</th></tr>
+            <tr><td>D &lt; 0.1</td><td>No drift — stable</td><td>Continue monitoring</td></tr>
+            <tr><td>0.1 ≤ D &lt; 0.2</td><td>Mild drift</td><td>Monitor closely</td></tr>
+            <tr><td>D ≥ 0.2</td><td>Significant drift!</td><td>Investigate, retrain</td></tr>
+            <tr><td>p &lt; 0.05</td><td>Statistically significant</td><td>Drift confirmed</td></tr>
+          </table>
+          <div class="exam-q" style="margin-top:0.5rem"><div class="elabel">Assignment Q4.2 Answer Structure</div>
+            (a) Compares: training feature distribution $F_{train}$ vs current production distribution $F_{prod}$.<br>
+            (b) Measures: the maximum vertical gap between the two CDFs (supremum of absolute differences).<br>
+            (c) Response: p&lt;0.05 triggers alert → investigate root cause → schedule retraining or feature review.
+          </div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Worked Example (from lecture):</p>
+          <p style="font-size:0.83rem;color:var(--text2);margin-bottom:0.4rem">Reference: {1,2,3,4} | Production: {3,4,5,6}</p>
+          <table class="rtable">
+            <tr><th>x</th><th>$F_{train}(x)$</th><th>$F_{prod}(x)$</th><th>|Diff|</th></tr>
+            <tr><td>1</td><td>0.25</td><td>0.00</td><td>0.25</td></tr>
+            <tr><td>2</td><td>0.50</td><td>0.00</td><td>0.50</td></tr>
+            <tr><td>3</td><td>0.75</td><td>0.25</td><td>0.50</td></tr>
+            <tr><td>4</td><td>1.00</td><td>0.50</td><td>0.50</td></tr>
+            <tr><td>5</td><td>1.00</td><td>0.75</td><td>0.25</td></tr>
+            <tr><td>6</td><td>1.00</td><td>1.00</td><td>0.00</td></tr>
+          </table>
+          <p style="font-size:0.83rem;margin-top:0.4rem">$D=\max|diff|=\mathbf{0.5}$ → D≥0.2 → <strong>SIGNIFICANT DRIFT DETECTED</strong></p>
+          <div style="background:#0d1117;border-radius:8px;padding:0.6rem 0.8rem;margin-top:0.5rem;font-family:monospace;font-size:0.75rem;color:#a5d6ff">
+            from scipy import stats<br>
+            stat, p = stats.ks_2samp(train_col, prod_col)<br>
+            if stat &gt; 0.1 or p &lt; 0.05:<br>
+            &nbsp;&nbsp;trigger_alert("Drift detected!")
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OBSERVABILITY ===== -->
+  <div class="topic" id="observability">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">👁️</span><h2>Observability &amp; ML Monitoring</h2>
+      <span class="topic-tag tag-postmid">W14</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Three Pillars:</p>
+          <div class="card" style="margin-bottom:0.5rem">
+            <h4 class="hl-blue">Monitoring (Metrics)</h4>
+            <p>Numbers that trigger alerts. "CPU at 99%. Latency high." Dashboard metrics, thresholds.</p>
+          </div>
+          <div class="card" style="margin-bottom:0.5rem">
+            <h4 class="hl-green">Logging (Events)</h4>
+            <p>Granular text records for debugging. "Line 42 crashed because user_id was null." Elasticsearch/Kibana.</p>
+          </div>
+          <div class="card">
+            <h4 class="hl-purple">Distributed Tracing</h4>
+            <p>Track a single request across multiple microservices. "Request hit API gateway → ML model → timed out at DB."</p>
+          </div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Alerting Priority (P1–P4):</p>
+          <table class="rtable">
+            <tr><th>Priority</th><th>Trigger</th><th>Action</th></tr>
+            <tr><td style="color:#f85149"><strong>P1</strong></td><td>Accuracy drop &gt;15% or KS &gt;0.3</td><td>Page on-call, rollback</td></tr>
+            <tr><td style="color:#d29922"><strong>P2</strong></td><td>KS 0.2–0.3, missing &gt;10%</td><td>Ticket, 4hr SLA</td></tr>
+            <tr><td style="color:#58a6ff"><strong>P3</strong></td><td>KS 0.1–0.2, mild schema change</td><td>Logged, next sprint</td></tr>
+            <tr><td style="color:#3fb950"><strong>P4</strong></td><td>Minor fluctuation</td><td>Logged only</td></tr>
+          </table>
+          <div class="key" style="margin-top:0.5rem"><div class="klabel">Stack Example (Fraud Detection)</div>
+            MLflow (experiment tracking) → BigQuery (data storage) → ELK Stack (debugging) → Grafana (dashboards) → PagerDuty (alerts)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADVERSARIAL ===== -->
+  <div class="topic" id="adversarial">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">⚔️</span><h2>Adversarial Attacks &amp; Red Teaming</h2>
+      <span class="topic-tag tag-postmid">W15 · Assignment Q4.3</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Attack Types:</p>
+          <div class="card" style="margin-bottom:0.5rem;border-color:rgba(248,81,73,0.3)">
+            <h4 class="hl-red">Evasion Attack (inference time)</h4>
+            <p>Modify input to fool the model. Stop sign + sticker → misclassified as speed limit.</p>
+          </div>
+          <div class="card" style="border-color:rgba(210,153,34,0.3)">
+            <h4 class="hl-orange">Poisoning Attack (training time)</h4>
+            <p>Inject malicious samples into training data to corrupt model behaviour.</p>
+          </div>
+          <div class="exam-q" style="margin-top:0.6rem"><div class="elabel">Assignment Q4.3 — Adversarial in Tabular Data</div>
+            <strong>Image domain:</strong> Add imperceptible pixel noise → model misclassifies (human can't see change).<br><br>
+            <strong>Tabular regression (ride-sharing):</strong> Adversarial input = deliberately crafted feature values (e.g., manipulate hour=11pm as if it's 3am by encoding tricks, or inject extreme feature values) to cause the demand model to output incorrect predictions. No pixels — instead perturbing numerical/categorical feature values. Key difference: tabular adversarial perturbations must stay within plausible feature ranges (e.g., temperature can't be 500°C) to avoid detection — harder to craft but still possible.
+          </div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Red Teaming (for regression model):</p>
+          <div class="key"><div class="klabel">Method (for exam)</div>
+            Before deployment, create a structured adversarial test suite: (1) craft boundary inputs (unusual feature combinations), (2) test with outlier feature values, (3) check for feature-level sensitivity (what happens if one feature is 10× its normal value?), (4) test under distribution shift scenarios (inputs from different time periods). Accept the model only if MAE stays within tolerance across all adversarial inputs.
+          </div>
+          <p class="bold mt" style="font-size:0.84rem">LLM-Specific Attacks:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li><strong>Prompt injection:</strong> "Ignore previous instructions..."</li>
+            <li><strong>Jailbreaking:</strong> roleplay, Base64 encoding, translation tricks</li>
+          </ul>
+          <p class="bold mt" style="font-size:0.84rem">Privacy Attacks:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li>Model inversion → reconstruct training data</li>
+            <li>Membership inference → was X in training set?</li>
+            <li>Model extraction → steal model via queries</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FAIRNESS ===== -->
+  <div class="topic" id="fairness">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">⚖️</span><h2>Fairness Metrics</h2>
+      <span class="topic-tag tag-postmid">W15</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Demographic Parity</div>$$P(\hat{Y}=1|A=0)=P(\hat{Y}=1|A=1)$$<p class="small">Same positive prediction rate across groups</p></div>
+          <div class="formula"><div class="flabel">Equal Opportunity</div>$$\text{TPR}_0=\text{TPR}_1$$<p class="small">Qualified candidates have equal chance of positive outcome</p></div>
+          <div class="formula"><div class="flabel">Equalized Odds</div>$$\text{TPR}_0=\text{TPR}_1 \;\text{ AND }\; \text{FPR}_0=\text{FPR}_1$$</div>
+          <div class="formula"><div class="flabel">Calibration</div>$$P(Y=1|\hat{Y}=p,A=a)=p\;\forall a$$<p class="small">Confidence equally reliable for all groups</p></div>
+        </div>
+        <div>
+          <table class="rtable">
+            <tr><th>Metric</th><th>What equals across groups</th></tr>
+            <tr><td>Demographic Parity</td><td>Positive prediction rate $P(\hat{Y}=1)$</td></tr>
+            <tr><td>Equal Opportunity</td><td>TPR (true positive rate)</td></tr>
+            <tr><td>Equalized Odds</td><td>TPR + FPR both equal</td></tr>
+            <tr><td>Calibration</td><td>Confidence reliability</td></tr>
+          </table>
+          <div class="trap" style="margin-top:0.6rem"><div class="tlabel">Key Point</div>Fairness metrics can CONFLICT with each other and with accuracy. "Fair" is context-dependent — no single definition is always correct.</div>
+          <div class="exam-q" style="margin-top:0.5rem"><div class="elabel">Quick Check</div>
+            Group A: 560/800 approved (70%). Group B: 80/200 approved (40%).<br>
+            Demographic Parity violated: 70% ≠ 40%.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCKER QUICK CARD -->
+  <div class="topic">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🐳</span><h2>Docker &amp; Virtual Environments</h2>
+      <span class="topic-tag tag-postmid">W13</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <table class="rtable">
+            <tr><th></th><th>venv</th><th>conda</th><th>Docker</th></tr>
+            <tr><td>Manages</td><td>Python pkgs only</td><td>Python + system libs</td><td>Entire OS + app</td></tr>
+            <tr><td>Isolation</td><td>Package-level</td><td>Package + CUDA</td><td>Complete container</td></tr>
+            <tr><td>Use for</td><td>Simple dev</td><td>DS/ML projects</td><td>Production</td></tr>
+          </table>
+          <div class="key" style="margin-top:0.6rem"><div class="klabel">Analogy (from lecture)</div>Docker = shipping container. Same app runs identically on any machine. "venv for learning/dev, Docker for production."</div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Dockerfile keywords:</p>
+          <table class="rtable">
+            <tr><th>Instruction</th><th>Purpose</th></tr>
+            <tr><td>FROM</td><td>Base image (e.g. python:3.10-slim)</td></tr>
+            <tr><td>WORKDIR</td><td>Set working directory inside container</td></tr>
+            <tr><td>COPY</td><td>Copy files from host to container</td></tr>
+            <tr><td>RUN</td><td>Execute command during build (pip install)</td></tr>
+            <tr><td>EXPOSE</td><td>Document which port the app uses</td></tr>
+            <tr><td>CMD</td><td>Default command when container starts</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="back-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+window.addEventListener('scroll',()=>document.getElementById('btt').classList.toggle('show',scrollY>300));
+document.querySelectorAll('.topic-head').forEach(h=>h.addEventListener('click',()=>h.closest('.topic').classList.toggle('collapsed')));
+</script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 3 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">Week 1</a></li>
+      <li><a href="week2.html">Week 2</a></li>
+      <li><a href="week3.html" class="active">Week 3</a></li>
+      <li><a href="week4.html">Week 4</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 3 — SVM: Theory &amp; Hard Margin</strong>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#svm-intro">SVM Introduction</a></li>
+      <li class="sub"><a href="#svm-what">What is an SVM?</a></li>
+      <li class="sub"><a href="#svm-intuition">Geometric Intuition</a></li>
+      <li class="sub"><a href="#svm-apps">Applications</a></li>
+      <li><a href="#decision-boundary">Decision Boundary</a></li>
+      <li class="sub"><a href="#hyperplane">Hyperplane Equation</a></li>
+      <li class="sub"><a href="#classifier">Classifier Rule</a></li>
+      <li><a href="#margin">Margin &amp; Support Vectors</a></li>
+      <li class="sub"><a href="#what-is-margin">What is Margin?</a></li>
+      <li class="sub"><a href="#margin-width">Margin Width Formula</a></li>
+      <li class="sub"><a href="#support-vecs">Support Vectors</a></li>
+      <li><a href="#objective">Objective Function</a></li>
+      <li class="sub"><a href="#primal">Primal Problem</a></li>
+      <li class="sub"><a href="#constraints">Constraints</a></li>
+      <li><a href="#svm-viz">SVM Visualizer</a></li>
+      <li><a href="#quiz3">Quiz</a></li>
+      <li><a href="#numericals3">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="page-header">
+      <div class="week-tag">Week 3</div>
+      <h1>Support Vector Machines — Theory &amp; Hard Margin</h1>
+      <p>One of the most elegant and powerful classifiers in ML. Understand the geometry, margin maximisation, and the mathematical formulation of the hard-margin SVM.</p>
+    </div>
+
+    <!-- ===== SVM INTRO ===== -->
+    <div class="section" id="svm-intro" data-section="svm-intro">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔍</div>
+        <h2>Introduction to SVMs</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div id="svm-what" data-section="svm-what">
+          <div class="concept-intro">
+            <p><strong>From the lecture:</strong> Support Vector Machines are <em>non-probabilistic binary linear classifiers</em>. They find the optimal hyperplane that separates two classes with the <strong>maximum possible margin</strong>.</p>
+            <p style="margin-top:0.6rem">The key idea: among all possible lines/planes that separate two classes, SVM picks the one that is <em>furthest from all data points</em> — maximising the margin between classes.</p>
+          </div>
+        </div>
+
+        <div id="svm-intuition" data-section="svm-intuition" style="margin-top:1.2rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Geometric Intuition</h3>
+
+          <div class="two-col">
+            <div class="mini-card" style="border-color:rgba(210,153,34,0.3)">
+              <h4>❓ The Problem</h4>
+              <p>Given labelled points (+1 and -1), there are <em>infinitely many</em> hyperplanes that correctly separate them. Which one do we pick?</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4>✅ SVM's Answer</h4>
+              <p>Pick the hyperplane with the <strong>maximum margin</strong> — the one that is as far as possible from the nearest point on each side.</p>
+            </div>
+          </div>
+
+          <div class="key-insight" style="margin-top:1rem">
+            <div class="label">🔑 Why Maximum Margin?</div>
+            A larger margin means the model is more robust — small perturbations in data are less likely to cause misclassification. It gives the best generalisation from training to test data. This is backed by statistical learning theory (VC dimension).
+          </div>
+        </div>
+
+        <div id="svm-apps" data-section="svm-apps" style="margin-top:1.2rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Applications (From Lecture)</h3>
+          <div class="three-col">
+            <div class="mini-card">
+              <h4>📄 Text Classification</h4>
+              <p>Spam detection, sentiment analysis, news categorisation</p>
+            </div>
+            <div class="mini-card">
+              <h4>🚨 Outlier Detection</h4>
+              <p>One-class SVM finds anomalies in data (fraud, fault detection)</p>
+            </div>
+            <div class="mini-card">
+              <h4>👤 Face Detection</h4>
+              <p>Classical face/object recognition in computer vision</p>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">📌 Key Properties (from lecture)</div>
+            <ul style="padding-left:1.2rem;font-size:0.88rem">
+              <li>Non-probabilistic: outputs a class label, not a probability</li>
+              <li>Binary: designed for 2-class problems (extended via one-vs-one or one-vs-rest)</li>
+              <li>Only a <strong>subset</strong> of training points define the classifier — these are the <em>support vectors</em></li>
+              <li>Basis functions &amp; kernel trick extend it beyond linear classifiers</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== DECISION BOUNDARY ===== -->
+    <div class="section" id="decision-boundary" data-section="decision-boundary">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">✂️</div>
+        <h2>Decision Boundary &amp; Hyperplane</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p>In 2D, the decision boundary is a <strong>line</strong>. In 3D it's a <strong>plane</strong>. In $n$ dimensions it's a <strong>hyperplane</strong>. The SVM finds the optimal hyperplane.</p>
+        </div>
+
+        <div id="hyperplane" data-section="hyperplane">
+          <h3 style="margin:1.2rem 0 0.8rem;font-size:1.05rem">Hyperplane Equation</h3>
+          <div class="formula-block">
+            <div class="formula-label">Hyperplane</div>
+            <div class="formula-name">Decision Boundary Equation</div>
+            $$\mathbf{w}^T \mathbf{x} + b = 0$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$\mathbf{w}$ = weight vector (normal to the hyperplane) | $b$ = bias term | $\mathbf{x}$ = input vector</p>
+          </div>
+
+          <div class="three-col">
+            <div class="mini-card">
+              <h4>$\mathbf{w}$ (weight vector)</h4>
+              <p>Points perpendicular to the hyperplane — defines its <em>orientation</em>.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$b$ (bias)</h4>
+              <p>Shifts the hyperplane away from the origin — defines its <em>position</em>.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$\|\mathbf{w}\|$</h4>
+              <p>The magnitude of $\mathbf{w}$ — appears in the margin calculation.</p>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">In 2D</div>
+            <p>$w_1 x_1 + w_2 x_2 + b = 0$ is just the equation of a line $Ax + By + C = 0$.</p>
+            <p style="margin-top:0.4rem">The distance from any point $\mathbf{x}_0$ to this hyperplane is: $\frac{|\mathbf{w}^T\mathbf{x}_0 + b|}{\|\mathbf{w}\|}$</p>
+          </div>
+        </div>
+
+        <div id="classifier" data-section="classifier" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Classifier Decision Rule (From Lecture)</h3>
+          <div class="formula-block">
+            <div class="formula-label">Classification Rule</div>
+            <div class="formula-name">Sign of the decision function determines class</div>
+            $$\hat{y} = \text{sign}(\mathbf{w}^T\mathbf{x} + b)$$
+            $$\hat{y} = \begin{cases} +1 & \text{if } \mathbf{w}^T\mathbf{x} + b \geq 0 \\ -1 & \text{if } \mathbf{w}^T\mathbf{x} + b < 0 \end{cases}$$
+          </div>
+
+          <div class="key-insight">
+            <div class="label">💡 Geometric Meaning</div>
+            The sign of $\mathbf{w}^T\mathbf{x} + b$ tells you which side of the hyperplane a point is on. Positive → Class +1. Negative → Class -1. The hyperplane itself is where the value equals zero.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== MARGIN ===== -->
+    <div class="section" id="margin" data-section="margin">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">↔️</div>
+        <h2>Margin &amp; Support Vectors</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div id="what-is-margin" data-section="what-is-margin">
+          <div class="concept-intro">
+            <p>The <strong>margin</strong> is the total width of the "street" between the two classes — the distance between the two margin hyperplanes (one touching each class). SVM maximises this margin.</p>
+          </div>
+
+          <div class="viz-container">
+            <h4>SVM Margin Diagram</h4>
+            <canvas id="svmDiagram" width="560" height="320" style="background:#0d1117;border-radius:8px"></canvas>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.5rem">🔵 Class +1 | 🔴 Class -1 | Green line = Decision boundary | Dashed = margin boundaries</p>
+          </div>
+        </div>
+
+        <div id="margin-width" data-section="margin-width" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Margin Width Formula</h3>
+
+          <div class="concept-intro">
+            <p>We define the two <strong>margin hyperplanes</strong> (gutters) as:</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Margin Hyperplanes</div>
+            <div class="formula-name">Positive and Negative Margin Boundaries</div>
+            $$\mathbf{w}^T\mathbf{x} + b = +1 \quad \text{(positive margin boundary)}$$
+            $$\mathbf{w}^T\mathbf{x} + b = -1 \quad \text{(negative margin boundary)}$$
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Width</div>
+            <div class="formula-name">Total Margin Width</div>
+            $$\text{margin} = \frac{2}{\|\mathbf{w}\|}$$
+          </div>
+
+          <div class="steps" style="margin-top:1rem">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <strong>Distance from origin to positive boundary</strong>: $\frac{1 - b}{\|\mathbf{w}\|}$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <strong>Distance from origin to negative boundary</strong>: $\frac{-1 - b}{\|\mathbf{w}\|}$
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <strong>Total margin</strong> = distance between the two boundaries = $\frac{2}{\|\mathbf{w}\|}$
+              </div>
+            </div>
+          </div>
+
+          <div class="key-insight" style="margin-top:1rem">
+            <div class="label">🔑 Maximising Margin</div>
+            Maximising $\frac{2}{\|\mathbf{w}\|}$ is equivalent to <strong>minimising $\|\mathbf{w}\|$</strong>, which is equivalent to minimising $\frac{1}{2}\|\mathbf{w}\|^2$ (easier to differentiate).
+          </div>
+        </div>
+
+        <div id="support-vecs" data-section="support-vecs" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Support Vectors</h3>
+          <div class="concept-intro">
+            <p>Support vectors are the training points that lie <em>exactly on the margin boundaries</em> (i.e., $\mathbf{w}^T\mathbf{x} + b = \pm 1$). They are the <strong>only points that define the SVM</strong>.</p>
+          </div>
+
+          <div class="key-insight">
+            <div class="label">🔑 Why "Support" Vectors?</div>
+            If you removed any non-support-vector training point, the optimal hyperplane wouldn't change. Remove a support vector and the hyperplane shifts. They "support" (define) the margin boundaries.
+          </div>
+
+          <div class="two-col" style="margin-top:1rem">
+            <div class="mini-card">
+              <h4>Typically few SVs</h4>
+              <p>Even with thousands of training points, there are usually just a handful of support vectors. This makes SVM memory-efficient.</p>
+            </div>
+            <div class="mini-card">
+              <h4>Prediction uses only SVs</h4>
+              <p>$\hat{y} = \text{sign}\left(\sum_{i \in \text{SVs}} \alpha_i y_i \langle\mathbf{x}_i, \mathbf{x}\rangle + b\right)$</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== OBJECTIVE FUNCTION ===== -->
+    <div class="section" id="objective" data-section="objective">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">🎯</div>
+        <h2>The Objective Function (Primal Problem)</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p>SVM is a <strong>constrained optimisation problem</strong>. We want to find $\mathbf{w}$ and $b$ that maximise the margin while ensuring all points are correctly classified.</p>
+        </div>
+
+        <div id="primal" data-section="primal">
+          <div class="formula-block">
+            <div class="formula-label">Primal Problem</div>
+            <div class="formula-name">Hard-Margin SVM Optimisation</div>
+            $$\min_{\mathbf{w}, b} \frac{1}{2}\|\mathbf{w}\|^2$$
+            $$\text{subject to: } y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1 \quad \forall i$$
+          </div>
+        </div>
+
+        <div id="constraints" data-section="constraints" style="margin-top:1rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Understanding the Constraint</h3>
+
+          <div class="formula-block">
+            <div class="formula-label">Constraint</div>
+            <div class="formula-name">Correct Classification + Outside Margin</div>
+            $$y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1$$
+          </div>
+
+          <div class="two-col">
+            <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+              <h4>For Class +1 ($y_i = +1$)</h4>
+              <p>Constraint becomes: $\mathbf{w}^T\mathbf{x}_i + b \geq +1$</p>
+              <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">Point must be on or beyond the positive margin</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4>For Class -1 ($y_i = -1$)</h4>
+              <p>Constraint becomes: $\mathbf{w}^T\mathbf{x}_i + b \leq -1$</p>
+              <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text2)">Point must be on or beyond the negative margin</p>
+            </div>
+          </div>
+
+          <div class="key-insight" style="margin-top:1rem">
+            <div class="label">🔑 Elegant Trick</div>
+            By labelling classes as $y_i \in \{-1, +1\}$ (not 0/1), the single constraint $y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1$ simultaneously handles both classes. When $y_i = +1$ and prediction is positive, the product is $\geq 1$. When $y_i = -1$ and prediction is negative, the product is $\geq 1$ too.
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Solving via Lagrange Multipliers</h3>
+          <div class="concept-intro">
+            <p>This constrained optimisation is solved using Lagrangian duality. We introduce Lagrange multipliers $\alpha_i \geq 0$ for each constraint:</p>
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Lagrangian</div>
+            <div class="formula-name">Primal Lagrangian</div>
+            $$\mathcal{L}(\mathbf{w}, b, \boldsymbol{\alpha}) = \frac{1}{2}\|\mathbf{w}\|^2 - \sum_{i=1}^{m} \alpha_i \left[y_i(\mathbf{w}^T\mathbf{x}_i + b) - 1\right]$$
+          </div>
+          <div class="info-box">
+            <div class="label">KKT Conditions</div>
+            At the optimum, the KKT (Karush-Kuhn-Tucker) conditions give us: $\alpha_i = 0$ for non-support vectors (constraint is not active), and $\alpha_i > 0$ only for support vectors.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== SVM VISUALIZER ===== -->
+    <div class="section" id="svm-viz" data-section="svm-viz">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎮</div>
+        <h2>Interactive SVM Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <h4>Click to add points — Left click = Class +1 (blue) | Right click = Class -1 (red) | SVM updates live</h4>
+          <canvas id="svmCanvas" width="560" height="360" style="cursor:crosshair;background:#0d1117;border-radius:8px"></canvas>
+          <div class="viz-controls">
+            <button class="viz-btn" onclick="clearSVM()">Clear All</button>
+            <button class="viz-btn secondary" onclick="loadSVMSample()">Load Sample</button>
+          </div>
+          <div id="svmInfo" style="font-size:0.82rem;color:var(--text2);margin-top:0.5rem">Add at least 2 points per class to see the decision boundary</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="section" id="quiz3" data-section="quiz3">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 3 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. SVM is described as "non-probabilistic." What does this mean?</p>
+            <div class="options">
+              <button class="option-btn">It uses probability to classify</button>
+              <button class="option-btn" data-correct="true">It outputs a class label directly, not a probability</button>
+              <button class="option-btn">It doesn't work on probabilistic data</button>
+              <button class="option-btn">It's always better than probabilistic classifiers</button>
+            </div>
+            <div class="explanation">Non-probabilistic means SVM outputs a decision (class label) directly via the sign function, rather than computing class probabilities like logistic regression does.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. The margin of an SVM is $\frac{2}{\|\mathbf{w}\|}$. Maximising the margin requires:</p>
+            <div class="options">
+              <button class="option-btn">Maximising $\|\mathbf{w}\|$</button>
+              <button class="option-btn" data-correct="true">Minimising $\|\mathbf{w}\|$ (equivalently, $\frac{1}{2}\|\mathbf{w}\|^2$)</button>
+              <button class="option-btn">Setting $\|\mathbf{w}\| = 1$</button>
+              <button class="option-btn">Maximising $\|\mathbf{w}\|^2$</button>
+            </div>
+            <div class="explanation">Since margin = 2/‖w‖, maximising this means minimising ‖w‖. We minimise ½‖w‖² instead because it's differentiable and equivalent.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. Support vectors are:</p>
+            <div class="options">
+              <button class="option-btn">All training data points</button>
+              <button class="option-btn" data-correct="true">The training points that lie exactly on the margin boundaries ($\mathbf{w}^T\mathbf{x} + b = \pm 1$)</button>
+              <button class="option-btn">The training points farthest from the decision boundary</button>
+              <button class="option-btn">The incorrectly classified training points</button>
+            </div>
+            <div class="explanation">Support vectors are the critical points that touch the margin hyperplanes. They are the only training points that matter for defining the optimal hyperplane.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. For a point with $y_i = +1$, the hard-margin SVM constraint $y_i(\mathbf{w}^T\mathbf{x}_i + b) \geq 1$ becomes:</p>
+            <div class="options">
+              <button class="option-btn" data-correct="true">$\mathbf{w}^T\mathbf{x}_i + b \geq 1$</button>
+              <button class="option-btn">$\mathbf{w}^T\mathbf{x}_i + b \leq -1$</button>
+              <button class="option-btn">$\mathbf{w}^T\mathbf{x}_i + b = 0$</button>
+              <button class="option-btn">$\mathbf{w}^T\mathbf{x}_i + b \geq 0$</button>
+            </div>
+            <div class="explanation">Substituting $y_i = +1$: $(+1)(\mathbf{w}^T\mathbf{x}_i + b) \geq 1$, which simplifies directly to $\mathbf{w}^T\mathbf{x}_i + b \geq 1$.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. What happens if you remove a non-support-vector training point from an SVM?</p>
+            <div class="options">
+              <button class="option-btn">The decision boundary changes significantly</button>
+              <button class="option-btn" data-correct="true">The decision boundary doesn't change at all</button>
+              <button class="option-btn">The margin decreases</button>
+              <button class="option-btn">New support vectors are needed</button>
+            </div>
+            <div class="explanation">Only support vectors define the SVM. Non-support-vector points have Lagrange multiplier α_i = 0 and play no role in determining the hyperplane.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUMERICALS ===== -->
+    <div class="section" id="numericals3" data-section="numericals3">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 1 — Compute Margin Width</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              An SVM has weight vector $\mathbf{w} = [3, 4]^T$. Compute the <strong>margin width</strong>.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                Compute $\|\mathbf{w}\| = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = \sqrt{25} = 5$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                Margin width $= \frac{2}{\|\mathbf{w}\|} = \frac{2}{5} = \mathbf{0.4}$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 2 — Classify a Point Using SVM</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              A trained SVM has $\mathbf{w} = [2, -1]^T$ and $b = -1$.<br>
+              Classify the point $\mathbf{x} = [3, 1]^T$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                Compute decision function: $\mathbf{w}^T\mathbf{x} + b = (2)(3) + (-1)(1) + (-1) = 6 - 1 - 1 = 4$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                Apply sign function: $\hat{y} = \text{sign}(4) = \mathbf{+1}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Result</span><div class="step-text">
+                Point $(3, 1)$ is classified as <strong>Class +1</strong> ✅<br>
+                Distance from hyperplane: $\frac{|4|}{\|\mathbf{w}\|} = \frac{4}{\sqrt{5}} \approx 1.79$ (well within class +1 region)
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 3 — Verify Support Vectors</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              SVM with $\mathbf{w} = [1, 1]^T$, $b = -3$. Check which of these points are support vectors:<br>
+              A = $(1, 2)$ with $y=+1$, B = $(3, 4)$ with $y=+1$, C = $(1, 0)$ with $y=-1$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">SV Condition</span><div class="step-text">
+                A point $\mathbf{x}_i$ is a support vector if $y_i(\mathbf{w}^T\mathbf{x}_i + b) = 1$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Point A</span><div class="step-text">
+                $\mathbf{w}^T\mathbf{x}_A + b = 1(1) + 1(2) - 3 = 0$<br>
+                $y_A \times 0 = (+1)(0) = 0 \neq 1$ → NOT a support vector (on boundary!)
+              </div></div>
+              <div class="solution-step"><span class="step-label">Point B</span><div class="step-text">
+                $\mathbf{w}^T\mathbf{x}_B + b = 1(3) + 1(4) - 3 = 4$<br>
+                $y_B \times 4 = (+1)(4) = 4 \neq 1$ → NOT a support vector (well inside)
+              </div></div>
+              <div class="solution-step"><span class="step-label">Point C</span><div class="step-text">
+                $\mathbf{w}^T\mathbf{x}_C + b = 1(1) + 1(0) - 3 = -2$<br>
+                $y_C \times (-2) = (-1)(-2) = 2 \neq 1$ → NOT a support vector
+              </div></div>
+              <div class="solution-step"><span class="step-label">Note</span><div class="step-text">
+                Support vectors satisfy the constraint with <em>equality</em> = 1. We'd need to find points exactly on the $\mathbf{w}^T\mathbf{x} + b = \pm 1$ hyperplanes. E.g., point $(2, 2)$ with $y=+1$: $1(2)+1(2)-3=1$ ✅ → Support Vector!
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem;display:flex;gap:1rem;justify-content:center">
+      <a href="week2.html" style="background:var(--bg3);color:var(--text);text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block;border:1px solid var(--border)">← Week 2</a>
+      <a href="week4.html" style="background:var(--purple);color:#fff;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">Week 4: Soft Margin &amp; Kernels →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="../script.js"></script>
+<script src="week3.js"></script>
+</body>
+</html>

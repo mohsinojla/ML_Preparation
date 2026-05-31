@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 2 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">Week 1</a></li>
+      <li><a href="week2.html" class="active">Week 2</a></li>
+      <li><a href="week3.html">Week 3</a></li>
+      <li><a href="week4.html">Week 4</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 2 — Linear &amp; Polynomial Regression</strong>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#linear-reg">Linear Regression</a></li>
+      <li class="sub"><a href="#hypothesis">Hypothesis Function</a></li>
+      <li class="sub"><a href="#cost-function">Cost Function (MSE)</a></li>
+      <li class="sub"><a href="#gd-linear">GD for Linear Reg.</a></li>
+      <li class="sub"><a href="#normal-eq">Normal Equation</a></li>
+      <li class="sub"><a href="#reg-viz">Regression Visualizer</a></li>
+      <li><a href="#poly-reg">Polynomial Regression</a></li>
+      <li class="sub"><a href="#poly-model">Polynomial Model</a></li>
+      <li class="sub"><a href="#poly-considerations">Considerations</a></li>
+      <li><a href="#bias-variance">Bias-Variance Tradeoff</a></li>
+      <li class="sub"><a href="#underfitting">Underfitting</a></li>
+      <li class="sub"><a href="#overfitting">Overfitting</a></li>
+      <li class="sub"><a href="#bv-curve">BV Curve</a></li>
+      <li><a href="#regularization">Regularization</a></li>
+      <li class="sub"><a href="#ridge">Ridge (L2)</a></li>
+      <li class="sub"><a href="#lasso">Lasso (L1)</a></li>
+      <li><a href="#quiz2">Quiz</a></li>
+      <li><a href="#numericals2">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="page-header">
+      <div class="week-tag">Week 2</div>
+      <h1>Linear &amp; Polynomial Regression</h1>
+      <p>From fitting a straight line to understanding why models fail — learn regression, cost minimisation, polynomial fitting, and regularisation.</p>
+    </div>
+
+    <!-- ===== LINEAR REGRESSION ===== -->
+    <div class="section" id="linear-reg" data-section="linear-reg">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">📈</div>
+        <h2>Linear Regression</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Linear Regression models the relationship between input feature(s) $x$ and a continuous output $y$ by fitting a straight line (or hyperplane in higher dimensions). It is the foundation of supervised learning.</p>
+        </div>
+
+        <!-- HYPOTHESIS -->
+        <div id="hypothesis" data-section="hypothesis">
+          <h3 style="margin:1.2rem 0 0.8rem;font-size:1.05rem">Hypothesis Function</h3>
+          <div class="formula-block">
+            <div class="formula-label">Simple Linear</div>
+            <div class="formula-name">Hypothesis — 1 Feature</div>
+            $$h_\theta(x) = \theta_0 + \theta_1 x$$
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Multiple Linear</div>
+            <div class="formula-name">Hypothesis — Multiple Features</div>
+            $$h_\theta(\mathbf{x}) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \ldots + \theta_n x_n = \boldsymbol{\theta}^T \mathbf{x}$$
+          </div>
+
+          <div class="three-col">
+            <div class="mini-card">
+              <h4>$\theta_0$ (bias)</h4>
+              <p>The y-intercept — value of $h$ when all features are 0.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$\theta_1$ (weight)</h4>
+              <p>The slope — how much $h$ changes for a unit increase in $x_1$.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$\hat{y}$ vs $y$</h4>
+              <p>$\hat{y} = h_\theta(x)$ is the <em>predicted</em> value; $y$ is the actual label.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- COST FUNCTION -->
+        <div id="cost-function" data-section="cost-function" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Cost Function (Mean Squared Error)</h3>
+          <div class="concept-intro">
+            <p>We need to measure how wrong our predictions are. The <strong>cost function</strong> $J(\theta)$ quantifies this error. We want to <em>minimise</em> $J(\theta)$ to get the best fit line.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Cost Function</div>
+            <div class="formula-name">Mean Squared Error (MSE)</div>
+            $$J(\theta_0, \theta_1) = \frac{1}{2m} \sum_{i=1}^{m} \left(h_\theta(x^{(i)}) - y^{(i)}\right)^2$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$m$ = number of training examples. The $\frac{1}{2}$ makes the gradient cleaner.</p>
+          </div>
+
+          <div class="key-insight">
+            <div class="label">🔑 Why Squared?</div>
+            Squaring makes all errors positive, penalises large errors more (quadratic penalty), and is differentiable everywhere — perfect for gradient descent.
+          </div>
+
+          <div class="info-box">
+            <div class="label">📌 Other Names</div>
+            MSE = Mean Squared Error. When divided by $\frac{1}{2m}$ as above, this is also called the "Squared Error Loss". The equivalent without the $\frac{1}{2}$ is just MSE. RSS (Residual Sum of Squares) = $\sum(y_i - \hat{y}_i)^2$.
+          </div>
+        </div>
+
+        <!-- GD FOR LINEAR REG -->
+        <div id="gd-linear" data-section="gd-linear" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Gradient Descent for Linear Regression</h3>
+          <p style="color:var(--text2);font-size:0.9rem;margin-bottom:1rem">We derive the partial derivatives of the cost function and plug them into the GD update rule:</p>
+
+          <div class="formula-block">
+            <div class="formula-label">Derivatives</div>
+            <div class="formula-name">Partial derivatives of MSE cost</div>
+            $$\frac{\partial J}{\partial \theta_0} = \frac{1}{m}\sum_{i=1}^{m}(h_\theta(x^{(i)}) - y^{(i)})$$
+            $$\frac{\partial J}{\partial \theta_1} = \frac{1}{m}\sum_{i=1}^{m}(h_\theta(x^{(i)}) - y^{(i)}) \cdot x^{(i)}$$
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Update Rules</div>
+            <div class="formula-name">Simultaneous update of parameters</div>
+            $$\theta_0 := \theta_0 - \alpha \cdot \frac{1}{m}\sum_{i=1}^{m}(h_\theta(x^{(i)}) - y^{(i)})$$
+            $$\theta_1 := \theta_1 - \alpha \cdot \frac{1}{m}\sum_{i=1}^{m}(h_\theta(x^{(i)}) - y^{(i)}) \cdot x^{(i)}$$
+          </div>
+
+          <div class="key-insight">
+            <div class="label">✅ Convex Function</div>
+            The MSE cost function for linear regression is <strong>convex</strong> — it has a single global minimum. Gradient descent will always converge (with appropriate $\alpha$). No local minima to worry about!
+          </div>
+        </div>
+
+        <!-- NORMAL EQUATION -->
+        <div id="normal-eq" data-section="normal-eq" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Normal Equation — Closed Form Solution</h3>
+          <div class="concept-intro">
+            <p>Instead of iterative gradient descent, we can solve for $\theta$ analytically in one step using the Normal Equation.</p>
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Normal Equation</div>
+            <div class="formula-name">Closed-form optimal parameters</div>
+            $$\boldsymbol{\theta} = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}$$
+          </div>
+
+          <table class="comparison-table" style="margin-top:1rem">
+            <tr><th>Property</th><th>Gradient Descent</th><th>Normal Equation</th></tr>
+            <tr><td>Iterations needed</td><td>Yes — many</td><td>No — one shot</td></tr>
+            <tr><td>Learning rate $\alpha$</td><td>Must tune</td><td>Not needed</td></tr>
+            <tr><td>Works with large n</td><td>✅ Yes (scales well)</td><td>❌ Slow — $O(n^3)$ matrix inversion</td></tr>
+            <tr><td>Feature scaling needed</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Best for</td><td>n &gt; 10,000 features</td><td>n &lt; 10,000 features</td></tr>
+          </table>
+        </div>
+
+        <!-- REGRESSION VISUALIZER -->
+        <div id="reg-viz" data-section="reg-viz" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Interactive Regression Visualizer</h3>
+          <div class="viz-container">
+            <h4>Click to add data points — the regression line updates live</h4>
+            <canvas id="regCanvas" width="560" height="340" style="cursor:crosshair;background:#0d1117;border-radius:8px"></canvas>
+            <div class="viz-controls">
+              <button class="viz-btn" onclick="clearRegData()">Clear Points</button>
+              <button class="viz-btn secondary" onclick="addRegSample()">Load Sample Data</button>
+            </div>
+            <div id="regInfo" style="font-size:0.82rem;color:var(--text2);margin-top:0.5rem">θ₀ = — | θ₁ = — | MSE = —</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== POLYNOMIAL REGRESSION ===== -->
+    <div class="section" id="poly-reg" data-section="poly-reg">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">〽️</div>
+        <h2>Polynomial Regression</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>When data doesn't follow a straight line, we extend linear regression by adding <strong>polynomial (higher-degree) terms</strong> of the original features. It's still linear in the parameters $\theta$!</p>
+        </div>
+
+        <div id="poly-model" data-section="poly-model">
+          <div class="formula-block">
+            <div class="formula-label">Model</div>
+            <div class="formula-name">Polynomial Regression of degree d</div>
+            $$h_\theta(x) = \theta_0 + \theta_1 x + \theta_2 x^2 + \ldots + \theta_d x^d$$
+          </div>
+
+          <div class="key-insight">
+            <div class="label">💡 Still Linear Regression!</div>
+            If we define new features $x_1 = x$, $x_2 = x^2$, $x_3 = x^3$, then $h = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \theta_3 x_3$. This is just multiple linear regression with engineered features!
+          </div>
+
+          <!-- Hardwood dataset context from lecture -->
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">📋 Lecture Example: Hardwood Dataset</div>
+            <p>19 observations of kraft paper strength $y$ vs hardwood percentage $x$. A quadratic model $y = \theta_0 + \theta_1 x + \theta_2 x^2$ captures the non-linear relationship better than a simple line.</p>
+          </div>
+        </div>
+
+        <div id="poly-considerations" data-section="poly-considerations" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Important Considerations (From Lecture)</h3>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num" style="background:var(--orange)">1</div>
+              <div class="step-content">
+                <strong>Order of the Model</strong>
+                Always possible to fit degree $n-1$ polynomial to $n$ points perfectly — but this almost surely means overfitting! Use <strong>parsimony</strong>: simplest model consistent with the data.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background:var(--orange)">2</div>
+              <div class="step-content">
+                <strong>Model Building Strategies</strong>
+                <ul style="margin-top:0.4rem;padding-left:1.2rem;font-size:0.88rem">
+                  <li><strong>Forward Selection:</strong> Start with degree 1, add higher terms until the highest-order term's t-test becomes non-significant.</li>
+                  <li><strong>Backward Elimination:</strong> Start with highest degree, remove highest-order terms one by one until the remaining highest term is significant.</li>
+                </ul>
+                <p style="font-size:0.82rem;color:var(--orange);margin-top:0.4rem">⚠️ These two methods don't always give the same model!</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background:var(--orange)">3</div>
+              <div class="step-content">
+                <strong>Extrapolation Danger</strong>
+                Polynomial models can turn in unanticipated directions outside the training range. <strong>Extrapolation with polynomials is extremely hazardous.</strong>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background:var(--orange)">4</div>
+              <div class="step-content">
+                <strong>Hierarchy Principle</strong>
+                If you include a higher-degree term (e.g., $x^2$), you should also include all lower-degree terms (e.g., $x$). Always respect the hierarchy.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num" style="background:var(--orange)">5</div>
+              <div class="step-content">
+                <strong>Ill-Conditioning</strong>
+                High-degree polynomials can cause numerical instability (ill-conditioned $\mathbf{X}^T\mathbf{X}$ matrix). Consider orthogonal polynomials for high degrees.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BIAS-VARIANCE ===== -->
+    <div class="section" id="bias-variance" data-section="bias-variance">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">⚖️</div>
+        <h2>Bias-Variance Tradeoff</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Every ML model makes two types of errors. Understanding this tradeoff is crucial — it explains why complex models don't always win, and why simple models don't always lose.</p>
+        </div>
+
+        <div class="two-col">
+          <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+            <h4 style="color:var(--accent)">Bias (Underfitting)</h4>
+            <p>Error from wrong assumptions in the model. A high-bias model is too simple — it can't capture the true pattern even on training data.</p>
+            <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text2)">Example: Using a straight line to fit curved data.</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">Variance (Overfitting)</h4>
+            <p>Error from sensitivity to fluctuations in training data. A high-variance model is too complex — it memorises noise instead of the true pattern.</p>
+            <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--text2)">Example: Degree-9 polynomial to fit 10 noisy points.</p>
+          </div>
+        </div>
+
+        <div class="formula-block" style="margin-top:1.5rem">
+          <div class="formula-label">Mathematical Decomposition</div>
+          <div class="formula-name">Expected Test Error Decomposition</div>
+          $$\text{Expected Error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Noise}$$
+          $$E\left[(y - \hat{f}(x))^2\right] = \left[\text{Bias}(\hat{f}(x))\right]^2 + \text{Var}(\hat{f}(x)) + \sigma^2$$
+        </div>
+
+        <div class="key-insight">
+          <div class="label">🔑 Key Insight</div>
+          Irreducible noise $\sigma^2$ is the inherent randomness in data — we can never eliminate it. We can only optimise Bias² + Variance. Reducing one often increases the other.
+        </div>
+
+        <div id="underfitting" data-section="underfitting" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Underfitting (High Bias)</h3>
+          <div class="warning-box">
+            <div class="label">Signs of Underfitting</div>
+            <ul style="padding-left:1.2rem;font-size:0.88rem">
+              <li>High training error AND high test error</li>
+              <li>Model is too simple for the data complexity</li>
+              <li>Adding more training data doesn't help much</li>
+            </ul>
+          </div>
+          <p style="font-size:0.9rem;margin-top:0.8rem"><strong>Fix:</strong> Use a more complex model (higher degree polynomial, more features, fewer regularization constraints).</p>
+        </div>
+
+        <div id="overfitting" data-section="overfitting" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Overfitting (High Variance)</h3>
+          <div class="warning-box">
+            <div class="label">Signs of Overfitting</div>
+            <ul style="padding-left:1.2rem;font-size:0.88rem">
+              <li>Very low training error but HIGH test error</li>
+              <li>Large gap between training and test performance</li>
+              <li>Model memorised the training data including noise</li>
+            </ul>
+          </div>
+          <p style="font-size:0.9rem;margin-top:0.8rem"><strong>Fix:</strong> Get more data, reduce model complexity, apply regularization, use cross-validation.</p>
+        </div>
+
+        <!-- BV CURVE VISUALIZER -->
+        <div id="bv-curve" data-section="bv-curve" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Bias-Variance Curve</h3>
+          <div class="viz-container">
+            <h4>As model complexity increases, Bias ↓ but Variance ↑</h4>
+            <canvas id="bvCanvas" width="560" height="300" style="background:#0d1117;border-radius:8px"></canvas>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.5rem">🔵 Bias² | 🔴 Variance | 🟡 Total Error | ★ Sweet Spot (optimal complexity)</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== REGULARIZATION ===== -->
+    <div class="section" id="regularization" data-section="regularization">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🛡️</div>
+        <h2>Regularization</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Regularization adds a <strong>penalty term</strong> to the cost function to discourage large parameter values. This prevents overfitting by keeping the model simpler.</p>
+        </div>
+        <div class="formula-block">
+          <div class="formula-label">General Form</div>
+          <div class="formula-name">Regularized Cost Function</div>
+          $$J(\theta) = \underbrace{\frac{1}{2m}\sum_{i=1}^m(h_\theta(x^{(i)}) - y^{(i)})^2}_{\text{Data fit (MSE)}} + \underbrace{\lambda \cdot \Omega(\theta)}_{\text{Regularization penalty}}$$
+          <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$\lambda$ (lambda) = regularization strength. Higher $\lambda$ = stronger penalty = simpler model.</p>
+        </div>
+
+        <div class="tab-group" style="margin-top:1.5rem">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="ridge">Ridge (L2)</button>
+            <button class="tab-btn" data-tab="lasso">Lasso (L1)</button>
+            <button class="tab-btn" data-tab="reg-compare">Comparison</button>
+          </div>
+
+          <div class="tab-content active" data-tab-content="ridge" id="ridge">
+            <div class="formula-block">
+              <div class="formula-label">L2 Penalty</div>
+              <div class="formula-name">Ridge Regression Cost Function</div>
+              $$J(\theta) = \frac{1}{2m}\sum_{i=1}^m(h_\theta(x^{(i)}) - y^{(i)})^2 + \lambda\sum_{j=1}^n \theta_j^2$$
+            </div>
+            <div class="key-insight">
+              <div class="label">✅ Ridge Properties</div>
+              <ul style="padding-left:1.2rem;font-size:0.88rem">
+                <li>Penalises squared magnitudes of coefficients</li>
+                <li>Shrinks all coefficients towards zero — but never exactly zero</li>
+                <li>Keeps all features (just makes them small)</li>
+                <li>Works well when all features are relevant</li>
+                <li>Has a closed-form solution: $\theta = (X^TX + \lambda I)^{-1}X^Ty$</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="lasso" id="lasso">
+            <div class="formula-block">
+              <div class="formula-label">L1 Penalty</div>
+              <div class="formula-name">Lasso Regression Cost Function</div>
+              $$J(\theta) = \frac{1}{2m}\sum_{i=1}^m(h_\theta(x^{(i)}) - y^{(i)})^2 + \lambda\sum_{j=1}^n |\theta_j|$$
+            </div>
+            <div class="key-insight">
+              <div class="label">✅ Lasso Properties</div>
+              <ul style="padding-left:1.2rem;font-size:0.88rem">
+                <li>Penalises absolute magnitudes of coefficients</li>
+                <li>Can shrink coefficients to <strong>exactly zero</strong> — performs feature selection!</li>
+                <li>Produces sparse models (many zeros)</li>
+                <li>Best when only a subset of features matter</li>
+                <li>No closed-form — needs iterative methods (coordinate descent)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="reg-compare">
+            <table class="comparison-table">
+              <tr><th>Property</th><th>Ridge (L2)</th><th>Lasso (L1)</th></tr>
+              <tr><td>Penalty term</td><td>$\sum \theta_j^2$</td><td>$\sum |\theta_j|$</td></tr>
+              <tr><td>Coefficients → 0?</td><td>Approach 0, never exact</td><td>Can be exactly 0</td></tr>
+              <tr><td>Feature selection</td><td>No</td><td>Yes (sparse solution)</td></tr>
+              <tr><td>Closed form?</td><td>Yes</td><td>No</td></tr>
+              <tr><td>When to use</td><td>All features relevant</td><td>Many irrelevant features</td></tr>
+              <tr><td>Geometry</td><td>Circular constraint region</td><td>Diamond constraint region</td></tr>
+            </table>
+            <div class="key-insight" style="margin-top:1rem">
+              <div class="label">ElasticNet</div>
+              Combines both: $\lambda_1\sum|\theta_j| + \lambda_2\sum\theta_j^2$. Gets benefits of both Lasso (sparsity) and Ridge (stability).
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠️ Don't regularize $\theta_0$</div>
+          The bias term $\theta_0$ is conventionally excluded from the regularization penalty. Only $\theta_1, \ldots, \theta_n$ are penalised.
+        </div>
+
+        <h3 style="margin:1.5rem 0 0.8rem;font-size:1.05rem">Effect of $\lambda$</h3>
+        <div class="two-col">
+          <div class="mini-card">
+            <h4>$\lambda \to 0$</h4>
+            <p>Regularization has no effect. Standard regression. Risk of overfitting.</p>
+          </div>
+          <div class="mini-card">
+            <h4>$\lambda \to \infty$</h4>
+            <p>All $\theta_j \to 0$ (only bias remains). Extreme underfitting — just predicts the mean.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="section" id="quiz2" data-section="quiz2">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 2 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. The cost function for linear regression is convex. What does this mean for gradient descent?</p>
+            <div class="options">
+              <button class="option-btn">GD may get stuck in local minima</button>
+              <button class="option-btn" data-correct="true">GD will always find the global minimum with a small enough learning rate</button>
+              <button class="option-btn">GD doesn't work on convex functions</button>
+              <button class="option-btn">The function has multiple global minima</button>
+            </div>
+            <div class="explanation">Convex functions have a single global minimum. Gradient descent on a convex function with an appropriate learning rate is guaranteed to converge to the global minimum.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. A model has Training Error = 2%, Test Error = 40%. What is the problem?</p>
+            <div class="options">
+              <button class="option-btn">High Bias (Underfitting)</button>
+              <button class="option-btn" data-correct="true">High Variance (Overfitting)</button>
+              <button class="option-btn">Good model — both errors are reasonable</button>
+              <button class="option-btn">The model needs more regularization only</button>
+            </div>
+            <div class="explanation">Low training error but high test error is the classic sign of overfitting (high variance). The model memorised training data but generalises poorly.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. Which regularisation technique can set coefficients exactly to zero, performing feature selection?</p>
+            <div class="options">
+              <button class="option-btn">Ridge (L2)</button>
+              <button class="option-btn" data-correct="true">Lasso (L1)</button>
+              <button class="option-btn">Both Ridge and Lasso</button>
+              <button class="option-btn">Neither — you must remove features manually</button>
+            </div>
+            <div class="explanation">Lasso (L1) uses absolute value penalties which can force coefficients to exactly zero, effectively removing features from the model. Ridge (L2) only shrinks them close to zero.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. In the Normal Equation $\theta = (X^TX)^{-1}X^Ty$, what is the computational bottleneck?</p>
+            <div class="options">
+              <button class="option-btn">Computing $X^Ty$</button>
+              <button class="option-btn" data-correct="true">Inverting the matrix $(X^TX)^{-1}$ — O(n³) complexity</button>
+              <button class="option-btn">Multiplying $X^T$ by $X$</button>
+              <button class="option-btn">The number of training examples m</button>
+            </div>
+            <div class="explanation">Matrix inversion is O(n³) where n is the number of features. For large feature counts (n > 10,000), this becomes prohibitively slow and gradient descent is preferred.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. Forward selection in polynomial regression means:</p>
+            <div class="options">
+              <button class="option-btn" data-correct="true">Start with degree 1, add higher terms until the t-test for the new term is not significant</button>
+              <button class="option-btn">Start with the highest degree and remove terms one by one</button>
+              <button class="option-btn">Try all degrees and pick the best by test error</button>
+              <button class="option-btn">Use the Normal Equation for each degree</button>
+            </div>
+            <div class="explanation">Forward selection starts simple and adds complexity. Backward elimination starts complex and removes. From the lecture: "Successively fit models of increasing order until the t test for the highest order term is nonsignificant."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUMERICALS ===== -->
+    <div class="section" id="numericals2" data-section="numericals2">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 1 — Compute MSE Cost Function</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Given training data: $x = [1, 2, 3]$, $y = [2, 4, 6]$. Current model: $h_\theta(x) = 0.5 + 1.5x$ (so $\theta_0=0.5$, $\theta_1=1.5$). Compute the MSE cost $J(\theta)$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                Compute predictions $\hat{y}_i = 0.5 + 1.5x_i$:<br>
+                $\hat{y}_1 = 0.5 + 1.5(1) = 2.0$<br>
+                $\hat{y}_2 = 0.5 + 1.5(2) = 3.5$<br>
+                $\hat{y}_3 = 0.5 + 1.5(3) = 5.0$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                Compute residuals $(y_i - \hat{y}_i)$:<br>
+                $(2 - 2.0)^2 = 0$<br>
+                $(4 - 3.5)^2 = 0.25$<br>
+                $(6 - 5.0)^2 = 1.0$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 3</span><div class="step-text">
+                $J(\theta) = \frac{1}{2m}\sum = \frac{1}{2 \times 3}(0 + 0.25 + 1.0) = \frac{1.25}{6} \approx \mathbf{0.208}$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 2 — One Step of Gradient Descent for Linear Regression</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Training data: $(x^{(1)},y^{(1)}) = (1,3)$, $(x^{(2)},y^{(2)}) = (2,5)$.<br>
+              Initial: $\theta_0 = 0$, $\theta_1 = 0$, $\alpha = 0.1$.<br>
+              Perform <strong>one update step</strong> of gradient descent.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Predictions</span><div class="step-text">
+                $h_\theta(1) = 0 + 0(1) = 0$, $h_\theta(2) = 0 + 0(2) = 0$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Errors</span><div class="step-text">
+                $(h-y)_1 = 0 - 3 = -3$, $(h-y)_2 = 0 - 5 = -5$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Gradients</span><div class="step-text">
+                $\frac{\partial J}{\partial \theta_0} = \frac{1}{2}[(-3) + (-5)] = \frac{-8}{2} = -4$<br>
+                $\frac{\partial J}{\partial \theta_1} = \frac{1}{2}[(-3)(1) + (-5)(2)] = \frac{-13}{2} = -6.5$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Update</span><div class="step-text">
+                $\theta_0 := 0 - 0.1(-4) = \mathbf{0.4}$<br>
+                $\theta_1 := 0 - 0.1(-6.5) = \mathbf{0.65}$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 3 — Ridge vs Lasso Effect on Coefficients</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              A linear regression model has coefficients $\theta_1 = 3.0$ and $\theta_2 = 0.1$. With regularization parameter $\lambda = 1$ and only 1 data point (simplified), which regularization would likely drive $\theta_2$ to zero?
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Ridge Penalty</span><div class="step-text">
+                Ridge adds $\lambda(\theta_1^2 + \theta_2^2) = 1(9 + 0.01) = 9.01$ to cost.<br>
+                Ridge gradient: $\nabla_{\theta_2} = \ldots + 2\lambda\theta_2 = \ldots + 0.2$. Shrinks towards 0 but never reaches exactly 0.
+              </div></div>
+              <div class="solution-step"><span class="step-label">Lasso Penalty</span><div class="step-text">
+                Lasso adds $\lambda(|\theta_1| + |\theta_2|) = 1(3.0 + 0.1) = 3.1$ to cost.<br>
+                Lasso uses subgradient $\text{sign}(\theta_j)$. For small $|\theta_2| = 0.1$, the lasso penalty can overcome the data fit gradient, driving $\theta_2$ exactly to 0.
+              </div></div>
+              <div class="solution-step"><span class="step-label">Answer</span><div class="step-text">
+                ✅ <strong>Lasso (L1)</strong> would drive $\theta_2$ to exactly zero — performing automatic feature selection. Ridge would only shrink it to a small value.
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem;display:flex;gap:1rem;justify-content:center">
+      <a href="week1.html" style="background:var(--bg3);color:var(--text);text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block;border:1px solid var(--border)">← Week 1</a>
+      <a href="week3.html" style="background:var(--orange);color:#000;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">Week 3: SVM →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="../script.js"></script>
+<script src="week2.js"></script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 1 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html" class="active">Week 1</a></li>
+      <li><a href="week2.html">Week 2</a></li>
+      <li><a href="week3.html">Week 3</a></li>
+      <li><a href="week4.html">Week 4</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 1 — Intro to ML, KNN &amp; Gradient Descent</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#what-is-ml">What is ML?</a></li>
+      <li class="sub"><a href="#types-of-ml">Types of Learning</a></li>
+      <li><a href="#knn">KNN Algorithm</a></li>
+      <li class="sub"><a href="#distance">Distance Metrics</a></li>
+      <li class="sub"><a href="#knn-steps">KNN Steps</a></li>
+      <li class="sub"><a href="#knn-viz">KNN Visualizer</a></li>
+      <li><a href="#feature-scaling">Feature Scaling</a></li>
+      <li class="sub"><a href="#normalization">Min-Max Norm.</a></li>
+      <li class="sub"><a href="#standardization">Standardization</a></li>
+      <li><a href="#gradient-descent">Gradient Descent</a></li>
+      <li class="sub"><a href="#gd-intuition">Intuition</a></li>
+      <li class="sub"><a href="#gd-formula">Formula</a></li>
+      <li class="sub"><a href="#gd-viz">GD Visualizer</a></li>
+      <li><a href="#multivariable">Multivariable GD</a></li>
+      <li><a href="#quiz1">Quiz</a></li>
+      <li><a href="#numericals1">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 1</div>
+      <h1>Introduction to ML, KNN &amp; Gradient Descent</h1>
+      <p>Build the mathematical foundation — understand what ML is, master K-Nearest Neighbours, learn feature scaling, and grasp gradient descent which powers almost every ML model.</p>
+    </div>
+
+    <!-- ======= WHAT IS ML ======= -->
+    <div class="section" id="what-is-ml" data-section="what-is-ml">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🤖</div>
+        <h2>What is Machine Learning?</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Arthur Samuel (1959):</strong> Machine Learning is the field of study that gives computers the ability to <em>learn without being explicitly programmed</em>.</p>
+          <p style="margin-top:0.8rem"><strong>Tom Mitchell (1997):</strong> A computer program is said to learn from experience <strong>E</strong> with respect to task <strong>T</strong> and performance measure <strong>P</strong>, if its performance at T, as measured by P, improves with E.</p>
+        </div>
+
+        <div class="key-insight">
+          <div class="label">🔑 Core Idea</div>
+          Traditional programming: Data + Rules → Output. Machine Learning: Data + Output → Rules (the model learns the rules itself).
+        </div>
+
+        <div id="types-of-ml" data-section="types-of-ml">
+          <h3 style="margin:1.5rem 0 1rem;font-size:1.05rem">Types of Machine Learning</h3>
+          <div class="three-col">
+            <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+              <h4>📚 Supervised Learning</h4>
+              <p>Learn from <strong>labelled</strong> data. Input-output pairs are given. Model learns to map inputs → outputs.</p>
+              <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--accent)">Examples: Regression, Classification, SVM</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4>🔍 Unsupervised Learning</h4>
+              <p>Learn from <strong>unlabelled</strong> data. Find hidden patterns or structure without guidance.</p>
+              <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--green)">Examples: K-Means, PCA, Autoencoders</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(188,140,255,0.3)">
+              <h4>🎮 Reinforcement Learning</h4>
+              <p>Agent learns by <strong>trial and error</strong> — takes actions in environment, receives rewards or penalties.</p>
+              <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--purple)">Examples: AlphaGo, Game-playing AI</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:1.5rem">
+          <div class="mini-card">
+            <h4>Classification vs Regression</h4>
+            <p><strong style="color:var(--accent)">Classification:</strong> Output is a discrete class label (cat/dog, spam/not spam)</p>
+            <p style="margin-top:0.5rem"><strong style="color:var(--green)">Regression:</strong> Output is a continuous number (house price, temperature)</p>
+          </div>
+          <div class="mini-card">
+            <h4>Why does ML work?</h4>
+            <p>Real-world data has <strong>patterns</strong>. ML algorithms find these patterns by optimizing a mathematical objective function using training data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= KNN ======= -->
+    <div class="section" id="knn" data-section="knn">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">📍</div>
+        <h2>K-Nearest Neighbours (KNN)</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>KNN is a <strong>non-parametric, lazy</strong> learning algorithm. It makes predictions by finding the <strong>K most similar training examples</strong> (neighbours) and using their labels to classify or regress a new point.</p>
+          <p style="margin-top:0.5rem">It is "lazy" because it doesn't learn a model — it memorises the entire training set and only computes at prediction time.</p>
+        </div>
+
+        <div class="key-insight">
+          <div class="label">💡 Core Assumption</div>
+          Similar inputs tend to have similar outputs. "Birds of a feather flock together."
+        </div>
+
+        <!-- DISTANCE METRICS -->
+        <div id="distance" data-section="distance">
+          <h3 style="margin:1.5rem 0 1rem;font-size:1.05rem">Distance Metrics</h3>
+          <p style="color:var(--text2);margin-bottom:1rem;font-size:0.9rem">KNN needs to measure "nearness" between points. The choice of metric affects the results significantly.</p>
+
+          <div class="formula-block">
+            <div class="formula-label">Formula</div>
+            <div class="formula-name">Euclidean Distance (most common)</div>
+            $$d(p, q) = \sqrt{\sum_{i=1}^{n}(p_i - q_i)^2}$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">In 2D: $d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Formula</div>
+            <div class="formula-name">Manhattan Distance (L1 norm)</div>
+            $$d(p, q) = \sum_{i=1}^{n}|p_i - q_i|$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">Sum of absolute differences. Like navigating a city grid.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Formula</div>
+            <div class="formula-name">Minkowski Distance (general form)</div>
+            $$d(p, q) = \left(\sum_{i=1}^{n}|p_i - q_i|^r\right)^{1/r}$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$r=1$ → Manhattan, $r=2$ → Euclidean, $r=\infty$ → Chebyshev</p>
+          </div>
+
+          <table class="comparison-table">
+            <tr>
+              <th>Metric</th><th>Formula</th><th>When to Use</th><th>Sensitivity to Outliers</th>
+            </tr>
+            <tr>
+              <td><strong>Euclidean</strong></td>
+              <td>$\sqrt{\sum(p_i-q_i)^2}$</td>
+              <td>Continuous features, real-valued data</td>
+              <td>High (squares differences)</td>
+            </tr>
+            <tr>
+              <td><strong>Manhattan</strong></td>
+              <td>$\sum|p_i-q_i|$</td>
+              <td>High-dimensional data, sparse features</td>
+              <td>Lower</td>
+            </tr>
+            <tr>
+              <td><strong>Minkowski</strong></td>
+              <td>$(\sum|p_i-q_i|^r)^{1/r}$</td>
+              <td>General case, tune $r$</td>
+              <td>Depends on $r$</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- KNN STEPS -->
+        <div id="knn-steps" data-section="knn-steps">
+          <h3 style="margin:1.5rem 0 1rem;font-size:1.05rem">KNN Algorithm Steps</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content"><strong>Choose K</strong> Select the number of neighbours K (hyperparameter). Odd K avoids ties in binary classification.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content"><strong>Calculate Distances</strong> Compute the distance from the new point to every training point using your chosen metric.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content"><strong>Find K Nearest</strong> Sort all distances and pick the K smallest — these are the K nearest neighbours.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content"><strong>Predict</strong> Classification: take the <em>majority vote</em> of K neighbours' labels. Regression: take the <em>average</em> of K neighbours' values.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHOOSING K -->
+        <div class="info-box" style="margin-top:1.5rem">
+          <div class="label">📊 Choosing K</div>
+          <p><strong>Small K (e.g. K=1):</strong> Very flexible, follows training data closely — risk of <em>overfitting</em>. Decision boundary is jagged.</p>
+          <p style="margin-top:0.4rem"><strong>Large K:</strong> Smoother decision boundary, but may <em>underfit</em> and miss local patterns. Computationally expensive.</p>
+          <p style="margin-top:0.4rem"><strong>Rule of thumb:</strong> $K \approx \sqrt{N}$ where $N$ is the number of training samples. Always use cross-validation to tune K.</p>
+        </div>
+
+        <div class="warning-box">
+          <div class="label">⚠️ KNN Weakness</div>
+          Slow at prediction time — must compute distance to all training points. Memory-intensive. Very sensitive to feature scale (always scale before KNN!).
+        </div>
+
+        <!-- KNN VISUALIZER -->
+        <div id="knn-viz" data-section="knn-viz">
+          <h3 style="margin:1.5rem 0 1rem;font-size:1.05rem">Interactive KNN Visualizer</h3>
+          <div class="viz-container">
+            <h4>Click anywhere on the canvas to classify a new point</h4>
+            <canvas id="knnCanvas" width="560" height="380" style="cursor:crosshair;background:#0d1117;border-radius:8px"></canvas>
+            <div class="viz-controls">
+              <label>K = <strong id="kVal">3</strong>
+                <input type="range" id="kSlider" min="1" max="9" step="2" value="3">
+              </label>
+              <button class="viz-btn" onclick="resetKNN()">Reset Points</button>
+              <button class="viz-btn secondary" onclick="addRandomPoints()">Add Random Data</button>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.5rem">Blue circles = Class A | Red squares = Class B | Green star = Query point</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= FEATURE SCALING ======= -->
+    <div class="section" id="feature-scaling" data-section="feature-scaling">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">⚖️</div>
+        <h2>Feature Scaling</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>If Feature A = Income ($100,000) and Feature B = Age (25), Euclidean distance is dominated by Income even if Age is equally important. Feature scaling brings all features to a comparable range.</p>
+        </div>
+
+        <div class="warning-box">
+          <div class="label">⚠️ Always Scale Before KNN</div>
+          Without scaling, features with large magnitudes dominate distance calculations and the model ignores smaller-scale features entirely.
+        </div>
+
+        <!-- TABS for normalization vs standardization -->
+        <div class="tab-group" style="margin-top:1.5rem">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="minmax">Min-Max Normalization</button>
+            <button class="tab-btn" data-tab="zscore">Z-Score Standardization</button>
+            <button class="tab-btn" data-tab="comparison">Comparison</button>
+          </div>
+
+          <div class="tab-content active" data-tab-content="minmax" id="normalization">
+            <div class="formula-block">
+              <div class="formula-label">Formula</div>
+              <div class="formula-name">Min-Max Normalization</div>
+              $$x' = \frac{x - x_{min}}{x_{max} - x_{min}}$$
+            </div>
+            <div class="key-insight">
+              <div class="label">Result</div>
+              Scales all values to <strong>[0, 1]</strong>. Preserves the shape of the original distribution.
+            </div>
+            <p style="font-size:0.9rem;margin-top:0.8rem"><strong>When to use:</strong> When you know the min/max bounds and have no outliers. Common for image pixel values (0–255 → 0–1).</p>
+            <p style="font-size:0.9rem;margin-top:0.5rem"><strong>Weakness:</strong> Sensitive to outliers. One extreme value stretches all others towards 0.</p>
+          </div>
+
+          <div class="tab-content" data-tab-content="zscore" id="standardization">
+            <div class="formula-block">
+              <div class="formula-label">Formula</div>
+              <div class="formula-name">Z-Score Standardization (Standard Scaler)</div>
+              $$x' = \frac{x - \mu}{\sigma}$$
+              <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">where $\mu$ = mean, $\sigma$ = standard deviation</p>
+            </div>
+            <div class="key-insight">
+              <div class="label">Result</div>
+              Output has <strong>mean = 0</strong> and <strong>standard deviation = 1</strong>. Called a "standard normal" distribution.
+            </div>
+            <p style="font-size:0.9rem;margin-top:0.8rem"><strong>When to use:</strong> When data follows a Gaussian distribution or when outliers are present. Preferred for gradient descent algorithms.</p>
+          </div>
+
+          <div class="tab-content" data-tab-content="comparison">
+            <table class="comparison-table">
+              <tr><th>Property</th><th>Min-Max Normalization</th><th>Z-Score Standardization</th></tr>
+              <tr><td>Output range</td><td>[0, 1]</td><td>(-∞, +∞), mean=0</td></tr>
+              <tr><td>Outlier sensitive</td><td>Yes — heavily</td><td>Less sensitive</td></tr>
+              <tr><td>Preserves zeros</td><td>No</td><td>No</td></tr>
+              <tr><td>Formula</td><td>$(x - min)/(max - min)$</td><td>$(x - \mu)/\sigma$</td></tr>
+              <tr><td>Best for</td><td>Neural nets, image data</td><td>Regression, SVM, PCA</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= GRADIENT DESCENT ======= -->
+    <div class="section" id="gradient-descent" data-section="gradient-descent">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">📉</div>
+        <h2>Gradient Descent</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div id="gd-intuition" data-section="gd-intuition">
+          <div class="concept-intro">
+            <p><strong>Analogy:</strong> You're blindfolded on a hilly landscape. Your goal is to reach the lowest valley. At each step, you feel the ground beneath you and take a step in the direction that goes downhill. Gradient Descent is exactly this — an iterative optimisation algorithm that minimises a function by following the negative gradient.</p>
+          </div>
+
+          <div class="key-insight">
+            <div class="label">🔑 Why Gradient Descent?</div>
+            Most ML loss functions don't have a simple closed-form minimum. Gradient Descent is a general method that works for almost any differentiable function.
+          </div>
+
+          <h3 style="margin:1.5rem 0 0.8rem;font-size:1.05rem">The Gradient</h3>
+          <p style="font-size:0.9rem;color:var(--text2)">For a function $f(\theta)$, the gradient $\nabla f$ tells us the <em>direction of steepest ascent</em>. We move in the <em>opposite</em> direction (steepest descent) to minimise $f$.</p>
+        </div>
+
+        <div id="gd-formula" data-section="gd-formula" style="margin-top:1.2rem">
+          <div class="formula-block">
+            <div class="formula-label">Core Update Rule</div>
+            <div class="formula-name">Gradient Descent Parameter Update</div>
+            $$\theta_{new} = \theta_{old} - \alpha \cdot \frac{\partial J(\theta)}{\partial \theta}$$
+          </div>
+
+          <div class="three-col" style="margin-top:1rem">
+            <div class="mini-card">
+              <h4>$\theta$ (theta)</h4>
+              <p>The parameter(s) we are optimising — weights of the model.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$\alpha$ (alpha)</h4>
+              <p>Learning rate — how big each step is. Critical hyperparameter.</p>
+            </div>
+            <div class="mini-card">
+              <h4>$\frac{\partial J}{\partial \theta}$</h4>
+              <p>Partial derivative of cost function w.r.t. $\theta$ — the gradient.</p>
+            </div>
+          </div>
+
+          <!-- Learning Rate -->
+          <h3 style="margin:1.5rem 0 0.8rem;font-size:1.05rem">Choosing the Learning Rate $\alpha$</h3>
+          <div class="two-col">
+            <div class="warning-box" style="margin:0">
+              <div class="label">🐌 Too Small</div>
+              Gradient descent converges very slowly. May take millions of iterations. Wastes computation.
+            </div>
+            <div class="warning-box" style="margin:0">
+              <div class="label">💥 Too Large</div>
+              Takes huge steps and <em>overshoots</em> the minimum. May diverge and the cost increases instead!
+            </div>
+          </div>
+          <div class="key-insight" style="margin-top:0.8rem">
+            <div class="label">✅ Just Right</div>
+            Converges in a reasonable number of steps. Common starting values: 0.1, 0.01, 0.001. Use a learning rate schedule to decrease $\alpha$ over time.
+          </div>
+
+          <!-- Variants -->
+          <h3 style="margin:1.5rem 0 0.8rem;font-size:1.05rem">Types of Gradient Descent</h3>
+          <table class="comparison-table">
+            <tr><th>Type</th><th>Update using</th><th>Speed</th><th>Noise</th><th>Use case</th></tr>
+            <tr>
+              <td><strong>Batch GD</strong></td>
+              <td>All training samples</td>
+              <td>Slow per update</td>
+              <td>None (stable)</td>
+              <td>Small datasets</td>
+            </tr>
+            <tr>
+              <td><strong>Stochastic GD (SGD)</strong></td>
+              <td>1 sample at a time</td>
+              <td>Fast per update</td>
+              <td>High (noisy)</td>
+              <td>Online learning</td>
+            </tr>
+            <tr>
+              <td><strong>Mini-Batch GD</strong></td>
+              <td>Batch of m samples</td>
+              <td>Balanced</td>
+              <td>Medium</td>
+              <td>Deep learning (default)</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- GD VISUALIZER -->
+        <div id="gd-viz" data-section="gd-viz" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 1rem;font-size:1.05rem">Interactive Gradient Descent Visualizer</h3>
+          <div class="viz-container">
+            <h4>Watch gradient descent find the minimum of $J(\theta) = \theta^2$</h4>
+            <canvas id="gdCanvas" width="560" height="320" style="background:#0d1117;border-radius:8px"></canvas>
+            <div class="viz-controls">
+              <label>Learning Rate: <strong id="lrVal">0.10</strong>
+                <input type="range" id="lrSlider" min="0.01" max="0.95" step="0.01" value="0.1" oninput="updateLR()">
+              </label>
+              <label>Start $\theta$: <strong id="startVal">3.0</strong>
+                <input type="range" id="startSlider" min="-4" max="4" step="0.5" value="3" oninput="updateStart()">
+              </label>
+              <button class="viz-btn" onclick="runGD()">▶ Run</button>
+              <button class="viz-btn secondary" onclick="resetGD()">Reset</button>
+            </div>
+            <div id="gdInfo" style="font-size:0.82rem;color:var(--text2);margin-top:0.5rem">Iteration: 0 | θ = 3.00 | J(θ) = 9.00</div>
+          </div>
+        </div>
+
+        <!-- MULTIVARIABLE GD -->
+        <div id="multivariable" data-section="multivariable" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 1rem;font-size:1.05rem">Multivariable Gradient Descent</h3>
+          <div class="concept-intro">
+            <p>In real ML, we have multiple parameters $\theta_0, \theta_1, \ldots, \theta_n$. Gradient descent updates ALL parameters simultaneously at each step.</p>
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Multivariable Update</div>
+            <div class="formula-name">Simultaneous update for all parameters</div>
+            $$\theta_j := \theta_j - \alpha \frac{\partial J(\boldsymbol{\theta})}{\partial \theta_j} \quad \text{for all } j$$
+          </div>
+          <div class="warning-box">
+            <div class="label">⚠️ Simultaneous Update</div>
+            All $\theta_j$ must be updated at the same time using the old values. Do NOT update $\theta_0$ and then use the new $\theta_0$ to update $\theta_1$.
+          </div>
+          <div class="key-insight">
+            <div class="label">🔑 Gradient Vector</div>
+            The gradient of a multivariable function is a vector: $\nabla J = \left[\frac{\partial J}{\partial \theta_0}, \frac{\partial J}{\partial \theta_1}, \ldots, \frac{\partial J}{\partial \theta_n}\right]$. GD moves in the direction of $-\nabla J$.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======= QUIZ ======= -->
+    <div class="section" id="quiz1" data-section="quiz1">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 1 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. What does KNN predict for a new point with K=3, and neighbours have labels [A, A, B]?</p>
+            <div class="options">
+              <button class="option-btn" data-correct="true">A — majority vote is A (2 vs 1)</button>
+              <button class="option-btn">B — last neighbour wins</button>
+              <button class="option-btn">Cannot determine</button>
+              <button class="option-btn">A and B equally likely</button>
+            </div>
+            <div class="explanation">KNN uses majority voting. 2 neighbours are class A, 1 is class B, so the prediction is A.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. Min-Max normalization scales features to which range?</p>
+            <div class="options">
+              <button class="option-btn">(-1, 1)</button>
+              <button class="option-btn" data-correct="true">[0, 1]</button>
+              <button class="option-btn">Mean = 0, Std = 1</button>
+              <button class="option-btn">No fixed range</button>
+            </div>
+            <div class="explanation">Min-Max normalization uses the formula $(x - x_{min})/(x_{max} - x_{min})$, which always produces values in [0, 1].</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. What happens if the learning rate in gradient descent is too large?</p>
+            <div class="options">
+              <button class="option-btn">Converges faster to minimum</button>
+              <button class="option-btn">Converges very slowly</button>
+              <button class="option-btn" data-correct="true">May overshoot and diverge — cost increases</button>
+              <button class="option-btn">Has no effect on convergence</button>
+            </div>
+            <div class="explanation">A too-large learning rate causes gradient descent to overshoot the minimum, potentially causing the cost to increase indefinitely (divergence).</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. Euclidean distance between points (1, 2) and (4, 6) is:</p>
+            <div class="options">
+              <button class="option-btn">5</button>
+              <button class="option-btn" data-correct="true">5 — $\sqrt{(4-1)^2 + (6-2)^2} = \sqrt{9+16} = 5$</button>
+              <button class="option-btn">7</button>
+              <button class="option-btn">$\sqrt{7}$</button>
+            </div>
+            <div class="explanation">$d = \sqrt{(4-1)^2 + (6-2)^2} = \sqrt{9 + 16} = \sqrt{25} = 5$</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. KNN is called a "lazy" learner because:</p>
+            <div class="options">
+              <button class="option-btn">It has poor accuracy</button>
+              <button class="option-btn" data-correct="true">It doesn't learn an explicit model — all computation happens at prediction time</button>
+              <button class="option-btn">It uses a simple decision boundary</button>
+              <button class="option-btn">It only works with small K values</button>
+            </div>
+            <div class="explanation">Lazy learners don't build an explicit model during training. Instead they store all training data and do computation only when a prediction is requested.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= NUMERICALS ======= -->
+    <div class="section" id="numericals1" data-section="numericals1">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <!-- NUMERICAL 1 -->
+        <div class="numerical-card">
+          <div class="numerical-header">
+            <h4>Problem 1 — KNN Classification</h4>
+            <span style="font-size:0.78rem;color:var(--text2)">Exam style</span>
+          </div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              <p>Given training data:</p>
+              <table class="comparison-table" style="margin:0.8rem 0">
+                <tr><th>Point</th><th>Feature 1 (x₁)</th><th>Feature 2 (x₂)</th><th>Label</th></tr>
+                <tr><td>A</td><td>1</td><td>1</td><td>Class 0</td></tr>
+                <tr><td>B</td><td>2</td><td>2</td><td>Class 0</td></tr>
+                <tr><td>C</td><td>3</td><td>4</td><td>Class 1</td></tr>
+                <tr><td>D</td><td>5</td><td>5</td><td>Class 1</td></tr>
+                <tr><td>E</td><td>4</td><td>2</td><td>Class 1</td></tr>
+              </table>
+              <p>Classify the new point <strong>Q = (3, 3)</strong> using K=3 and Euclidean distance.</p>
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step">
+                <span class="step-label">Step 1</span>
+                <div class="step-text">
+                  <strong>Calculate Euclidean distance from Q=(3,3) to each point:</strong><br>
+                  $d(Q, A) = \sqrt{(3-1)^2 + (3-1)^2} = \sqrt{4+4} = \sqrt{8} \approx 2.83$<br>
+                  $d(Q, B) = \sqrt{(3-2)^2 + (3-2)^2} = \sqrt{1+1} = \sqrt{2} \approx 1.41$<br>
+                  $d(Q, C) = \sqrt{(3-3)^2 + (3-4)^2} = \sqrt{0+1} = 1.00$<br>
+                  $d(Q, D) = \sqrt{(3-5)^2 + (3-5)^2} = \sqrt{4+4} = \sqrt{8} \approx 2.83$<br>
+                  $d(Q, E) = \sqrt{(3-4)^2 + (3-2)^2} = \sqrt{1+1} = \sqrt{2} \approx 1.41$
+                </div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Step 2</span>
+                <div class="step-text">
+                  <strong>Sort by distance and pick K=3 nearest:</strong><br>
+                  1st: C (d=1.00) → Class 1<br>
+                  2nd: B (d=1.41) → Class 0<br>
+                  3rd: E (d=1.41) → Class 1<br>
+                  (A and D are 4th and 5th with d≈2.83)
+                </div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Step 3</span>
+                <div class="step-text">
+                  <strong>Majority vote among 3 neighbours: {C=Class 1, B=Class 0, E=Class 1}</strong><br>
+                  Class 1: 2 votes | Class 0: 1 vote<br>
+                  ✅ <strong>Prediction: Class 1</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NUMERICAL 2 -->
+        <div class="numerical-card">
+          <div class="numerical-header">
+            <h4>Problem 2 — Feature Scaling</h4>
+          </div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Apply <strong>Min-Max normalization</strong> to the following feature values: <br>
+              Data = [10, 20, 30, 40, 50]. Normalize each value.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step">
+                <span class="step-label">Step 1</span>
+                <div class="step-text">Find min and max: $x_{min} = 10$, $x_{max} = 50$</div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Step 2</span>
+                <div class="step-text">
+                  Apply formula $x' = \frac{x - 10}{50 - 10} = \frac{x - 10}{40}$:<br>
+                  $10 \to \frac{10-10}{40} = 0.00$<br>
+                  $20 \to \frac{20-10}{40} = 0.25$<br>
+                  $30 \to \frac{30-10}{40} = 0.50$<br>
+                  $40 \to \frac{40-10}{40} = 0.75$<br>
+                  $50 \to \frac{50-10}{40} = 1.00$
+                </div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Result</span>
+                <div class="step-text">Normalized: <strong>[0.0, 0.25, 0.5, 0.75, 1.0]</strong> ✅</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NUMERICAL 3 -->
+        <div class="numerical-card">
+          <div class="numerical-header">
+            <h4>Problem 3 — Gradient Descent Iteration</h4>
+          </div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Given cost function $J(\theta) = \theta^2$, starting at $\theta_0 = 4$, learning rate $\alpha = 0.3$.<br>
+              Perform <strong>3 iterations</strong> of gradient descent and find the final $\theta$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step">
+                <span class="step-label">Setup</span>
+                <div class="step-text">
+                  $J(\theta) = \theta^2$, so $\frac{dJ}{d\theta} = 2\theta$<br>
+                  Update rule: $\theta := \theta - \alpha \cdot 2\theta = \theta(1 - 2\alpha) = \theta(1 - 0.6) = 0.4\theta$
+                </div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Iter 1</span>
+                <div class="step-text">$\theta_1 = \theta_0 - 0.3 \times 2\theta_0 = 4 - 0.3(8) = 4 - 2.4 = \mathbf{1.6}$ | $J = 1.6^2 = 2.56$</div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Iter 2</span>
+                <div class="step-text">$\theta_2 = 1.6 - 0.3 \times 2(1.6) = 1.6 - 0.96 = \mathbf{0.64}$ | $J = 0.64^2 = 0.41$</div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Iter 3</span>
+                <div class="step-text">$\theta_3 = 0.64 - 0.3 \times 2(0.64) = 0.64 - 0.384 = \mathbf{0.256}$ | $J = 0.0655$</div>
+              </div>
+              <div class="solution-step">
+                <span class="step-label">Result</span>
+                <div class="step-text">After 3 iterations: $\theta \approx 0.256$, approaching the minimum at $\theta = 0$. ✅</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem">
+      <a href="week2.html" style="background:var(--green);color:#000;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">
+        Next: Week 2 — Regression →
+      </a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+
+<script src="../script.js"></script>
+<script src="week1.js"></script>
+</body>
+</html>

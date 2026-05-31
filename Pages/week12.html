@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 12 — MLOps & FastAPI | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    .code-block { background:#161b22; border:1px solid #30363d; border-radius:8px; padding:1.2rem 1.5rem; font-family:'Fira Code',monospace; font-size:0.88rem; line-height:1.7; overflow-x:auto; margin:1rem 0; color:#c9d1d9; }
+    .code-block .kw { color:#ff7b72; }
+    .code-block .fn { color:#d2a8ff; }
+    .code-block .str { color:#a5d6ff; }
+    .code-block .cm { color:#8b949e; font-style:italic; }
+    .code-block .dec { color:#79c0ff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html" class="active">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 12 — MLOps & FastAPI</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#why-deploy">Why Deployment Matters</a></li>
+      <li><a href="#mlops">MLOps Definition</a></li>
+      <li><a href="#lifecycle">MLOps Lifecycle</a></li>
+      <li><a href="#serialization">Model Serialization</a></li>
+      <li><a href="#rest">REST API Concepts</a></li>
+      <li><a href="#fastapi">FastAPI</a></li>
+      <li><a href="#realworld">Real-World Examples</a></li>
+      <li><a href="#viz12">Lifecycle Pipeline</a></li>
+      <li><a href="#quiz12">Quiz</a></li>
+      <li><a href="#numericals12">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 12</div>
+      <h1>MLOps: Model Deployment & FastAPI</h1>
+      <p>87% of ML models never reach production (Gartner). Bridge the gap between a trained model and a live production API using MLOps principles and FastAPI.</p>
+    </div>
+
+    <!-- WHY DEPLOY -->
+    <div class="section" id="why-deploy" data-section="why-deploy">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">🚀</div>
+        <h2>Why Deployment Matters</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="warning-box">
+          <div class="label">📊 Gartner Statistic</div>
+          <strong>87% of ML models never reach production.</strong> Most models die in Jupyter notebooks, never delivering business value. The gap between "model works in lab" and "model serves users" is where most ML projects fail.
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ A model only creates value when it serves predictions</div>
+          Building a 99% accurate model that nobody uses is worthless. Deployment = turning your model into a product.
+        </div>
+        <div class="three-col" style="margin-top:1rem">
+          <div class="mini-card"><strong>Netflix</strong><br>Recommendation models serve 200M+ users in real time.</div>
+          <div class="mini-card"><strong>Banking</strong><br>Fraud detection models score every transaction in milliseconds.</div>
+          <div class="mini-card"><strong>Healthcare</strong><br>X-ray AI assists radiologists — model must be embedded in clinical workflow.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MLOPS -->
+    <div class="section" id="mlops" data-section="mlops">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">⚙</div>
+        <h2>What is MLOps?</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>MLOps = ML + DevOps + Data Engineering</strong>. A set of practices to reliably deploy, monitor, and maintain ML models in production at scale.</p>
+        </div>
+        <div class="three-col">
+          <div class="mini-card">
+            <strong>ML Component</strong><br>
+            Model training, evaluation, versioning, experiment tracking.
+          </div>
+          <div class="mini-card">
+            <strong>DevOps Component</strong><br>
+            CI/CD pipelines, containerization, automated testing, deployment.
+          </div>
+          <div class="mini-card">
+            <strong>Data Engineering</strong><br>
+            Data pipelines, feature stores, data validation, monitoring.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIFECYCLE -->
+    <div class="section" id="lifecycle" data-section="lifecycle">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🔄</div>
+        <h2>MLOps Lifecycle — 7 Stages</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content"><strong>Data Collection</strong> — Gather raw data from databases, APIs, sensors, user interactions.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content"><strong>Data Preparation</strong> — Clean, transform, validate, and split data. Build reproducible pipelines.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content"><strong>Model Training</strong> — Train models with tracked experiments (MLflow), hyperparameter tuning, versioning.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content"><strong>Model Evaluation</strong> — Validate accuracy, fairness, robustness on holdout sets and business metrics.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-content"><strong>Model Packaging</strong> — Serialize model (pickle/joblib), containerize with Docker, create API.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-content"><strong>Deploy & Serve</strong> — Deploy to cloud/on-prem. Serve predictions via REST API, batch jobs, or edge devices.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">7</div>
+            <div class="step-content"><strong>Monitor & Retrain</strong> — Track performance, detect drift, trigger retraining when model degrades.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERIALIZATION -->
+    <div class="section" id="serialization" data-section="serialization">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">💾</div>
+        <h2>Model Serialization</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>After training, the model must be saved to disk so it can be loaded by the serving API without retraining. Two common options in Python:</p>
+        </div>
+        <table class="comparison-table">
+          <tr><th>Library</th><th>Usage</th><th>Best for</th></tr>
+          <tr><td><strong>pickle</strong></td><td><code>pickle.dump(model, f)</code> / <code>pickle.load(f)</code></td><td>Quick and simple. Built into Python.</td></tr>
+          <tr><td><strong>joblib</strong></td><td><code>joblib.dump(model, 'model.pkl')</code> / <code>joblib.load('model.pkl')</code></td><td>sklearn models — handles large numpy arrays more efficiently than pickle.</td></tr>
+        </table>
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠ pickle security warning</div>
+          Never unpickle files from untrusted sources. A malicious pickle file can execute arbitrary code on load. Use model cards and checksums to verify model files in production.
+        </div>
+      </div>
+    </div>
+
+    <!-- REST API -->
+    <div class="section" id="rest" data-section="rest">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">🌐</div>
+        <h2>REST API Concepts</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>A REST API allows any client (web, mobile, other services) to call your model over HTTP. Think of REST as the <em>rules of the road</em> and FastAPI as the <em>car</em>.</p>
+        </div>
+        <table class="comparison-table">
+          <tr><th>HTTP Method</th><th>Purpose</th><th>Example</th></tr>
+          <tr><td><strong>GET</strong></td><td>Retrieve data / read</td><td>GET /model/info</td></tr>
+          <tr><td><strong>POST</strong></td><td>Send data, create, compute</td><td>POST /predict</td></tr>
+          <tr><td><strong>PUT</strong></td><td>Update existing resource</td><td>PUT /model/update</td></tr>
+          <tr><td><strong>DELETE</strong></td><td>Remove resource</td><td>DELETE /model/v1</td></tr>
+        </table>
+        <div class="info-box" style="margin-top:1rem">
+          <div class="label">📌 For ML inference</div>
+          Use POST /predict: client sends features in request body (JSON), server returns prediction in response body (JSON).
+        </div>
+      </div>
+    </div>
+
+    <!-- FASTAPI -->
+    <div class="section" id="fastapi" data-section="fastapi">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">⚡</div>
+        <h2>FastAPI</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>FastAPI is a modern, fast Python web framework for building APIs. It uses Python type hints for automatic request validation and generates interactive documentation (Swagger UI) automatically.</p>
+        </div>
+        <div class="code-block">
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI<br>
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel<br>
+<span class="kw">import</span> joblib<br>
+<br>
+app = <span class="fn">FastAPI</span>()<br>
+model = joblib.<span class="fn">load</span>(<span class="str">"model.pkl"</span>)<br>
+<br>
+<span class="kw">class</span> <span class="dec">Features</span>(BaseModel):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;data: list[float]<br>
+<br>
+<span class="dec">@app.post</span>(<span class="str">"/predict"</span>)<br>
+<span class="kw">def</span> <span class="fn">predict</span>(features: Features):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pred = model.<span class="fn">predict</span>([features.data])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> {<span class="str">"prediction"</span>: pred[0]}
+        </div>
+        <div class="three-col" style="margin-top:1rem">
+          <div class="mini-card">
+            <strong>FastAPI</strong><br>
+            The web framework. Handles routing, validation, serialization.
+          </div>
+          <div class="mini-card">
+            <strong>Pydantic</strong><br>
+            Data validation. Defines the request schema and validates incoming data types automatically.
+          </div>
+          <div class="mini-card">
+            <strong>Uvicorn</strong><br>
+            ASGI server. Runs the FastAPI app: <code>uvicorn main:app --reload</code>
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ FastAPI advantages for ML</div>
+          Automatic Swagger docs at /docs, async support for concurrent requests, built-in data validation, fast (comparable to Node.js), type-safe.
+        </div>
+      </div>
+    </div>
+
+    <!-- REAL WORLD -->
+    <div class="section" id="realworld" data-section="realworld">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🌍</div>
+        <h2>Real-World Deployment Examples</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Use Case</th><th>Deployment Type</th><th>Key Requirement</th></tr>
+          <tr><td>Netflix Recommendations</td><td>Batch + real-time API</td><td>Low latency, personalised</td></tr>
+          <tr><td>Banking Fraud Detection</td><td>Real-time API (per-transaction)</td><td>&lt;100ms latency</td></tr>
+          <tr><td>Healthcare X-ray Analysis</td><td>Batch + integrated EMR</td><td>Explainability, regulatory compliance</td></tr>
+          <tr><td>E-commerce Pricing</td><td>Batch (hourly repricing)</td><td>High throughput</td></tr>
+          <tr><td>Mobile (on-device ML)</td><td>Edge deployment (TFLite, CoreML)</td><td>No internet required, small model</td></tr>
+          <tr><td>Chatbots / LLMs</td><td>Streaming API</td><td>Low first-token latency</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- VIZ -->
+    <div class="section" id="viz12" data-section="viz12">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🎬</div>
+        <h2>MLOps Lifecycle Pipeline</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="mlopsCanvas" width="700" height="280"></canvas>
+          <div class="viz-controls">
+            <button class="viz-btn" id="animatePipeline">▶ Animate Flow</button>
+            <button class="viz-btn" id="resetPipeline">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz12" data-section="quiz12">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — MLOps & FastAPI</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> What percentage of ML models never reach production, according to the Gartner stat from the lecture?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">50%</button>
+            <button class="option-btn" data-correct="false">70%</button>
+            <button class="option-btn" data-correct="true">87%</button>
+            <button class="option-btn" data-correct="false">95%</button>
+          </div>
+          <div class="explanation">87% of ML models never reach production (Gartner). This highlights the importance of MLOps — the gap between notebook and production is where most ML projects fail.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> In the FastAPI code from the lecture, what does the Pydantic BaseModel do?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Trains the model</button>
+            <button class="option-btn" data-correct="true">Defines and validates the request data schema</button>
+            <button class="option-btn" data-correct="false">Loads the pkl file</button>
+            <button class="option-btn" data-correct="false">Configures the server</button>
+          </div>
+          <div class="explanation">Pydantic BaseModel defines the expected input structure (Features with data: list[float]) and automatically validates incoming request data.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> MLOps is the combination of:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">ML + Statistics + Mathematics</button>
+            <button class="option-btn" data-correct="true">ML + DevOps + Data Engineering</button>
+            <button class="option-btn" data-correct="false">ML + Cloud + Databases</button>
+            <button class="option-btn" data-correct="false">Python + SQL + Docker</button>
+          </div>
+          <div class="explanation">MLOps = ML + DevOps + Data Engineering — combining model development, deployment automation, and data pipeline management.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> Which HTTP method is used for prediction requests in a REST ML API?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">GET</button>
+            <button class="option-btn" data-correct="true">POST</button>
+            <button class="option-btn" data-correct="false">PUT</button>
+            <button class="option-btn" data-correct="false">DELETE</button>
+          </div>
+          <div class="explanation">POST is used to send data to the server. Prediction requests send feature data in the request body — POST /predict is the standard pattern.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> Which library is recommended for saving sklearn models in the lecture?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">pickle (built-in)</button>
+            <button class="option-btn" data-correct="true">joblib</button>
+            <button class="option-btn" data-correct="false">numpy.save</button>
+            <button class="option-btn" data-correct="false">json.dump</button>
+          </div>
+          <div class="explanation">joblib is recommended for sklearn models as it handles large numpy arrays more efficiently. The lecture shows: joblib.load("model.pkl") in the FastAPI example.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> What is the 7th and final stage of the MLOps lifecycle?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Model Packaging</button>
+            <button class="option-btn" data-correct="false">Deploy & Serve</button>
+            <button class="option-btn" data-correct="true">Monitor & Retrain</button>
+            <button class="option-btn" data-correct="false">Model Evaluation</button>
+          </div>
+          <div class="explanation">The lifecycle doesn't end at deployment. Stage 7 is Monitor & Retrain — track performance in production, detect drift, and trigger retraining when the model degrades.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals12" data-section="numericals12">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical / Design Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Design a Sentiment Analysis API</div>
+          <div class="numerical-body">
+            <div class="problem-text">Design a REST API for a sentiment analysis model. Specify: endpoint URL, HTTP method, input JSON schema, output JSON schema, and the FastAPI code structure.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Endpoint</span><span class="step-text">POST /predict/sentiment</span></div>
+              <div class="solution-step"><span class="step-label">Input schema</span><span class="step-text">{ "text": "string" } — the raw text to classify</span></div>
+              <div class="solution-step"><span class="step-label">Output schema</span><span class="step-text">{ "sentiment": "positive"/"negative"/"neutral", "confidence": 0.95 }</span></div>
+              <div class="solution-step"><span class="step-label">FastAPI structure</span><span class="step-text">class TextInput(BaseModel): text: str. @app.post("/predict/sentiment") def predict_sentiment(inp: TextInput): pred = model.predict([vectorizer.transform([inp.text])]); return {"sentiment": pred[0]}</span></div>
+              <div class="solution-step"><span class="step-label">Run command</span><span class="step-text">uvicorn main:app --host 0.0.0.0 --port 8000 --reload</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — MLOps Lifecycle for Fraud Detection</div>
+          <div class="numerical-body">
+            <div class="problem-text">Map the 7 MLOps lifecycle stages to a banking fraud detection system. For each stage, give a concrete example of what happens.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Stage 1</span><span class="step-text">Data Collection: stream transactions from payment processor API, store in BigQuery</span></div>
+              <div class="solution-step"><span class="step-label">Stage 2</span><span class="step-text">Data Prep: label fraud/not-fraud, engineer features (transaction velocity, geo-distance), handle imbalance with SMOTE</span></div>
+              <div class="solution-step"><span class="step-label">Stage 3</span><span class="step-text">Model Training: train XGBoost, track experiments with MLflow, tune with Optuna</span></div>
+              <div class="solution-step"><span class="step-label">Stage 4</span><span class="step-text">Evaluation: check precision/recall/F1 on held-out test set, also check fairness across demographics</span></div>
+              <div class="solution-step"><span class="step-label">Stage 5</span><span class="step-text">Packaging: joblib.dump(model), build Docker container with FastAPI serving endpoint</span></div>
+              <div class="solution-step"><span class="step-label">Stage 6</span><span class="step-text">Deploy: Kubernetes cluster, POST /predict endpoint, &lt;50ms SLA per transaction</span></div>
+              <div class="solution-step"><span class="step-label">Stage 7</span><span class="step-text">Monitor: Evidently AI detects data drift monthly, auto-retrain triggered when F1 drops &gt;2%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — API Throughput Calculation</div>
+          <div class="numerical-body">
+            <div class="problem-text">A fraud detection API receives 1,000 transactions/second. Each prediction takes 10ms. How many parallel workers do you need? If each worker costs $0.05/hour, what is the hourly cost?</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Throughput</span><span class="step-text">Each worker can handle 1000ms/10ms = 100 requests/second.</span></div>
+              <div class="solution-step"><span class="step-label">Workers needed</span><span class="step-text">1000 req/s ÷ 100 req/s/worker = 10 workers minimum.</span></div>
+              <div class="solution-step"><span class="step-label">With headroom</span><span class="step-text">Add 20% buffer: ceil(10 × 1.2) = 12 workers for traffic spikes.</span></div>
+              <div class="solution-step"><span class="step-label">Cost</span><span class="step-text">12 workers × $0.05/hr = $0.60/hr = $14.40/day = $432/month.</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week11.html" class="viz-btn" style="text-decoration:none">← Week 11</a>
+      <a href="week13.html" class="viz-btn" style="text-decoration:none">Week 13 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week12.js"></script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 8 — Anomaly Detection | ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+      <li><a href="week7.html">W7</a></li>
+      <li><a href="week8.html" class="active">W8</a></li>
+      <li><a href="week10.html">W10</a></li>
+      <li><a href="week11.html">W11</a></li>
+      <li><a href="week12.html">W12</a></li>
+      <li><a href="week13.html">W13</a></li>
+      <li><a href="week14.html">W14</a></li>
+      <li><a href="week15.html">W15</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 8 — Anomaly Detection</strong>
+</div>
+
+<div class="page-wrapper">
+
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#intro">What is Anomaly Detection?</a></li>
+      <li><a href="#curse">Curse of Dimensionality</a></li>
+      <li><a href="#isolation">Isolation Forest</a></li>
+      <li><a href="#gaussian">Gaussian Model</a></li>
+      <li><a href="#evaluation">Algorithm Evaluation</a></li>
+      <li><a href="#vs-supervised">vs Supervised Learning</a></li>
+      <li><a href="#viz8">Gaussian Visualizer</a></li>
+      <li><a href="#quiz8">Quiz</a></li>
+      <li><a href="#numericals8">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+
+    <div class="page-header">
+      <div class="week-tag">Week 8</div>
+      <h1>Anomaly Detection</h1>
+      <p>Detect rare, unusual events in data — from aircraft engine faults to credit card fraud — using Isolation Forest and Gaussian density estimation.</p>
+    </div>
+
+    <!-- INTRO -->
+    <div class="section" id="intro" data-section="intro">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">🚨</div>
+        <h2>What is Anomaly Detection?</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Anomaly detection (also called outlier detection) identifies data points that differ significantly from the majority. These unusual points may signal important events: fraud, equipment failure, network intrusion, or medical conditions.</p>
+        </div>
+        <div class="three-col">
+          <div class="mini-card">
+            <strong>Fraud Detection</strong><br>
+            Unusual transaction patterns on a credit card differ from a user's normal behavior.
+          </div>
+          <div class="mini-card">
+            <strong>Aircraft Engines</strong><br>
+            Abnormal heat or vibration readings indicate a developing engine fault.
+          </div>
+          <div class="mini-card">
+            <strong>Network Security</strong><br>
+            Unusual traffic spikes or access patterns signal a potential intrusion.
+          </div>
+        </div>
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">🔑 Core challenge</div>
+          Anomalies are rare by definition. A dataset may have thousands of normal examples but only a handful of anomalies. Traditional classification fails because labels are scarce.
+        </div>
+      </div>
+    </div>
+
+    <!-- CURSE OF DIMENSIONALITY -->
+    <div class="section" id="curse" data-section="curse">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">📐</div>
+        <h2>Distance Metric Failure</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>A naive approach: flag points that are "far" from other points using distance metrics. This fails in high dimensions due to the <strong>curse of dimensionality</strong>.</p>
+        </div>
+        <div class="warning-box">
+          <div class="label">⚠ Relative Contrast Problem</div>
+          In high-dimensional spaces, the ratio of maximum to minimum distance between points approaches 1. All points appear roughly equidistant — distance loses meaning as a discriminator.
+        </div>
+        <div class="formula-block">
+          <strong>Relative Contrast:</strong>
+          $$\text{Relative Contrast} = \frac{d_{\max} - d_{\min}}{d_{\min}} \to 0 \text{ as dimensions } \to \infty$$
+        </div>
+        <p style="margin-top:0.8rem">This is why Isolation Forest and Gaussian models are preferred over pure distance-based methods for high-dimensional anomaly detection.</p>
+      </div>
+    </div>
+
+    <!-- ISOLATION FOREST -->
+    <div class="section" id="isolation" data-section="isolation">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">🌲</div>
+        <h2>Isolation Forest</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Isolation Forest exploits the fact that anomalies are <em>few and different</em>. An anomaly is easy to isolate — it takes very few splits in a random tree to separate it from all other points.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">Build many <strong>random decision trees</strong> (iTree). At each node, randomly select a feature and a random split value.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">For each data point, record the <strong>path length</strong> h(x) — how many splits it takes to isolate it.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content"><strong>Average path length</strong> E(h(x)) over all trees. Anomalies have short average paths; normal points have longer paths.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">Compute <strong>anomaly score</strong> and compare to threshold 0.5.</div>
+          </div>
+        </div>
+
+        <div class="formula-block">
+          <strong>Anomaly Score:</strong>
+          $$s(x, n) = 2^{-\frac{E(h(x))}{c(n)}}$$
+          <strong>Normalisation factor:</strong>
+          $$c(n) = 2H(n-1) - \frac{2(n-1)}{n}, \quad H(k) = \ln(k) + 0.5772$$
+          where $H$ is the harmonic number approximation.
+        </div>
+
+        <table class="comparison-table">
+          <tr><th>Score range</th><th>Interpretation</th></tr>
+          <tr><td>$s \approx 1$</td><td>Definitely anomalous — very short isolation path</td></tr>
+          <tr><td>$s > 0.5$</td><td>Likely anomalous</td></tr>
+          <tr><td>$s \approx 0.5$</td><td>No clear anomaly signal</td></tr>
+          <tr><td>$s \approx 0$</td><td>Definitely normal — long path needed to isolate</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">✅ Why Isolation Forest works</div>
+          No distance computation needed. Works well in high dimensions. $O(n \log n)$ — fast and scalable. Handles mixed features.
+        </div>
+      </div>
+    </div>
+
+    <!-- GAUSSIAN MODEL -->
+    <div class="section" id="gaussian" data-section="gaussian">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">📈</div>
+        <h2>Gaussian Model for Anomaly Detection</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Model the probability density of normal examples. If a new point has very low probability under this model, flag it as an anomaly.</p>
+        </div>
+
+        <div class="formula-block">
+          <strong>Gaussian probability density (per feature):</strong>
+          $$p(x_j; \mu_j, \sigma_j^2) = \frac{1}{\sqrt{2\pi\sigma_j^2}} \exp\!\left(-\frac{(x_j - \mu_j)^2}{2\sigma_j^2}\right)$$
+          <strong>Product over all features (assuming independence):</strong>
+          $$p(\mathbf{x}) = \prod_{j=1}^{n} p(x_j; \mu_j, \sigma_j^2)$$
+          <strong>Flag as anomaly if:</strong>
+          $$p(\mathbf{x}) < \varepsilon$$
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">Compute $\mu_j = \frac{1}{m}\sum_{i=1}^m x_j^{(i)}$ — mean of each feature from training data.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">Compute $\sigma_j^2 = \frac{1}{m}\sum_{i=1}^m (x_j^{(i)} - \mu_j)^2$ — variance of each feature.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">For new point $\mathbf{x}$, compute $p(\mathbf{x}) = \prod_j p(x_j; \mu_j, \sigma_j^2)$.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">If $p(\mathbf{x}) < \varepsilon$, flag as anomaly. Choose $\varepsilon$ on a cross-validation set.</div>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top:0.8rem">
+          <div class="label">Aircraft Engine Example</div>
+          Features: x1 = heat generated, x2 = vibration intensity. Fit Gaussians to both. A new engine reading with unusual heat and vibration gets low $p(\mathbf{x})$ and is flagged.
+        </div>
+      </div>
+    </div>
+
+    <!-- EVALUATION -->
+    <div class="section" id="evaluation" data-section="evaluation">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(188,140,255,0.15);color:#bc8cff">📋</div>
+        <h2>Algorithm Evaluation</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Since anomaly detection uses <em>unlabeled</em> training data, evaluation requires a labeled validation set with known anomalies. We then tune $\varepsilon$ on this set.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">Train on normal examples only (unlabeled): fit $\mu_j, \sigma_j^2$.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">Hold a cross-validation set with a few anomaly examples and normal examples.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">Tune $\varepsilon$ to maximize F1-score on the cross-validation set (not accuracy — classes are imbalanced).</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">Evaluate final model on test set.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VS SUPERVISED -->
+    <div class="section" id="vs-supervised" data-section="vs-supervised">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">⚖</div>
+        <h2>Anomaly Detection vs Supervised Learning</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <table class="comparison-table">
+          <tr><th>Criterion</th><th>Use Anomaly Detection</th><th>Use Supervised Learning</th></tr>
+          <tr><td>Positive examples</td><td>Very rare (0–20 total)</td><td>Many (hundreds+)</td></tr>
+          <tr><td>Anomaly types</td><td>Many unknown types — future anomalies may look completely different</td><td>Known types, future anomalies similar to training ones</td></tr>
+          <tr><td>Negative examples</td><td>Many normal examples</td><td>Many negative examples</td></tr>
+          <tr><td>Example use cases</td><td>Fraud, aircraft faults, network intrusion</td><td>Email spam, weather classification</td></tr>
+        </table>
+        <div class="warning-box" style="margin-top:1rem">
+          <div class="label">⚠ Key insight</div>
+          If your positive class (anomalies) is extremely rare and you expect future anomalies to look very different from past ones, anomaly detection is the right choice — not supervised classification.
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUALIZATION -->
+    <div class="section" id="viz8" data-section="viz8">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🎬</div>
+        <h2>Gaussian Anomaly Threshold Visualizer</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="viz-container">
+          <canvas id="gaussianCanvas" width="700" height="300"></canvas>
+          <div class="viz-controls">
+            <label style="color:var(--text2);font-size:0.9rem">Threshold ε: <span id="epsilonVal">0.05</span></label>
+            <input type="range" id="epsilonSlider" min="1" max="40" value="10" style="width:200px;margin:0 1rem">
+            <button class="viz-btn" id="resetGaussBtn">↺ Reset</button>
+          </div>
+          <div style="text-align:center;margin-top:0.5rem;color:var(--text2);font-size:0.9rem">
+            Red region = anomaly (p(x) &lt; ε). Blue region = normal. Drag slider to change threshold.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="section quiz-section" id="quiz8" data-section="quiz8">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">❓</div>
+        <h2>Quiz — Anomaly Detection</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="question-card">
+          <p><strong>Q1.</strong> In Isolation Forest, anomalies have:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="true">Shorter average path lengths in random trees</button>
+            <button class="option-btn" data-correct="false">Longer average path lengths in random trees</button>
+            <button class="option-btn" data-correct="false">The same path length as normal points</button>
+            <button class="option-btn" data-correct="false">Infinite path lengths</button>
+          </div>
+          <div class="explanation">Anomalies are few and different — they are easy to isolate with few splits. Normal points blend in and take more splits to isolate.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q2.</strong> An Isolation Forest score of s ≈ 1 means:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">The point is definitely normal</button>
+            <button class="option-btn" data-correct="true">The point is very likely anomalous</button>
+            <button class="option-btn" data-correct="false">No anomaly signal detected</button>
+            <button class="option-btn" data-correct="false">The model is uncertain</button>
+          </div>
+          <div class="explanation">Score near 1 means very short isolation path — the point was easy to separate from all others, indicating an anomaly.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q3.</strong> In the Gaussian anomaly model, you flag a point as an anomaly when:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">$p(\mathbf{x}) > \varepsilon$</button>
+            <button class="option-btn" data-correct="true">$p(\mathbf{x}) < \varepsilon$</button>
+            <button class="option-btn" data-correct="false">$p(\mathbf{x}) = 0$</button>
+            <button class="option-btn" data-correct="false">$p(\mathbf{x}) = 1$</button>
+          </div>
+          <div class="explanation">Low probability density under the fitted Gaussian means the point is unusual. We flag it when p(x) falls below the threshold ε.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q4.</strong> Anomaly detection is preferred over supervised learning when:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">You have thousands of positive examples</button>
+            <button class="option-btn" data-correct="true">Positive (anomaly) examples are extremely rare (0–20)</button>
+            <button class="option-btn" data-correct="false">You know exactly what future anomalies look like</button>
+            <button class="option-btn" data-correct="false">Your dataset is perfectly balanced</button>
+          </div>
+          <div class="explanation">When anomalies are very rare and may look different in the future, anomaly detection is better than supervised learning which needs many labeled examples.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q5.</strong> Why do distance metrics fail for anomaly detection in high dimensions?</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Distances become negative</button>
+            <button class="option-btn" data-correct="true">All points appear roughly equidistant (relative contrast → 0)</button>
+            <button class="option-btn" data-correct="false">There are too many anomalies</button>
+            <button class="option-btn" data-correct="false">The algorithm cannot converge</button>
+          </div>
+          <div class="explanation">In high dimensions, the ratio (d_max - d_min)/d_min approaches zero. All distances become similar, making it impossible to distinguish anomalies by distance alone.</div>
+        </div>
+
+        <div class="question-card">
+          <p><strong>Q6.</strong> To tune ε in the Gaussian anomaly model, you should:</p>
+          <div class="options">
+            <button class="option-btn" data-correct="false">Maximize accuracy on the training set</button>
+            <button class="option-btn" data-correct="false">Set ε = 0 always</button>
+            <button class="option-btn" data-correct="true">Maximize F1-score on a labeled cross-validation set</button>
+            <button class="option-btn" data-correct="false">Use the same ε for all problems</button>
+          </div>
+          <div class="explanation">Use F1-score (not accuracy) because classes are imbalanced. Tune ε on a held-out labeled validation set with a few known anomalies.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NUMERICALS -->
+    <div class="section" id="numericals8" data-section="numericals8">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 1 — Gaussian Probability Density</div>
+          <div class="numerical-body">
+            <div class="problem-text">Given a feature with mean μ=5 and variance σ²=2. Compute p(x=3). Is this an anomaly if ε=0.05?</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><span class="step-text">$p(x;\mu,\sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)$</span></div>
+              <div class="solution-step"><span class="step-label">Exponent</span><span class="step-text">$(x-\mu)^2 = (3-5)^2 = 4$. Exponent = $-4/(2 \times 2) = -1$. $e^{-1} \approx 0.368$</span></div>
+              <div class="solution-step"><span class="step-label">Normaliser</span><span class="step-text">$\sqrt{2\pi\sigma^2} = \sqrt{2\pi \times 2} = \sqrt{4\pi} \approx 3.545$</span></div>
+              <div class="solution-step"><span class="step-label">Result</span><span class="step-text">$p(x=3) = 0.368 / 3.545 \approx 0.1038$</span></div>
+              <div class="solution-step"><span class="step-label">Anomaly?</span><span class="step-text">$p = 0.1038 > \varepsilon = 0.05$. Not an anomaly — x=3 is within normal range.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 2 — Isolation Forest Score</div>
+          <div class="numerical-body">
+            <div class="problem-text">Given E(h(x))=3 (average path length) and n=100 (sample size). Compute the anomaly score s(x, n).</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><span class="step-text">Compute $H(n-1) = H(99) \approx \ln(99) + 0.5772 \approx 4.595 + 0.5772 = 5.172$</span></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><span class="step-text">$c(n) = 2H(n-1) - 2(n-1)/n = 2(5.172) - 2(99)/100 = 10.344 - 1.98 = 8.364$</span></div>
+              <div class="solution-step"><span class="step-label">Step 3</span><span class="step-text">$s(x,n) = 2^{-E(h(x))/c(n)} = 2^{-3/8.364} = 2^{-0.3587}$</span></div>
+              <div class="solution-step"><span class="step-label">Result</span><span class="step-text">$s = 2^{-0.3587} \approx 0.781$. Since s > 0.5, this point is flagged as anomalous.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header">Problem 3 — Multivariate Gaussian Detection</div>
+          <div class="numerical-body">
+            <div class="problem-text">Aircraft engine with 2 features. Feature 1: μ₁=80°C, σ₁²=4. Feature 2: μ₂=0.5mm/s, σ₂²=0.01. New reading: x₁=75°C, x₂=0.6mm/s. Compute p(x) and check ε=0.001.</div>
+            <button class="solution-toggle">Show Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">p(x₁)</span><span class="step-text">$(75-80)^2=25$. Exponent=$-25/8=-3.125$. $e^{-3.125}\approx 0.0439$. $\sqrt{2\pi\times4}\approx5.013$. $p(x_1)\approx0.00876$</span></div>
+              <div class="solution-step"><span class="step-label">p(x₂)</span><span class="step-text">$(0.6-0.5)^2=0.01$. Exponent=$-0.01/0.02=-0.5$. $e^{-0.5}\approx0.6065$. $\sqrt{2\pi\times0.01}\approx0.2507$. $p(x_2)\approx2.419$</span></div>
+              <div class="solution-step"><span class="step-label">p(x)</span><span class="step-text">$p(\mathbf{x}) = p(x_1)\times p(x_2) \approx 0.00876 \times 2.419 \approx 0.0212$</span></div>
+              <div class="solution-step"><span class="step-label">Anomaly?</span><span class="step-text">$p(\mathbf{x}) = 0.0212 > \varepsilon = 0.001$. Not anomalous — temperature is a bit low but within range.</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;margin-top:2rem">
+      <a href="week7.html" class="viz-btn" style="text-decoration:none">← Week 7</a>
+      <a href="week10.html" class="viz-btn" style="text-decoration:none">Week 10 →</a>
+    </div>
+
+  </main>
+</div>
+
+<button class="back-to-top" id="backToTop">↑</button>
+<script src="../script.js"></script>
+<script src="week8.js"></script>
+</body>
+</html>

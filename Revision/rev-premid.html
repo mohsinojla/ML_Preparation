@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pre-Mid Revision — ML Study Hub</title>
+  <link rel="stylesheet" href="revision.css" />
+  <script>window.MathJax={tex:{inlineMath:[['$','$']]}};</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header><nav>
+  <a href="../index.html" class="logo">🧠 ML Study Hub</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Full Notes</a></li>
+    <li><a href="index.html">Revision Hub</a></li>
+    <li><a href="rev-premid.html" class="active">Pre-Mid</a></li>
+    <li><a href="rev-postmid.html">Post-Mid</a></li>
+    <li><a href="cheatsheet.html">Cheat Sheet</a></li>
+  </ul>
+</nav></header>
+
+<div class="page-wrap">
+  <div class="rev-header">
+    <div class="tag">📘 Weeks 1–8</div>
+    <h1>Pre-Mid Quick Revision</h1>
+    <p>Every topic covered in the first half — condensed to what matters for the exam.</p>
+  </div>
+
+  <!-- ===== KNN ===== -->
+  <div class="topic" id="knn">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📍</span>
+      <h2>K-Nearest Neighbours (KNN)</h2>
+      <span class="topic-tag tag-premid">W1</span>
+      <span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold hl-blue">Core Idea</p>
+          <ul style="padding-left:1.1rem;margin-top:0.3rem;line-height:1.9;font-size:0.84rem;color:var(--text2)">
+            <li>Non-parametric, lazy learner — memorises all training data</li>
+            <li>Predict by majority vote (classification) or mean (regression) of K nearest neighbours</li>
+            <li>No training phase — all cost at prediction time</li>
+            <li>Small K → overfitting (jagged boundary); Large K → underfitting</li>
+            <li>Rule of thumb: $K \approx \sqrt{N}$; always use odd K for binary</li>
+          </ul>
+          <div class="formula"><div class="flabel">Euclidean</div>$$d(\mathbf{p},\mathbf{q})=\sqrt{\sum_{i=1}^n(p_i-q_i)^2}$$</div>
+          <div class="formula"><div class="flabel">Manhattan</div>$$d(\mathbf{p},\mathbf{q})=\sum_{i=1}^n|p_i-q_i|$$</div>
+        </div>
+        <div>
+          <div class="key"><div class="klabel">Must Know</div>Always scale features before KNN — unscaled features with large magnitudes dominate distance.</div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>KNN is called "lazy" because it doesn't learn a model — NOT because it's slow or inaccurate.</div>
+          <div class="exam-q"><div class="elabel">Likely Exam Q</div>Given 5 training points and K=3, classify a new point: compute all distances, rank, take majority vote.</div>
+          <p class="bold mt" style="font-size:0.84rem">Feature Scaling:</p>
+          <div class="formula"><div class="flabel">Min-Max</div>$$x'=\frac{x-x_{min}}{x_{max}-x_{min}}$$<p class="small">→ scales to [0,1]</p></div>
+          <div class="formula"><div class="flabel">Z-Score</div>$$x'=\frac{x-\mu}{\sigma}$$<p class="small">→ mean=0, std=1</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GRADIENT DESCENT ===== -->
+  <div class="topic" id="gradient-descent">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📉</span><h2>Gradient Descent</h2>
+      <span class="topic-tag tag-premid">W1</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Update Rule</div>$$\theta := \theta - \alpha \frac{\partial J(\theta)}{\partial \theta}$$</div>
+          <table class="rtable" style="margin-top:0.6rem">
+            <tr><th>Variant</th><th>Uses</th><th>Noise</th></tr>
+            <tr><td>Batch GD</td><td>All data</td><td>None (stable)</td></tr>
+            <tr><td>SGD</td><td>1 sample</td><td>High</td></tr>
+            <tr><td>Mini-Batch</td><td>m samples</td><td>Medium</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>Too large $\alpha$ → diverges (cost increases). Too small → converges very slowly. Both are wrong.</div>
+          <div class="key"><div class="klabel">Simultaneous Update</div>Update ALL $\theta_j$ using OLD values — never use new $\theta_0$ to compute new $\theta_1$.</div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>For linear regression, MSE cost is <strong>convex</strong> → gradient descent always finds the global minimum. No local minima.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REGRESSION ===== -->
+  <div class="topic" id="regression">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">📈</span><h2>Linear &amp; Polynomial Regression</h2>
+      <span class="topic-tag tag-premid">W2</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Hypothesis</div>$$h_\theta(\mathbf{x})=\theta_0+\theta_1x_1+\cdots+\theta_nx_n=\boldsymbol{\theta}^T\mathbf{x}$$</div>
+          <div class="formula"><div class="flabel">MSE Cost</div>$$J(\theta)=\frac{1}{2m}\sum_{i=1}^m(h_\theta(x^{(i)})-y^{(i)})^2$$</div>
+          <div class="formula"><div class="flabel">Normal Equation</div>$$\boldsymbol{\theta}=(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$<p class="small">Closed-form; $O(n^3)$ — slow for large $n$</p></div>
+          <p class="bold mt" style="font-size:0.84rem">Polynomial: define $x_2=x^2$, $x_3=x^3$ → still linear regression on new features.</p>
+        </div>
+        <div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>Polynomial regression is still <strong>linear</strong> in the parameters $\theta$ — just non-linear in the input $x$.</div>
+          <table class="rtable">
+            <tr><th>Method</th><th>Needs $\alpha$?</th><th>Best for</th></tr>
+            <tr><td>Gradient Descent</td><td>Yes</td><td>Large n (features)</td></tr>
+            <tr><td>Normal Equation</td><td>No</td><td>Small n (&lt;10k)</td></tr>
+          </table>
+          <div class="exam-q" style="margin-top:0.6rem"><div class="elabel">Exam Q Type</div>Given data, do 1 GD step: compute predictions, errors, gradients, then update $\theta_0$ and $\theta_1$.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BIAS-VARIANCE ===== -->
+  <div class="topic" id="bias-variance">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">⚖️</span><h2>Bias-Variance Tradeoff</h2>
+      <span class="topic-tag tag-premid">W2</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="formula"><div class="flabel">Decomposition</div>$$\text{Expected Error} = \text{Bias}^2 + \text{Variance} + \underbrace{\sigma^2}_{\text{irreducible noise}}$$</div>
+      <div class="rev-grid" style="margin-top:0.6rem">
+        <div class="card" style="border-color:rgba(88,166,255,0.3)">
+          <h4 class="hl-blue">High Bias = Underfitting</h4>
+          <ul><li>High train error AND high test error</li><li>Model too simple</li><li>Fix: more complexity, more features</li></ul>
+        </div>
+        <div class="card" style="border-color:rgba(248,81,73,0.3)">
+          <h4 class="hl-red">High Variance = Overfitting</h4>
+          <ul><li>Low train error, HIGH test error</li><li>Model memorises noise</li><li>Fix: more data, regularisation, simpler model</li></ul>
+        </div>
+      </div>
+      <div class="trap"><div class="tlabel">Exam Trap</div>"Adding more training data helps with variance (overfitting) but NOT with bias (underfitting)." — This distinction is commonly tested.</div>
+    </div>
+  </div>
+
+  <!-- ===== REGULARIZATION ===== -->
+  <div class="topic" id="regularization">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🛡️</span><h2>Ridge &amp; Lasso Regularization</h2>
+      <span class="topic-tag tag-premid">W2</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Ridge (L2)</div>$$J=\text{MSE}+\lambda\sum_j\theta_j^2$$<p class="small">Shrinks toward 0, never exactly 0</p></div>
+          <div class="formula"><div class="flabel">Lasso (L1)</div>$$J=\text{MSE}+\lambda\sum_j|\theta_j|$$<p class="small">Can set weights exactly to 0 → feature selection</p></div>
+        </div>
+        <div>
+          <table class="rtable">
+            <tr><th></th><th>Ridge (L2)</th><th>Lasso (L1)</th></tr>
+            <tr><td>Zero coefs?</td><td>No (near 0)</td><td>Yes exactly</td></tr>
+            <tr><td>Feature sel.</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Closed form</td><td>Yes</td><td>No</td></tr>
+          </table>
+          <div class="trap" style="margin-top:0.6rem"><div class="tlabel">Exam Trap</div>Do NOT regularise $\theta_0$ (bias term). Only $\theta_1\ldots\theta_n$ are penalised. $\lambda\to\infty$: all weights→0, model predicts mean (extreme underfitting).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SVM ===== -->
+  <div class="topic" id="svm">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">✂️</span><h2>Support Vector Machines (Hard + Soft Margin)</h2>
+      <span class="topic-tag tag-premid">W3–W4</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Decision Boundary</div>$$\mathbf{w}^T\mathbf{x}+b=0$$<p class="small">Predict: $\hat{y}=\text{sign}(\mathbf{w}^T\mathbf{x}+b)$</p></div>
+          <div class="formula"><div class="flabel">Margin Width</div>$$\text{margin}=\frac{2}{\|\mathbf{w}\|}$$<p class="small">Maximise margin ≡ minimise $\frac{1}{2}\|\mathbf{w}\|^2$</p></div>
+          <div class="formula"><div class="flabel">Hard Margin Primal</div>$$\min\frac{1}{2}\|\mathbf{w}\|^2 \quad \text{s.t. } y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1$$</div>
+          <div class="formula"><div class="flabel">Soft Margin (C-SVM)</div>$$\min\frac{1}{2}\|\mathbf{w}\|^2+C\sum_i\xi_i \quad \text{s.t. } y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq 1-\xi_i$$</div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.4rem">Slack Variables $\xi_i$:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li>$\xi_i=0$ → outside margin, correctly classified</li>
+            <li>$0&lt;\xi_i&lt;1$ → inside margin, correct side</li>
+            <li>$\xi_i\geq 1$ → misclassified</li>
+          </ul>
+          <p class="bold mt" style="font-size:0.84rem">C parameter:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li>Large C → small margin, few violations (→ overfitting)</li>
+            <li>Small C → large margin, more violations (→ underfitting)</li>
+          </ul>
+          <div class="trap"><div class="tlabel">Exam Trap</div>Support vectors are points <strong>on</strong> the margin boundary ($y_i(\mathbf{w}^T\mathbf{x}_i+b)=1$). Remove any non-SV → hyperplane unchanged.</div>
+          <div class="exam-q"><div class="elabel">Exam Q</div>$\mathbf{w}=[3,4]$: margin $= 2/5 = 0.4$. Classify $\mathbf{x}=[3,1]$: compute $\mathbf{w}^T\mathbf{x}+b$, take sign.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KERNELS ===== -->
+  <div class="topic" id="kernels">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">✨</span><h2>Kernel Trick</h2>
+      <span class="topic-tag tag-premid">W4</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="key"><div class="klabel">Core Idea</div>Replace every inner product $\langle\mathbf{x}_i,\mathbf{x}_j\rangle$ in the dual with $K(\mathbf{x}_i,\mathbf{x}_j)=\langle\phi(\mathbf{x}_i),\phi(\mathbf{x}_j)\rangle$ — implicit high-dim mapping without computing $\phi(\mathbf{x})$ explicitly.</div>
+      <div class="rev-grid" style="margin-top:0.6rem">
+        <div>
+          <table class="rtable">
+            <tr><th>Kernel</th><th>Formula</th><th>Feature space</th></tr>
+            <tr><td>Linear</td><td>$\mathbf{x}_i^T\mathbf{x}_j$</td><td>Same</td></tr>
+            <tr><td>Polynomial</td><td>$(\mathbf{x}_i^T\mathbf{x}_j+c)^d$</td><td>Degree-d polys</td></tr>
+            <tr><td>RBF/Gaussian</td><td>$\exp(-\gamma\|\mathbf{x}_i-\mathbf{x}_j\|^2)$</td><td>∞-dimensional</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>RBF maps to <strong>infinite</strong>-dimensional space yet is computed in $O(d)$ time. Large $\gamma$ = narrow Gaussian = overfitting. Small $\gamma$ = underfitting.</div>
+          <div class="exam-q"><div class="elabel">Exam Q</div>Poly kernel $K(\mathbf{x},\mathbf{z})=(\mathbf{x}^T\mathbf{z})^2$, $\mathbf{x}=[1,2]$, $\mathbf{z}=[3,4]$: $=(3+8)^2=121$.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DECISION TREES ===== -->
+  <div class="topic" id="decision-trees">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🌳</span><h2>Decision Trees &amp; Pruning</h2>
+      <span class="topic-tag tag-premid">W5</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="formula"><div class="flabel">Entropy (K classes)</div>$$H(S)=-\sum_{k=1}^K p_k\log_2 p_k$$<p class="small">Pure node: $H=0$ · Max impurity: $H=1$ (binary, 50/50)</p></div>
+          <div class="formula"><div class="flabel">Information Gain (ID3)</div>$$\text{IG}(S,A)=H(S)-\sum_v\frac{|S_v|}{|S|}H(S_v)$$</div>
+          <div class="formula"><div class="flabel">Gain Ratio (C4.5)</div>$$\text{GainRatio}=\frac{\text{IG}(S,A)}{\text{SplitInfo}(S,A)}$$<p class="small">Corrects IG's bias toward many-valued features</p></div>
+          <div class="formula"><div class="flabel">Gini Index (CART)</div>$$\text{Gini}(S)=1-\sum_k p_k^2$$</div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Decision Boundaries: always axis-parallel rectangles (unlike SVM diagonal hyperplane)</p>
+          <p class="bold mt" style="font-size:0.84rem">Pruning:</p>
+          <table class="rtable">
+            <tr><th></th><th>Pre-Pruning</th><th>Post-Pruning</th></tr>
+            <tr><td>When</td><td>During growth</td><td>After full tree</td></tr>
+            <tr><td>Speed</td><td>Fast</td><td>Slower</td></tr>
+            <tr><td>Risk</td><td>"Short-sighted"</td><td>"Hindsight" (better)</td></tr>
+          </table>
+          <div class="formula" style="margin-top:0.6rem"><div class="flabel">Cost-Complexity</div>$$R_\alpha(T)=R(T)+\alpha|T|$$<p class="small">$|T|$=leaf count, $\alpha$=complexity penalty</p></div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>ID3 uses Max-Info-Gain. C4.5 uses Gain Ratio. sklearn (CART) uses Gini by default. Know which is which!</div>
+        </div>
+      </div>
+      <div class="scenario">
+        <p class="s-q">Compute IG for a feature that splits {9+, 5-} into {Weak: 6+2-} and {Strong: 3+3-}</p>
+        <details><summary>Show Answer</summary><div class="ans">
+          $H(S)=-(9/14)\log_2(9/14)-(5/14)\log_2(5/14)\approx0.940$<br>
+          $H(S_{weak})=-(6/8)\log_2(6/8)-(2/8)\log_2(2/8)\approx0.811$<br>
+          $H(S_{strong})=-0.5\log_2(0.5)-0.5\log_2(0.5)=1.0$<br>
+          $\text{IG}=0.940-(\frac{8}{14}\times0.811+\frac{6}{14}\times1.0)=0.940-0.893=\mathbf{0.047}$ bits
+        </div></details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== K-MEANS ===== -->
+  <div class="topic" id="kmeans">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">⚙️</span><h2>K-Means &amp; K-Means++</h2>
+      <span class="topic-tag tag-premid">W6</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="st">Choose K random centroids $\mu_1\ldots\mu_K$</div></div>
+            <div class="step"><div class="sn">2</div><div class="st"><strong>Assign</strong>: $c_i=\arg\min_k\|\mathbf{x}_i-\mu_k\|^2$</div></div>
+            <div class="step"><div class="sn">3</div><div class="st"><strong>Update</strong>: $\mu_k=\frac{1}{|C_k|}\sum_{i\in C_k}\mathbf{x}_i$</div></div>
+            <div class="step"><div class="sn">4</div><div class="st">Repeat until centroids stop moving</div></div>
+          </div>
+          <div class="formula" style="margin-top:0.7rem"><div class="flabel">Objective (Inertia)</div>$$J=\sum_{k=1}^K\sum_{\mathbf{x}_i\in C_k}\|\mathbf{x}_i-\mu_k\|^2$$</div>
+          <div class="key"><div class="klabel">K-Means++</div>Choose next centroid $\propto d(\mathbf{x})^2$ — favours far points, avoids bad local optima. Default in sklearn.</div>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.4rem">6 Limitations (all exam-testable):</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li>Must choose K upfront</li>
+            <li>Assumes spherical, equal-size clusters</li>
+            <li>Sensitive to initialisation → K-Means++</li>
+            <li>Sensitive to feature scale → standardise first</li>
+            <li>Converges to local optimum (non-convex J)</li>
+            <li>Fails in high dimensions (curse of dimensionality)</li>
+          </ul>
+          <div class="trap" style="margin-top:0.6rem"><div class="tlabel">Exam Trap</div>More K always lowers inertia — even K=N gives inertia=0. Inertia alone cannot choose K. Use the Elbow method (heuristic, not law).</div>
+          <div class="exam-q"><div class="elabel">Exam Q (Assignment 2 mirror)</div>Concentric rings: K-Means fails because it minimises Euclidean distance (assumes spherical clusters). Inner ring and outer ring have similar centroids → inseparable by K-Means.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HIERARCHICAL ===== -->
+  <div class="topic" id="hierarchical">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🌲</span><h2>Hierarchical Clustering (Agglomerative)</h2>
+      <span class="topic-tag tag-premid">W7</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.4rem">Algorithm:</p>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="st">Each point = its own cluster</div></div>
+            <div class="step"><div class="sn">2</div><div class="st">Merge the two closest clusters</div></div>
+            <div class="step"><div class="sn">3</div><div class="st">Repeat until 1 cluster remains</div></div>
+            <div class="step"><div class="sn">4</div><div class="st">Result: dendrogram tree — cut at height to get K clusters</div></div>
+          </div>
+          <div class="key" style="margin-top:0.6rem"><div class="klabel">Advantage</div>No need to specify K upfront. Cut dendrogram at any height to get desired K.</div>
+        </div>
+        <div>
+          <table class="rtable">
+            <tr><th>Linkage</th><th>Distance Between Clusters</th><th>Shape Preference</th></tr>
+            <tr><td><strong>Single-link</strong></td><td>Min distance between any pair of points</td><td>Elongated, chained (rings ✅)</td></tr>
+            <tr><td><strong>Complete-link</strong></td><td>Max distance between any pair of points</td><td>Compact, spherical</td></tr>
+            <tr><td><strong>Average-link</strong></td><td>Mean of all pairwise distances</td><td>Balanced</td></tr>
+          </table>
+          <div class="exam-q" style="margin-top:0.6rem"><div class="elabel">Assignment 2 Q2 Type</div>
+            <p>For concentric rings: use <strong>single-linkage</strong>. Complete-linkage uses the <em>maximum</em> inter-cluster distance — this causes it to see the two rings as "far apart" because the max distance between outer ring and inner ring is large, forcing them to stay separate until very late, producing chain-like false merges.</p>
+          </div>
+        </div>
+      </div>
+      <div class="scenario">
+        <p class="s-q">Merge {18,22,25,42,27,43} using single-linkage. What are the first two merges?</p>
+        <details><summary>Show Answer</summary><div class="ans">
+          Distances between all pairs → closest: 42 and 43 (d=1) → merge to {42,43}.<br>
+          Next closest: 27 and 25 (d=2) → merge to {25,27}.<br>
+          Then {18,22} (d=4), then {25,27} and {42,43} join via single-link distance, etc.
+        </div></details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ANOMALY DETECTION ===== -->
+  <div class="topic" id="anomaly">
+    <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
+      <span class="topic-icon">🚨</span><h2>Anomaly Detection</h2>
+      <span class="topic-tag tag-premid">W8</span><span class="topic-toggle">▼</span>
+    </div>
+    <div class="topic-body">
+      <div class="rev-grid">
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Isolation Forest:</p>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9">
+            <li>Anomalies are isolated early → short path length in random trees</li>
+            <li>Normal points buried deep → long path length</li>
+          </ul>
+          <div class="formula"><div class="flabel">Anomaly Score</div>$$s(x,n)=2^{-\frac{E[h(x)]}{c(n)}}$$<p class="small">$c(n)=2H(n-1)-\frac{2(n-1)}{n}$, $H$=harmonic number</p></div>
+          <ul style="padding-left:1.1rem;font-size:0.83rem;color:var(--text2);line-height:1.9;margin-top:0.3rem">
+            <li>$s\approx1$ → anomaly</li>
+            <li>$s\approx0.5$ → normal</li>
+            <li>$s\approx0$ → very normal (buried deep)</li>
+          </ul>
+        </div>
+        <div>
+          <p class="bold" style="font-size:0.84rem;margin-bottom:0.3rem">Gaussian Model:</p>
+          <div class="formula"><div class="flabel">Density Estimation</div>$$p(\mathbf{x})=\prod_{j=1}^n p(x_j;\mu_j,\sigma_j^2)$$<p class="small">Flag anomaly if $p(\mathbf{x})&lt;\epsilon$</p></div>
+          <div class="formula"><div class="flabel">Gaussian PDF</div>$$p(x;\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)$$</div>
+          <div class="trap"><div class="tlabel">Exam Trap</div>Use anomaly detection (not supervised learning) when positive examples are very rare (0–20 common) and future anomalies may look different from past ones.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="back-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+window.addEventListener('scroll',()=>document.getElementById('btt').classList.toggle('show',scrollY>300));
+document.querySelectorAll('.topic-head').forEach(h=>h.addEventListener('click',()=>h.closest('.topic').classList.toggle('collapsed')));
+</script>
+</body>
+</html>

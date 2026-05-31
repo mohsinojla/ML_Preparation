@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 5 — ML Study Hub</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax = { tex: { inlineMath: [['$','$'],['\\(','\\)']] } };</script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="../index.html" class="logo"><span class="logo-icon">🧠</span> ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="week1.html">W1</a></li>
+      <li><a href="week2.html">W2</a></li>
+      <li><a href="week3.html">W3</a></li>
+      <li><a href="week4.html">W4</a></li>
+      <li><a href="week5.html" class="active">W5</a></li>
+      <li><a href="week6.html">W6</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">Home</a><span>›</span> <strong>Week 5 — Decision Trees</strong>
+</div>
+
+<div class="page-wrapper">
+  <aside class="sidebar">
+    <h3>Topics</h3>
+    <ul class="sidebar-nav">
+      <li><a href="#discrete-opt">Discrete Optimization</a></li>
+      <li><a href="#dt-structure">DT Structure</a></li>
+      <li class="sub"><a href="#categorical">Categorical Features</a></li>
+      <li class="sub"><a href="#continuous">Continuous Features</a></li>
+      <li class="sub"><a href="#decision-boundary">Decision Boundary</a></li>
+      <li class="sub"><a href="#expressiveness">Expressiveness</a></li>
+      <li><a href="#feature-selection">Feature Selection</a></li>
+      <li class="sub"><a href="#entropy">Entropy</a></li>
+      <li class="sub"><a href="#info-gain">Information Gain (ID3)</a></li>
+      <li class="sub"><a href="#gain-ratio">Gain Ratio</a></li>
+      <li class="sub"><a href="#dt-viz">DT Builder</a></li>
+      <li><a href="#overfitting-dt">Overfitting in DTs</a></li>
+      <li><a href="#pruning">Pruning Strategies</a></li>
+      <li class="sub"><a href="#pre-pruning">Pre-Pruning</a></li>
+      <li class="sub"><a href="#post-pruning">Post-Pruning</a></li>
+      <li class="sub"><a href="#math-pruning">Math of Pruning</a></li>
+      <li class="sub"><a href="#which-pruning">Which to Use?</a></li>
+      <li><a href="#quiz5">Quiz</a></li>
+      <li><a href="#numericals5">Numericals</a></li>
+    </ul>
+  </aside>
+
+  <main class="main-content fade-in">
+    <div class="page-header">
+      <div class="week-tag">Week 5</div>
+      <h1>Decision Trees</h1>
+      <p>Shift from gradient descent to <em>combinatorial optimisation</em>. Decision trees minimise impurity — no gradients, no convexity — just recursive splitting that any human can read and interpret.</p>
+    </div>
+
+    <!-- ===== DISCRETE OPTIMISATION ===== -->
+    <div class="section" id="discrete-opt" data-section="discrete-opt">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">🔀</div>
+        <h2>From Continuous to Discrete Optimization</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>So far (Weeks 1–4):</strong> We used Gradient Descent — minimise a smooth, differentiable loss over continuous parameters (weights, $\theta$, $\mathbf{w}$).</p>
+          <p style="margin-top:0.6rem"><strong>Decision Trees are completely different:</strong> No gradients. No convexity. We optimise a <em>combinatorial structure</em> — which feature to split on, and where to split — by minimising <strong>impurity</strong>.</p>
+        </div>
+
+        <div class="three-col">
+          <div class="mini-card" style="border-color:rgba(88,166,255,0.3)">
+            <h4>Gradient Descent</h4>
+            <p>Continuous parameters, smooth loss, $\theta \leftarrow \theta - \alpha\nabla J$</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4>Decision Trees</h4>
+            <p>Discrete splits, no gradients — minimise impurity greedily at each node</p>
+          </div>
+          <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+            <h4>What we optimise</h4>
+            <p>Choose <em>best feature</em> + <em>best split point</em> to maximise information gain</p>
+          </div>
+        </div>
+
+        <div class="key-insight">
+          <div class="label">🔑 Key Idea</div>
+          Decision Trees build a model that is a <strong>tree of if-else rules</strong>. They are greedy — at each node, they pick the locally best split. The resulting model is fully human-interpretable.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STRUCTURE ===== -->
+    <div class="section" id="dt-structure" data-section="dt-structure">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🌳</div>
+        <h2>Decision Tree Structure</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="three-col" style="margin-bottom:1.5rem">
+          <div class="mini-card">
+            <h4>Root Node</h4>
+            <p>Top node — the first feature split. Covers the entire dataset.</p>
+          </div>
+          <div class="mini-card">
+            <h4>Internal Nodes</h4>
+            <p>Each tests one feature. Data flows left or right based on the test result.</p>
+          </div>
+          <div class="mini-card">
+            <h4>Leaf Nodes</h4>
+            <p>Terminal nodes — hold the class prediction (majority class or probability).</p>
+          </div>
+        </div>
+
+        <div id="categorical" data-section="categorical">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Categorical Features</h3>
+          <div class="concept-intro">
+            <p>When a feature is categorical (e.g., Outlook = {Sunny, Overcast, Rain}), the tree branches for each distinct value. Each branch leads to a subtree or leaf.</p>
+          </div>
+          <div class="key-insight">
+            <div class="label">Example: Play Tennis</div>
+            Root split on <em>Outlook</em>: Overcast → always Yes (pure leaf). Sunny → check Humidity. Rain → check Wind.
+          </div>
+        </div>
+
+        <div id="continuous" data-section="continuous" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Continuous Features</h3>
+          <div class="concept-intro">
+            <p>For continuous features (e.g., Temperature), the tree finds a <strong>threshold</strong> $t$ and splits: $x \leq t$ → left branch, $x > t$ → right branch. The best threshold is chosen to maximise information gain.</p>
+          </div>
+          <div class="formula-block">
+            <div class="formula-label">Split Condition</div>
+            <div class="formula-name">Binary split on continuous feature</div>
+            $$\text{Left branch: } x_j \leq t \qquad \text{Right branch: } x_j > t$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">Best $t$ is typically the midpoint between adjacent unique values. Try all $n-1$ splits, pick the best IG.</p>
+          </div>
+        </div>
+
+        <div id="decision-boundary" data-section="decision-boundary" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Decision Boundary (From Lecture)</h3>
+          <div class="concept-intro">
+            <p><strong>Directly from lecture:</strong> "Decision trees divide the feature space into <strong>axis-parallel (hyper-)rectangles</strong>. Each rectangular region is labelled with one class label or a probability distribution over labels."</p>
+          </div>
+          <div class="viz-container">
+            <h4>Decision Tree → Axis-Parallel Rectangular Decision Regions</h4>
+            <canvas id="dtBoundaryCanvas" width="560" height="300" style="background:#0d1117;border-radius:8px"></canvas>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.5rem">Each split creates a horizontal or vertical cut — unlike SVM which can cut at any angle</p>
+          </div>
+          <div class="info-box" style="margin-top:1rem">
+            <div class="label">📌 DT vs SVM Decision Boundary</div>
+            SVM: diagonal hyperplane (any angle). Decision Tree: always axis-parallel — splits are always "feature $j \leq t$" not a linear combination of features.
+          </div>
+        </div>
+
+        <div id="expressiveness" data-section="expressiveness" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Expressiveness</h3>
+          <div class="concept-intro">
+            <p><strong>From lecture:</strong> Decision trees can represent <strong>any boolean function</strong> of the input features. In the worst case, the tree requires exponentially many nodes.</p>
+          </div>
+          <div class="two-col">
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4>✅ Very Expressive</h4>
+              <p>Any boolean function can be represented. A depth-$d$ tree can represent $2^{2^d}$ different functions.</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4>⚠️ Complexity Grows Fast</h4>
+              <p>Worst case: need exponentially many nodes. This is why pruning is essential to avoid overfitting.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== FEATURE SELECTION ===== -->
+    <div class="section" id="feature-selection" data-section="feature-selection">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(88,166,255,0.15);color:#58a6ff">🎯</div>
+        <h2>Feature Selection — Choosing the Best Split</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p><strong>Key Problem (from lecture):</strong> At each node, which feature do we split on? This is the core algorithmic decision. Several strategies exist:</p>
+        </div>
+
+        <table class="comparison-table">
+          <tr><th>Strategy</th><th>Description</th><th>Used By</th></tr>
+          <tr><td><strong>Random</strong></td><td>Select any feature at random</td><td>Baseline, Random Forests</td></tr>
+          <tr><td><strong>Least-Values</strong></td><td>Feature with fewest distinct values (e.g., binary features)</td><td>Rare</td></tr>
+          <tr><td><strong>Most-Values</strong></td><td>Feature with most distinct values</td><td>Rare (often overfits)</td></tr>
+          <tr><td><strong>Max-Gain</strong></td><td>Feature with largest expected information gain</td><td><strong>ID3</strong> ← exam focus</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:1rem">
+          <div class="label">🔑 ID3 Uses Max-Gain</div>
+          The ID3 algorithm (Quinlan, 1986) uses <strong>Information Gain</strong> to select the best feature at each split. C4.5 improves on ID3 by using <strong>Gain Ratio</strong> to correct bias towards high-cardinality features.
+        </div>
+
+        <!-- ENTROPY -->
+        <div id="entropy" data-section="entropy" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Entropy — Measuring Impurity</h3>
+          <div class="concept-intro">
+            <p>Entropy measures the <strong>impurity</strong> or <strong>uncertainty</strong> in a set of examples. A pure node (all one class) has entropy 0. A perfectly mixed node (50/50 split) has maximum entropy.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Entropy Formula</div>
+            <div class="formula-name">Shannon Entropy (from lecture — K classes)</div>
+            $$H(S) = -\sum_{k=1}^{K} p_k \log_2 p_k$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$p_k$ = fraction of examples in class $k$. Convention: $0 \cdot \log_2 0 = 0$. Units: bits.</p>
+          </div>
+
+          <div class="two-col">
+            <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+              <h4>Pure node: $H = 0$</h4>
+              <p>All examples same class: $p_1=1$, all others $=0$.<br>$H = -(1\log_2 1) = 0$</p>
+            </div>
+            <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+              <h4>Maximally mixed: $H = 1$</h4>
+              <p>Equal split (binary): $p_+ = p_- = 0.5$.<br>$H = -(0.5\log_2 0.5 \times 2) = 1$ bit</p>
+            </div>
+          </div>
+
+          <div class="viz-container" style="margin-top:1.2rem">
+            <h4>Entropy vs class probability $p$ (binary case)</h4>
+            <canvas id="entropyCanvas" width="520" height="240" style="background:#0d1117;border-radius:8px"></canvas>
+            <p style="font-size:0.78rem;color:var(--text2);margin-top:0.4rem">Maximum entropy = 1 bit at $p=0.5$ | Zero entropy at $p=0$ or $p=1$</p>
+          </div>
+        </div>
+
+        <!-- INFORMATION GAIN -->
+        <div id="info-gain" data-section="info-gain" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Information Gain — The ID3 Criterion</h3>
+          <div class="concept-intro">
+            <p>Information Gain measures how much a feature reduces entropy. We want the feature that reduces uncertainty the most.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Information Gain</div>
+            <div class="formula-name">IG of feature A on dataset S</div>
+            $$\text{IG}(S, A) = H(S) - \sum_{v \in \text{Values}(A)} \frac{|S_v|}{|S|} H(S_v)$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$S_v$ = subset of $S$ where feature $A$ takes value $v$ | $\frac{|S_v|}{|S|}$ = weight of each branch</p>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content"><strong>Compute $H(S)$</strong> — entropy of the full dataset before the split.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content"><strong>For each feature $A$</strong>, compute weighted entropy after splitting on $A$: $\sum_v \frac{|S_v|}{|S|} H(S_v)$</div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content"><strong>IG = before − after.</strong> Pick the feature with highest IG.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content"><strong>Recurse</strong> on each branch with the remaining features until leaves are pure or stopping criterion met.</div>
+            </div>
+          </div>
+
+          <div class="warning-box" style="margin-top:1rem">
+            <div class="label">⚠️ IG Bias Problem</div>
+            Information Gain is biased towards features with <strong>many distinct values</strong>. A feature like "ID" (unique per example) gives perfect IG but is useless for generalisation. Solution: use <strong>Gain Ratio</strong>.
+          </div>
+        </div>
+
+        <!-- GAIN RATIO -->
+        <div id="gain-ratio" data-section="gain-ratio" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Gain Ratio (C4.5 Improvement)</h3>
+          <div class="concept-intro">
+            <p>Gain Ratio normalises Information Gain by the <strong>Split Information</strong> — the intrinsic information of the feature itself. Features with many values have high Split Info, which penalises them.</p>
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Split Information</div>
+            <div class="formula-name">Intrinsic info of feature A</div>
+            $$\text{SplitInfo}(S, A) = -\sum_{v \in \text{Values}(A)} \frac{|S_v|}{|S|} \log_2 \frac{|S_v|}{|S|}$$
+          </div>
+
+          <div class="formula-block">
+            <div class="formula-label">Gain Ratio</div>
+            <div class="formula-name">IG normalised by SplitInfo</div>
+            $$\text{GainRatio}(S, A) = \frac{\text{IG}(S, A)}{\text{SplitInfo}(S, A)}$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">From lecture: "If a feature has many possible values, the Split Information value will be high, which shrinks the final Gain Ratio."</p>
+          </div>
+
+          <table class="comparison-table">
+            <tr><th>Criterion</th><th>Formula</th><th>Bias</th><th>Algorithm</th></tr>
+            <tr><td><strong>Info Gain</strong></td><td>$H(S) - \sum_v \frac{|S_v|}{|S|}H(S_v)$</td><td>Favours many-valued features</td><td>ID3</td></tr>
+            <tr><td><strong>Gain Ratio</strong></td><td>$\text{IG} / \text{SplitInfo}$</td><td>Corrects IG bias</td><td>C4.5</td></tr>
+            <tr><td><strong>Gini Index</strong></td><td>$1 - \sum_k p_k^2$</td><td>Similar to IG but no log</td><td>CART</td></tr>
+          </table>
+
+          <div class="formula-block" style="margin-top:1rem">
+            <div class="formula-label">Gini Index</div>
+            <div class="formula-name">Alternative impurity measure used by CART / sklearn</div>
+            $$\text{Gini}(S) = 1 - \sum_{k=1}^{K} p_k^2$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">Gini is computationally cheaper (no $\log$). Used by sklearn's DecisionTreeClassifier by default.</p>
+          </div>
+        </div>
+
+        <!-- DT VIZ -->
+        <div id="dt-viz" data-section="dt-viz" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Interactive Decision Tree Builder</h3>
+          <div class="viz-container">
+            <h4>Entropy calculator — adjust class proportions and see entropy change</h4>
+            <canvas id="dtVizCanvas" width="540" height="260" style="background:#0d1117;border-radius:8px"></canvas>
+            <div class="viz-controls">
+              <label>P(+) = <strong id="pposVal">0.50</strong>
+                <input type="range" id="pposSlider" min="0.01" max="0.99" step="0.01" value="0.5" oninput="updateEntropy()">
+              </label>
+              <div id="entropyVal" style="font-size:0.9rem;color:var(--accent);font-weight:700">H = 1.000 bits</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== OVERFITTING ===== -->
+    <div class="section" id="overfitting-dt" data-section="overfitting-dt">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(248,81,73,0.15);color:#f85149">⚠️</div>
+        <h2>Overfitting in Decision Trees</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="concept-intro">
+          <p>Decision Trees are notorious overfitters. An unrestricted tree will grow until every leaf is pure — perfectly fitting training data (including noise) but failing on test data.</p>
+        </div>
+
+        <div class="warning-box">
+          <div class="label">⚠️ The Extreme Case</div>
+          From lecture: "it is always possible to fit a polynomial model of order $n-1$ perfectly to $n$ data points" — equivalently, a full decision tree can achieve 0 training error by splitting until each leaf has exactly 1 example. This is pure memorisation.
+        </div>
+
+        <div class="two-col">
+          <div class="mini-card" style="border-color:rgba(248,81,73,0.3)">
+            <h4 style="color:var(--red)">Signs of DT Overfitting</h4>
+            <ul style="padding-left:1.2rem;font-size:0.85rem;line-height:1.9">
+              <li>Very deep tree</li>
+              <li>Many leaves with 1 example each</li>
+              <li>High training accuracy, low test accuracy</li>
+              <li>Splits on noisy/irrelevant features</li>
+            </ul>
+          </div>
+          <div class="mini-card" style="border-color:rgba(63,185,80,0.3)">
+            <h4 style="color:var(--green)">Solutions</h4>
+            <ul style="padding-left:1.2rem;font-size:0.85rem;line-height:1.9">
+              <li>Pre-pruning (early stopping)</li>
+              <li>Post-pruning (grow then trim)</li>
+              <li>Ensemble methods (Random Forest)</li>
+              <li>Minimum samples per split/leaf</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="margin:1.5rem 0 0.8rem;font-size:1.05rem">Early Stopping Criteria (From Lecture)</h3>
+        <table class="comparison-table">
+          <tr><th>Criterion</th><th>Stop when…</th><th>Effect</th></tr>
+          <tr><td><code>max_depth</code></td><td>Tree reaches depth $d$</td><td>Hard limit on complexity</td></tr>
+          <tr><td><code>min_samples_split</code></td><td>Node has fewer than $m$ examples</td><td>Prevents tiny splits</td></tr>
+          <tr><td><code>min_samples_leaf</code></td><td>Any leaf would have fewer than $l$ examples</td><td>Ensures meaningful leaves</td></tr>
+          <tr><td><code>IG &lt; threshold</code></td><td>Best split gain below $\epsilon$</td><td>Stops uninformative splits</td></tr>
+        </table>
+        <div class="info-box" style="margin-top:0.8rem">
+          <div class="label">📌 Lecture Interpretation</div>
+          "Hard constraints on hypothesis space" — pre-pruning restricts what the tree can learn upfront.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRUNING ===== -->
+    <div class="section" id="pruning" data-section="pruning">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(63,185,80,0.15);color:#3fb950">✂️</div>
+        <h2>Pruning Strategies</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="concept-intro">
+          <p><strong>From lecture:</strong> "Pre-pruning (early stopping) halts tree growth using constraints… it's fast and memory-efficient but can underfit by cutting useful splits. Post-pruning grows a full tree then removes branches using validation-based methods — usually yields better generalisation but is slower."</p>
+        </div>
+
+        <div class="tab-group">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="pre">Pre-Pruning</button>
+            <button class="tab-btn" data-tab="post">Post-Pruning</button>
+            <button class="tab-btn" data-tab="compare-prune">Comparison</button>
+          </div>
+
+          <div class="tab-content active" data-tab-content="pre" id="pre-pruning">
+            <div class="concept-intro">
+              <p><strong>From lecture:</strong> "Is basically early stopping… 'Stop learning now, because if you keep going, you're just going to start memorizing the noise in the background.'"</p>
+            </div>
+            <div class="key-insight">
+              <div class="label">✅ Advantages</div>
+              Fast — stops early instead of building a big tree. Memory-efficient. Simple to implement.
+            </div>
+            <div class="warning-box">
+              <div class="label">⚠️ Risk: Short-Sightedness</div>
+              From lecture: "Pre-pruning is 'short-sighted.' It might stop a split because the immediate improvement is low — even if that split would have enabled excellent deeper splits."
+            </div>
+            <div class="steps" style="margin-top:1rem">
+              <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Set max_depth = d</strong> — tree cannot grow deeper than $d$ levels from root.</div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Set min_samples_split</strong> — only split a node if it has ≥ $m$ examples.</div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Check IG threshold</strong> — only split if IG ≥ $\epsilon$. Ignores very small gains.</div></div>
+              <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Return leaf</strong> when any stopping criterion is met — predict majority class.</div></div>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-content="post" id="post-pruning">
+            <div class="concept-intro">
+              <p><strong>From lecture:</strong> "Post-pruning grows a full tree then removes branches… 'hindsight' — it builds the whole tree, then looks back and says 'this specific branch led nowhere; let's cut it.'"</p>
+            </div>
+            <div class="key-insight">
+              <div class="label">✅ Better Generalisation</div>
+              Sees the whole tree first, then makes informed trim decisions — usually yields better test accuracy than pre-pruning.
+            </div>
+            <div class="warning-box">
+              <div class="label">⚠️ Risk: Expensive</div>
+              Must build the full (possibly huge) tree first, then evaluate pruning candidates. Needs a held-out validation set or cross-validation.
+            </div>
+            <h4 style="margin:1.2rem 0 0.6rem;font-size:0.95rem">Post-Pruning Methods</h4>
+            <table class="comparison-table">
+              <tr><th>Method</th><th>How it works</th></tr>
+              <tr><td><strong>Reduced-Error Pruning</strong></td><td>Replace each subtree with its majority-class leaf; keep if validation accuracy doesn't drop</td></tr>
+              <tr><td><strong>Cost-Complexity Pruning</strong></td><td>Minimize $\text{Error}(T) + \alpha \cdot |T|$ where $|T|$ = number of leaves. Tune $\alpha$ by CV.</td></tr>
+              <tr><td><strong>Cross-Validation Pruning</strong></td><td>Use CV to pick the optimal subtree size</td></tr>
+            </table>
+          </div>
+
+          <div class="tab-content" data-tab-content="compare-prune">
+            <table class="comparison-table">
+              <tr><th></th><th>Pre-Pruning</th><th>Post-Pruning</th></tr>
+              <tr><td><strong>When applied</strong></td><td>During tree growth</td><td>After full tree built</td></tr>
+              <tr><td><strong>Speed</strong></td><td>✅ Fast</td><td>❌ Slower</td></tr>
+              <tr><td><strong>Memory</strong></td><td>✅ Efficient</td><td>❌ Builds full tree first</td></tr>
+              <tr><td><strong>Generalisation</strong></td><td>Can underfit (short-sighted)</td><td>✅ Usually better</td></tr>
+              <tr><td><strong>Needs validation set</strong></td><td>No</td><td>Yes (for reduced-error)</td></tr>
+              <tr><td><strong>Lecture analogy</strong></td><td>"Short-sighted"</td><td>"Hindsight"</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div id="math-pruning" data-section="math-pruning" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Mathematics of Post-Pruning (Cost-Complexity)</h3>
+          <div class="formula-block">
+            <div class="formula-label">Cost-Complexity Criterion</div>
+            <div class="formula-name">Objective to minimise for optimal pruning</div>
+            $$R_\alpha(T) = R(T) + \alpha |T|$$
+            <p style="font-size:0.82rem;color:var(--text2);margin-top:0.6rem">$R(T)$ = misclassification rate on training/validation set | $|T|$ = number of leaf nodes | $\alpha$ = complexity penalty</p>
+          </div>
+          <div class="key-insight">
+            <div class="label">🔑 Intuition</div>
+            We want the simplest tree (small $|T|$) that still fits the data well (small $R(T)$). $\alpha$ controls this tradeoff — like regularization $\lambda$ in regression. Larger $\alpha$ → more pruning → simpler tree.
+          </div>
+        </div>
+
+        <div id="which-pruning" data-section="which-pruning" style="margin-top:1.5rem">
+          <h3 style="margin:0 0 0.8rem;font-size:1.05rem">Which to Use? (From Lecture)</h3>
+          <div class="key-insight">
+            <div class="label">✅ Modern Practice</div>
+            From lecture: "In modern practice (like XGBoost or LightGBM), we often use a bit of both. We use <strong>pre-pruning</strong> (max depth) to keep the model from exploding in size, and then use <strong>post-pruning</strong> (regularization/gamma) to fine-tune the complexity."
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="section" id="quiz5" data-section="quiz5">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(57,211,83,0.15);color:#39d353">🧩</div>
+        <h2>Week 5 Quiz</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="quiz-section">
+          <h3>🧩 Test Your Understanding</h3>
+
+          <div class="question-card">
+            <p>Q1. Entropy of a node with 6 positive and 6 negative examples (binary classification) is:</p>
+            <div class="options">
+              <button class="option-btn">0 bits</button>
+              <button class="option-btn" data-correct="true">1 bit — because $H = -(0.5\log_2 0.5 + 0.5\log_2 0.5) = 1$</button>
+              <button class="option-btn">0.5 bits</button>
+              <button class="option-btn">2 bits</button>
+            </div>
+            <div class="explanation">With equal class proportions ($p=0.5$), entropy is maximised: $H = -(0.5\log_2 0.5 + 0.5\log_2 0.5) = -(-0.5 - 0.5) = 1$ bit.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q2. The ID3 algorithm selects features using:</p>
+            <div class="options">
+              <button class="option-btn">Gini Index</button>
+              <button class="option-btn" data-correct="true">Maximum Information Gain</button>
+              <button class="option-btn">Gain Ratio</button>
+              <button class="option-btn">Random selection</button>
+            </div>
+            <div class="explanation">From the lecture: "The ID3 algorithm uses the Max-Gain method of selecting the best features." C4.5 improved on ID3 by using Gain Ratio instead.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q3. Why does Information Gain have a bias problem?</p>
+            <div class="options">
+              <button class="option-btn">It prefers features with few values</button>
+              <button class="option-btn" data-correct="true">It favours features with many distinct values (like ID fields)</button>
+              <button class="option-btn">It cannot handle continuous features</button>
+              <button class="option-btn">It always selects the first feature</button>
+            </div>
+            <div class="explanation">A feature like "ID" (unique per example) gives perfect IG but is useless generalization-wise. Gain Ratio corrects this by dividing by the SplitInfo of the feature.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q4. Decision tree decision boundaries are always:</p>
+            <div class="options">
+              <button class="option-btn">Diagonal (like SVM)</button>
+              <button class="option-btn" data-correct="true">Axis-parallel (horizontal or vertical splits)</button>
+              <button class="option-btn">Circular</button>
+              <button class="option-btn">Curved / non-linear</button>
+            </div>
+            <div class="explanation">From the lecture: "Decision trees divide the feature space into axis-parallel (hyper-)rectangles." Each split is always "feature $j \leq t$" — never a linear combination of features.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q5. Pre-pruning is described as "short-sighted" because:</p>
+            <div class="options">
+              <button class="option-btn">It grows the tree too deep</button>
+              <button class="option-btn" data-correct="true">It may stop a split because immediate IG is low, even if deeper splits would be very informative</button>
+              <button class="option-btn">It needs a validation set</button>
+              <button class="option-btn">It always builds the full tree first</button>
+            </div>
+            <div class="explanation">Pre-pruning makes greedy local decisions. A split with low immediate gain might enable excellent splits below it — but pre-pruning never explores that possibility.</div>
+          </div>
+
+          <div class="question-card">
+            <p>Q6. A leaf node has 0 examples from class A and 5 from class B. Its entropy is:</p>
+            <div class="options">
+              <button class="option-btn" data-correct="true">0 bits — it's a pure node</button>
+              <button class="option-btn">1 bit</button>
+              <button class="option-btn">$\log_2 5$ bits</button>
+              <button class="option-btn">0.5 bits</button>
+            </div>
+            <div class="explanation">$H = -(0\cdot\log_2 0 + 1\cdot\log_2 1) = 0$ bits. A pure node (all one class) has zero entropy — no uncertainty.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NUMERICALS ===== -->
+    <div class="section" id="numericals5" data-section="numericals5">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(210,153,34,0.15);color:#d29922">🔢</div>
+        <h2>Numerical Problems</h2>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div class="section-body">
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 1 — Compute Entropy</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              A dataset has 9 positive examples (+) and 5 negative examples (−). Compute the entropy $H(S)$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                Total examples: $|S| = 9 + 5 = 14$<br>
+                $p_+ = \frac{9}{14} \approx 0.643$ &nbsp;&nbsp; $p_- = \frac{5}{14} \approx 0.357$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                $H(S) = -p_+ \log_2 p_+ - p_- \log_2 p_-$<br>
+                $= -(0.643)\log_2(0.643) - (0.357)\log_2(0.357)$<br>
+                $= -(0.643)(-0.637) - (0.357)(-1.486)$<br>
+                $= 0.410 + 0.530$<br>
+                $= \mathbf{0.940 \text{ bits}}$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 2 — Information Gain Calculation</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Dataset $S$ has 14 examples: 9 positive, 5 negative ($H(S) = 0.940$ bits).<br>
+              Feature <em>Wind</em> splits $S$ into:<br>
+              — $S_{\text{weak}}$: 6 positive, 2 negative (8 total)<br>
+              — $S_{\text{strong}}$: 3 positive, 3 negative (6 total)<br>
+              Compute $\text{IG}(S, \text{Wind})$.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Step 1</span><div class="step-text">
+                $H(S_{\text{weak}}) = -\frac{6}{8}\log_2\frac{6}{8} - \frac{2}{8}\log_2\frac{2}{8}$<br>
+                $= -0.75(-0.415) - 0.25(-2) = 0.311 + 0.500 = \mathbf{0.811}$ bits
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 2</span><div class="step-text">
+                $H(S_{\text{strong}}) = -\frac{3}{6}\log_2\frac{3}{6} - \frac{3}{6}\log_2\frac{3}{6}$<br>
+                $= -(0.5)(-1) - (0.5)(-1) = \mathbf{1.0}$ bits
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 3</span><div class="step-text">
+                Weighted entropy after split:<br>
+                $\frac{8}{14}(0.811) + \frac{6}{14}(1.0) = 0.464 + 0.429 = 0.893$ bits
+              </div></div>
+              <div class="solution-step"><span class="step-label">Step 4</span><div class="step-text">
+                $\text{IG}(S, \text{Wind}) = H(S) - \text{weighted entropy} = 0.940 - 0.893 = \mathbf{0.047 \text{ bits}}$
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 3 — Gini Index</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Compute the Gini Index for a node with class proportions: Class A = 40%, Class B = 35%, Class C = 25%.
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">Formula</span><div class="step-text">
+                $\text{Gini} = 1 - \sum_k p_k^2 = 1 - (p_A^2 + p_B^2 + p_C^2)$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Compute</span><div class="step-text">
+                $= 1 - (0.40^2 + 0.35^2 + 0.25^2)$<br>
+                $= 1 - (0.16 + 0.1225 + 0.0625)$<br>
+                $= 1 - 0.345 = \mathbf{0.655}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Interpret</span><div class="step-text">
+                Gini = 0.655 → fairly impure node (high impurity). A pure node gives Gini = 0; equal split gives Gini = $1 - \frac{1}{K}$ for $K$ classes.
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="numerical-card">
+          <div class="numerical-header"><h4>Problem 4 — Cost-Complexity Pruning</h4></div>
+          <div class="numerical-body">
+            <div class="problem-text">
+              Tree $T_1$ has 10 leaves and error rate $R(T_1) = 0.08$.<br>
+              Pruned tree $T_2$ has 4 leaves and error rate $R(T_2) = 0.12$.<br>
+              With $\alpha = 0.01$, which tree is preferred?
+            </div>
+            <button class="solution-toggle">🔽 Show Step-by-Step Solution</button>
+            <div class="solution-steps">
+              <div class="solution-step"><span class="step-label">$T_1$</span><div class="step-text">
+                $R_\alpha(T_1) = R(T_1) + \alpha|T_1| = 0.08 + 0.01 \times 10 = 0.08 + 0.10 = \mathbf{0.18}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">$T_2$</span><div class="step-text">
+                $R_\alpha(T_2) = R(T_2) + \alpha|T_2| = 0.12 + 0.01 \times 4 = 0.12 + 0.04 = \mathbf{0.16}$
+              </div></div>
+              <div class="solution-step"><span class="step-label">Decision</span><div class="step-text">
+                $R_\alpha(T_2) = 0.16 < R_\alpha(T_1) = 0.18$ → ✅ Prefer the <strong>pruned tree $T_2$</strong>. Despite higher raw error, it is better when complexity is penalised.
+              </div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:2rem;display:flex;gap:1rem;justify-content:center">
+      <a href="week4.html" style="background:var(--bg3);color:var(--text);text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block;border:1px solid var(--border)">← Week 4</a>
+      <a href="week6.html" style="background:#39d353;color:#000;text-decoration:none;border-radius:10px;padding:14px 32px;font-weight:700;font-size:1rem;display:inline-block">Week 6: K-Means →</a>
+    </div>
+  </main>
+</div>
+
+<button class="back-to-top" id="back-to-top">↑</button>
+<script src="../script.js"></script>
+<script src="week5.js"></script>
+</body>
+</html>

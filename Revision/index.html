@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revision Hub — ML Study Hub</title>
+  <link rel="stylesheet" href="revision.css" />
+</head>
+<body>
+<header>
+  <nav>
+    <a href="../index.html" class="logo">🧠 ML Study Hub</a>
+    <ul class="nav-links">
+      <li><a href="../index.html">← Full Notes</a></li>
+      <li><a href="index.html" class="active">Revision Hub</a></li>
+      <li><a href="cheatsheet.html">Cheat Sheet</a></li>
+      <li><a href="rev-premid.html">Pre-Mid</a></li>
+      <li><a href="rev-postmid.html">Post-Mid</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="page-wrap">
+  <div class="rev-header">
+    <div class="tag">⏳ 2-Day Exam Prep</div>
+    <h1>Revision Hub</h1>
+    <p>Everything you need to know — organised for the exam. Based on <strong>Assignment 2 difficulty</strong>.<br>
+    Post-mid topics (W10–W15) carry more weight but pre-mid is also tested.</p>
+  </div>
+
+  <!-- PRIORITY BANNER -->
+  <div style="background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.3);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem">
+    <div style="font-size:0.7rem;font-weight:800;color:#f85149;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">🎯 Exam Intelligence — What sir tests</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;font-size:0.85rem">
+      <div>
+        <p class="bold" style="margin-bottom:0.3rem">Common question types:</p>
+        <ul style="padding-left:1.1rem;color:var(--text2);line-height:2">
+          <li>Scenario → identify the problem, name it, fix it</li>
+          <li>Construct confusion matrix from numbers</li>
+          <li>Calculate metric (Precision, Recall, F1, KS-D)</li>
+          <li>Compare two approaches (e.g. SMOTE vs Cost-Sensitive)</li>
+          <li>Draw/describe a correct pipeline (leakage questions)</li>
+          <li>Explain why X fails on Y geometry</li>
+        </ul>
+      </div>
+      <div>
+        <p class="bold" style="margin-bottom:0.3rem">Assignment 2 breakdown (exam mirror):</p>
+        <ul style="padding-left:1.1rem;color:var(--text2);line-height:2">
+          <li>Q1: Confusion matrix, Accuracy vs Recall, SMOTE</li>
+          <li>Q2: K-Means failure, Linkage criteria, geometry</li>
+          <li>Q3: Data leakage, pipeline order</li>
+          <li>Q4: Drift types, KS Test, Red Teaming</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUB CARDS -->
+  <div class="hub-grid">
+    <a href="rev-premid.html" class="hub-card" style="border-top:3px solid #58a6ff">
+      <h3>📘 Pre-Mid Revision</h3>
+      <p>Weeks 1–8: KNN, Regression, SVM, Decision Trees, K-Means, Hierarchical Clustering, Anomaly Detection</p>
+      <div><span class="pill">8 Topics</span><span class="pill">Formulas</span><span class="pill">Exam Scenarios</span></div>
+      <p class="go" style="margin-top:0.8rem">Start Revision →</p>
+    </a>
+
+    <a href="rev-postmid.html" class="hub-card" style="border-top:3px solid #f85149">
+      <h3>📕 Post-Mid Revision <span style="font-size:0.7rem;background:rgba(248,81,73,0.2);color:#f85149;padding:2px 7px;border-radius:10px;margin-left:4px">MORE WEIGHT</span></h3>
+      <p>Weeks 10–15: Evaluation, Optimization, Feature Eng., MLOps, Drift, KS Test, AI Security & Fairness</p>
+      <div><span class="pill">6 Topics</span><span class="pill">Formulas</span><span class="pill">Exam Scenarios</span></div>
+      <p class="go" style="margin-top:0.8rem">Start Revision →</p>
+    </a>
+
+    <a href="cheatsheet.html" class="hub-card" style="border-top:3px solid #d29922">
+      <h3>📋 Cheat Sheet</h3>
+      <p>Every formula, algorithm, definition, and comparison table on a single scrollable page. The fastest reference.</p>
+      <div><span class="pill">All Formulas</span><span class="pill">All Algorithms</span><span class="pill">All Tables</span></div>
+      <p class="go" style="margin-top:0.8rem">Open Cheat Sheet →</p>
+    </a>
+  </div>
+
+  <!-- QUICK TOPIC INDEX -->
+  <div style="margin-top:2rem">
+    <h2 style="font-size:1rem;font-weight:700;color:var(--text2);margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:0.4rem">⚡ Quick Jump — Every Topic</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+      <div>
+        <p style="font-size:0.75rem;font-weight:700;color:#58a6ff;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Pre-Mid (W1–W8)</p>
+        <ul style="list-style:none;font-size:0.84rem;line-height:2.1">
+          <li><a href="rev-premid.html#knn" style="color:var(--text2);text-decoration:none">→ KNN &amp; Distance Metrics</a></li>
+          <li><a href="rev-premid.html#gradient-descent" style="color:var(--text2);text-decoration:none">→ Gradient Descent</a></li>
+          <li><a href="rev-premid.html#regression" style="color:var(--text2);text-decoration:none">→ Linear / Polynomial Regression</a></li>
+          <li><a href="rev-premid.html#bias-variance" style="color:var(--text2);text-decoration:none">→ Bias-Variance Tradeoff</a></li>
+          <li><a href="rev-premid.html#regularization" style="color:var(--text2);text-decoration:none">→ Ridge &amp; Lasso Regularization</a></li>
+          <li><a href="rev-premid.html#svm" style="color:var(--text2);text-decoration:none">→ SVM (Hard &amp; Soft Margin)</a></li>
+          <li><a href="rev-premid.html#kernels" style="color:var(--text2);text-decoration:none">→ Kernel Trick</a></li>
+          <li><a href="rev-premid.html#decision-trees" style="color:var(--text2);text-decoration:none">→ Decision Trees &amp; Pruning</a></li>
+          <li><a href="rev-premid.html#kmeans" style="color:var(--text2);text-decoration:none">→ K-Means &amp; K-Means++</a></li>
+          <li><a href="rev-premid.html#hierarchical" style="color:var(--text2);text-decoration:none">→ Hierarchical Clustering</a></li>
+          <li><a href="rev-premid.html#anomaly" style="color:var(--text2);text-decoration:none">→ Anomaly Detection</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:0.75rem;font-weight:700;color:#f85149;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Post-Mid (W10–W15) — Higher Priority</p>
+        <ul style="list-style:none;font-size:0.84rem;line-height:2.1">
+          <li><a href="rev-postmid.html#eval" style="color:var(--text2);text-decoration:none">→ Model Evaluation (Confusion Matrix, F1)</a></li>
+          <li><a href="rev-postmid.html#smote" style="color:var(--text2);text-decoration:none">→ SMOTE &amp; Cost-Sensitive Learning</a></li>
+          <li><a href="rev-postmid.html#hpo" style="color:var(--text2);text-decoration:none">→ Hyperparameter Optimization (Optuna)</a></li>
+          <li><a href="rev-postmid.html#leakage" style="color:var(--text2);text-decoration:none">→ Data Leakage (Most tested!)</a></li>
+          <li><a href="rev-postmid.html#encoding" style="color:var(--text2);text-decoration:none">→ Feature Encoding &amp; Cyclical</a></li>
+          <li><a href="rev-postmid.html#mlops" style="color:var(--text2);text-decoration:none">→ MLOps &amp; FastAPI</a></li>
+          <li><a href="rev-postmid.html#drift" style="color:var(--text2);text-decoration:none">→ Data Drift vs Concept Drift</a></li>
+          <li><a href="rev-postmid.html#kstest" style="color:var(--text2);text-decoration:none">→ KS Test (Calculation)</a></li>
+          <li><a href="rev-postmid.html#observability" style="color:var(--text2);text-decoration:none">→ Observability &amp; Monitoring</a></li>
+          <li><a href="rev-postmid.html#adversarial" style="color:var(--text2);text-decoration:none">→ Adversarial Attacks &amp; Red Teaming</a></li>
+          <li><a href="rev-postmid.html#fairness" style="color:var(--text2);text-decoration:none">→ Fairness Metrics</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAST NIGHT PLAN -->
+  <div style="background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.25);border-radius:10px;padding:1.2rem 1.5rem;margin-top:1.5rem">
+    <div style="font-size:0.7rem;font-weight:800;color:#3fb950;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.6rem">📅 Recommended 2-Day Plan</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:0.84rem">
+      <div>
+        <p class="bold hl-accent" style="margin-bottom:0.3rem">Day 1 — Cover all topics</p>
+        <ul style="padding-left:1.1rem;color:var(--text2);line-height:1.9">
+          <li>Morning: Cheat Sheet scan (all formulas)</li>
+          <li>Afternoon: Post-Mid Revision (W10–W15) — priority</li>
+          <li>Evening: Pre-Mid Revision (W1–W8)</li>
+          <li>Night: Re-read Assignment 2 questions &amp; think through answers</li>
+        </ul>
+      </div>
+      <div>
+        <p class="bold" style="color:#d29922;margin-bottom:0.3rem">Day 2 — Drill scenarios</p>
+        <ul style="padding-left:1.1rem;color:var(--text2);line-height:1.9">
+          <li>Morning: All scenario questions in revision pages</li>
+          <li>Focus: Leakage, KS Test, Confusion Matrix calculations</li>
+          <li>Focus: Linkage criteria (single vs complete), K-Means failure</li>
+          <li>Night: Final Cheat Sheet read-through</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="back-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>window.addEventListener('scroll',()=>document.getElementById('btt').classList.toggle('show',scrollY>300));</script>
+</body>
+</html>
