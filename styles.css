@@ -1,3 +1,46 @@
+/* ===== EXCLUDED FROM FINAL ===== */
+.excluded-banner {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(248,81,73,0.06) 0px, rgba(248,81,73,0.06) 10px,
+    transparent 10px, transparent 20px
+  );
+  border: 1.5px solid rgba(248,81,73,0.45);
+  border-radius: 10px;
+  padding: 0.75rem 1.2rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.excluded-banner .ex-icon { font-size: 1.1rem; flex-shrink: 0; }
+.excluded-banner strong { color: #f85149; }
+.excluded-banner span { color: #8b949e; }
+
+.section-excluded .section-icon::after {
+  content: '🚫';
+  font-size: 0.65rem;
+  position: absolute;
+  bottom: -4px; right: -4px;
+}
+.section-excluded .section-icon { position: relative; }
+.section-excluded .section-header { opacity: 0.65; }
+.section-excluded-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(248,81,73,0.12);
+  border: 1px solid rgba(248,81,73,0.35);
+  color: #f85149;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 8px;
+}
 /* ===== GLOBAL STYLES ===== */
 :root {
   --bg: #0d1117;

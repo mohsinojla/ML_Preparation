@@ -1,4 +1,10 @@
 /* ===== REVISION PAGES — SHARED STYLES ===== */
+/* Excluded from final */
+.topic-excluded .topic-head { opacity: 0.55; }
+.topic-excluded { border-color: rgba(248,81,73,0.25) !important; background: repeating-linear-gradient(-45deg,rgba(248,81,73,0.03) 0px,rgba(248,81,73,0.03) 8px,transparent 8px,transparent 16px); }
+.ex-tag { display:inline-flex;align-items:center;gap:4px;background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);color:#f85149;font-size:0.65rem;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.05em;margin-left:6px; }
+.rev-excluded-banner { background:repeating-linear-gradient(-45deg,rgba(248,81,73,0.05) 0,rgba(248,81,73,0.05) 8px,transparent 8px,transparent 16px);border:1.5px solid rgba(248,81,73,0.4);border-radius:8px;padding:0.6rem 1rem;margin:0.6rem 0;font-size:0.82rem;display:flex;align-items:center;gap:8px; }
+.rev-excluded-banner strong { color:#f85149; } .rev-excluded-banner span { color:var(--text2); }
 :root {
   --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
   --border: #30363d; --text: #e6edf3; --text2: #8b949e;

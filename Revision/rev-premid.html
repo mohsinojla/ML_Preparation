@@ -89,7 +89,8 @@
   <!-- ===== REGRESSION ===== -->
   <div class="topic" id="regression">
     <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
-      <span class="topic-icon">📈</span><h2>Linear &amp; Polynomial Regression</h2>
+      <span class="topic-icon">📈</span>
+      <h2>Linear &amp; Polynomial Regression <span class="ex-tag">Poly Reg 🚫 Not in Final</span></h2>
       <span class="topic-tag tag-premid">W2</span><span class="topic-toggle">▼</span>
     </div>
     <div class="topic-body">
@@ -98,7 +99,8 @@
           <div class="formula"><div class="flabel">Hypothesis</div>$$h_\theta(\mathbf{x})=\theta_0+\theta_1x_1+\cdots+\theta_nx_n=\boldsymbol{\theta}^T\mathbf{x}$$</div>
           <div class="formula"><div class="flabel">MSE Cost</div>$$J(\theta)=\frac{1}{2m}\sum_{i=1}^m(h_\theta(x^{(i)})-y^{(i)})^2$$</div>
           <div class="formula"><div class="flabel">Normal Equation</div>$$\boldsymbol{\theta}=(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$<p class="small">Closed-form; $O(n^3)$ — slow for large $n$</p></div>
-          <p class="bold mt" style="font-size:0.84rem">Polynomial: define $x_2=x^2$, $x_3=x^3$ → still linear regression on new features.</p>
+          <div class="rev-excluded-banner"><strong>🚫 Polynomial Regression — Not in Final</strong> <span>Linear Regression is included; Polynomial Regression is excluded.</span></div>
+          <p class="bold mt" style="font-size:0.84rem;opacity:0.5">Polynomial: define $x_2=x^2$, $x_3=x^3$ → still linear regression on new features. <em>(excluded)</em></p>
         </div>
         <div>
           <div class="trap"><div class="tlabel">Exam Trap</div>Polynomial regression is still <strong>linear</strong> in the parameters $\theta$ — just non-linear in the input $x$.</div>
@@ -136,9 +138,10 @@
   </div>
 
   <!-- ===== REGULARIZATION ===== -->
-  <div class="topic" id="regularization">
+  <div class="topic topic-excluded collapsed" id="regularization">
     <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
-      <span class="topic-icon">🛡️</span><h2>Ridge &amp; Lasso Regularization</h2>
+      <span class="topic-icon">🛡️</span>
+      <h2>Ridge &amp; Lasso Regularization <span class="ex-tag">🚫 Not in Final</span></h2>
       <span class="topic-tag tag-premid">W2</span><span class="topic-toggle">▼</span>
     </div>
     <div class="topic-body">
@@ -161,9 +164,10 @@
   </div>
 
   <!-- ===== SVM ===== -->
-  <div class="topic" id="svm">
+  <div class="topic topic-excluded collapsed" id="svm">
     <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
-      <span class="topic-icon">✂️</span><h2>Support Vector Machines (Hard + Soft Margin)</h2>
+      <span class="topic-icon">✂️</span>
+      <h2>Support Vector Machines (Hard + Soft Margin) <span class="ex-tag">🚫 Not in Final</span></h2>
       <span class="topic-tag tag-premid">W3–W4</span><span class="topic-toggle">▼</span>
     </div>
     <div class="topic-body">
@@ -194,9 +198,10 @@
   </div>
 
   <!-- ===== KERNELS ===== -->
-  <div class="topic" id="kernels">
+  <div class="topic topic-excluded collapsed" id="kernels">
     <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
-      <span class="topic-icon">✨</span><h2>Kernel Trick</h2>
+      <span class="topic-icon">✨</span>
+      <h2>Kernel Trick <span class="ex-tag">🚫 Not in Final</span></h2>
       <span class="topic-tag tag-premid">W4</span><span class="topic-toggle">▼</span>
     </div>
     <div class="topic-body">
@@ -219,9 +224,10 @@
   </div>
 
   <!-- ===== DECISION TREES ===== -->
-  <div class="topic" id="decision-trees">
+  <div class="topic topic-excluded collapsed" id="decision-trees">
     <div class="topic-head" onclick="this.closest('.topic').classList.toggle('collapsed')">
-      <span class="topic-icon">🌳</span><h2>Decision Trees &amp; Pruning</h2>
+      <span class="topic-icon">🌳</span>
+      <h2>Decision Trees &amp; Pruning <span class="ex-tag">🚫 Not in Final</span></h2>
       <span class="topic-tag tag-premid">W5</span><span class="topic-toggle">▼</span>
     </div>
     <div class="topic-body">
