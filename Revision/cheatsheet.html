@@ -4,25 +4,34 @@
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cheat Sheet — ML Study Hub</title>
   <link rel="stylesheet" href="revision.css" />
-  <script>window.MathJax={tex:{inlineMath:[['$','$']]}};</script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     .cs-wrap { max-width:1200px; margin:0 auto; padding:1.2rem; }
-    .cs-2col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
-    .cs-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; }
-    .cs-section { margin-bottom:1.8rem; }
-    .cs-title { font-size:1rem; font-weight:800; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:0.4rem; margin-bottom:0.8rem; display:flex; align-items:center; gap:8px; }
+    .cs-section { margin-bottom:2rem; }
+    .cs-title { font-size:1rem; font-weight:800; color:var(--accent); border-bottom:2px solid var(--border); padding-bottom:0.4rem; margin-bottom:0.8rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .cs-2col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.8rem; }
+    .cs-3col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:0.8rem; }
     .cs-card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:0.9rem; }
-    .cs-card h4 { font-size:0.82rem; font-weight:700; margin-bottom:0.4rem; }
-    .cs-card .f { background:#0d1117; border-radius:6px; padding:0.4rem 0.6rem; margin:0.3rem 0; text-align:center; font-size:0.82rem; border:1px solid var(--border); }
-    .cs-card ul { padding-left:1rem; font-size:0.8rem; color:var(--text2); line-height:1.8; }
-    .cs-card p { font-size:0.8rem; color:var(--text2); line-height:1.7; }
-    .alert-box { background:rgba(248,81,73,0.08); border:1px solid rgba(248,81,73,0.25); border-left:3px solid #f85149; border-radius:0 8px 8px 0; padding:0.5rem 0.8rem; margin:0.4rem 0; font-size:0.79rem; }
-    .alert-box strong { color:#f85149; }
-    .ok-box { background:rgba(63,185,80,0.07); border:1px solid rgba(63,185,80,0.2); border-left:3px solid #3fb950; border-radius:0 8px 8px 0; padding:0.5rem 0.8rem; margin:0.4rem 0; font-size:0.79rem; color:var(--text2); }
+    .cs-card h4 { font-size:0.82rem; font-weight:700; margin-bottom:0.5rem; }
+    .f { background:#0d1117; border:1px solid var(--border); border-radius:6px; padding:0.45rem 0.8rem; margin:0.3rem 0; font-size:0.82rem; font-family:'Segoe UI',sans-serif; line-height:1.6; }
+    .f .fname { font-size:0.7rem; color:var(--text2); display:block; margin-bottom:2px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+    .f .eq { color:#e6edf3; font-size:0.86rem; }
+    .f .note { color:var(--text2); font-size:0.75rem; display:block; margin-top:2px; }
+    .cs-card ul { padding-left:1rem; font-size:0.8rem; color:var(--text2); line-height:1.9; }
+    .cs-card p { font-size:0.8rem; color:var(--text2); line-height:1.7; margin-top:0.3rem; }
+    .alert { background:rgba(248,81,73,0.08); border-left:3px solid #f85149; border-radius:0 6px 6px 0; padding:0.5rem 0.8rem; margin:0.4rem 0; font-size:0.78rem; }
+    .alert strong { color:#f85149; }
+    .ok { background:rgba(63,185,80,0.07); border-left:3px solid #3fb950; border-radius:0 6px 6px 0; padding:0.5rem 0.8rem; margin:0.4rem 0; font-size:0.78rem; color:var(--text2); }
     .rtable { width:100%; border-collapse:collapse; font-size:0.78rem; margin:0.4rem 0; }
     .rtable th { background:var(--bg3); padding:5px 8px; text-align:left; font-size:0.72rem; color:var(--text2); border:1px solid var(--border); }
     .rtable td { padding:5px 8px; border:1px solid var(--border); vertical-align:top; }
+    .excluded-cs { opacity:0.38; pointer-events:none; }
+    .exbadge { font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:20px; background:rgba(248,81,73,0.15); border:1px solid rgba(248,81,73,0.4); color:#f85149; margin-left:6px; }
+    .inbadge { font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:20px; background:rgba(88,166,255,0.12); border:1px solid rgba(88,166,255,0.3); color:#58a6ff; margin-left:6px; }
+    /* math helpers */
+    .frac { display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; font-size:0.85em; line-height:1.1; margin:0 2px; }
+    .frac .num { border-bottom:1px solid currentColor; padding:0 3px; }
+    .frac .den { padding:0 3px; }
+    sup, sub { font-size:0.72em; }
     @media(max-width:800px){ .cs-2col,.cs-3col{ grid-template-columns:1fr; } }
   </style>
 </head>
@@ -40,375 +49,718 @@
 
 <div class="cs-wrap">
   <div style="text-align:center;padding:1.5rem 0 1rem">
-    <div style="font-size:0.7rem;font-weight:800;color:#d29922;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">📋 Complete Reference</div>
+    <div style="font-size:0.7rem;font-weight:800;color:#d29922;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">📋 Complete Reference — Plain Readable Format</div>
     <h1 style="font-size:1.8rem;font-weight:800">Machine Learning — Cheat Sheet</h1>
-    <p style="color:var(--text2);font-size:0.85rem">Every formula · Every algorithm · Every comparison — all weeks</p>
+    <p style="color:var(--text2);font-size:0.85rem">Every formula · Every algorithm · Every comparison — all weeks, no LaTeX</p>
   </div>
 
-  <!-- ===== 1. KNN & SCALING ===== -->
+  <!-- =============================== W1 KNN =============================== -->
   <div class="cs-section">
-    <div class="cs-title">📍 W1 — KNN &amp; Feature Scaling</div>
+    <div class="cs-title">📍 Week 1 — KNN &amp; Feature Scaling</div>
     <div class="cs-2col">
       <div class="cs-card">
         <h4>Distance Metrics</h4>
-        <div class="f">Euclidean: $d=\sqrt{\sum(p_i-q_i)^2}$</div>
-        <div class="f">Manhattan: $d=\sum|p_i-q_i|$</div>
-        <div class="f">Minkowski: $d=\left(\sum|p_i-q_i|^r\right)^{1/r}$</div>
-        <ul><li>KNN: assign majority vote of K nearest</li><li>Small K → overfit; Large K → underfit</li><li>Always scale before KNN</li></ul>
-      </div>
-      <div class="cs-card">
-        <h4>Feature Scaling</h4>
-        <div class="f">Min-Max: $x'=\frac{x-x_{min}}{x_{max}-x_{min}}\;\to[0,1]$</div>
-        <div class="f">Z-Score: $x'=\frac{x-\mu}{\sigma}\;\to\mu=0,\sigma=1$</div>
-        <h4 style="margin-top:0.6rem">Gradient Descent</h4>
-        <div class="f">$\theta:=\theta-\alpha\frac{\partial J}{\partial\theta}$</div>
-        <ul><li>Large $\alpha$ → diverges | Small $\alpha$ → slow</li><li>Update all $\theta$ simultaneously</li></ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== 2. REGRESSION ===== -->
-  <div class="cs-section">
-    <div class="cs-title">📈 W2 — Regression &amp; Regularization <span style="font-size:0.68rem;font-weight:800;padding:2px 9px;border-radius:20px;background:rgba(88,166,255,0.12);border:1px solid rgba(88,166,255,0.3);color:#58a6ff;margin-left:6px">Linear Reg ✅ in Final</span> <span style="font-size:0.68rem;font-weight:800;padding:2px 9px;border-radius:20px;background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);color:#f85149;margin-left:4px">🚫 Poly Reg &amp; Ridge/Lasso NOT in Final</span></div>
-    <div class="cs-3col">
-      <div class="cs-card">
-        <h4>Linear Regression</h4>
-        <div class="f">$h_\theta(\mathbf{x})=\boldsymbol{\theta}^T\mathbf{x}$</div>
-        <div class="f">$J(\theta)=\frac{1}{2m}\sum(h_\theta(x^{(i)})-y^{(i)})^2$</div>
-        <div class="f">Normal Eq: $\theta=(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$</div>
-        <ul><li>MSE is convex → global min guaranteed</li><li>GD: $\frac{\partial J}{\partial\theta_0}=\frac{1}{m}\sum(h-y)$</li><li>$\frac{\partial J}{\partial\theta_1}=\frac{1}{m}\sum(h-y)\cdot x$</li></ul>
-      </div>
-      <div class="cs-card">
-        <h4>Bias-Variance</h4>
-        <div class="f">$\text{Error}=\text{Bias}^2+\text{Variance}+\sigma^2$</div>
-        <ul><li>High bias = underfit (high train + test error)</li><li>High variance = overfit (low train, high test)</li><li>Irreducible noise $\sigma^2$ cannot be removed</li></ul>
-        <h4 style="margin-top:0.6rem">Polynomial Regression <span style="font-size:0.62rem;color:#f85149;font-weight:800">🚫 NOT IN FINAL</span></h4>
-        <div class="f" style="opacity:0.4">$h=\theta_0+\theta_1x+\theta_2x^2+\cdots+\theta_dx^d$</div>
-        <ul><li>Still linear in $\theta$</li><li>Parsimony: use simplest model</li></ul>
-      </div>
-      <div class="cs-card">
-        <h4>Regularization <span style="font-size:0.62rem;color:#f85149;font-weight:800">🚫 NOT IN FINAL</span></h4>
-        <div class="f">Ridge (L2): $J+\lambda\sum\theta_j^2$</div>
-        <div class="f">Lasso (L1): $J+\lambda\sum|\theta_j|$</div>
-        <table class="rtable">
-          <tr><th></th><th>Ridge</th><th>Lasso</th></tr>
-          <tr><td>→ 0 exactly</td><td>No</td><td>Yes ✅</td></tr>
-          <tr><td>Feature sel.</td><td>No</td><td>Yes ✅</td></tr>
-          <tr><td>Closed form</td><td>Yes</td><td>No</td></tr>
-        </table>
-        <div class="alert-box"><strong>Trap:</strong> Never regularise $\theta_0$. $\lambda\to\infty$ → predict mean.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== 3. SVM ===== -->
-  <div class="cs-section">
-    <div class="cs-title" style="opacity:0.45">✂️ W3–W4 — Support Vector Machines <span style="font-size:0.68rem;font-weight:800;padding:2px 9px;border-radius:20px;background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.4);color:#f85149;margin-left:6px">🚫 EXCLUDED FROM FINAL</span></div>
-    <div class="cs-3col">
-      <div class="cs-card">
-        <h4>Hard Margin SVM</h4>
-        <div class="f">Boundary: $\mathbf{w}^T\mathbf{x}+b=0$</div>
-        <div class="f">Margin: $\frac{2}{\|\mathbf{w}\|}$</div>
-        <div class="f">$\min\frac{1}{2}\|\mathbf{w}\|^2$ s.t. $y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq1$</div>
-        <ul><li>Predict: $\hat{y}=\text{sign}(\mathbf{w}^T\mathbf{x}+b)$</li><li>Support vectors: $y_i(\mathbf{w}^T\mathbf{x}_i+b)=1$</li><li>Remove non-SV → same hyperplane</li></ul>
-      </div>
-      <div class="cs-card">
-        <h4>Soft Margin (C-SVM)</h4>
-        <div class="f">$\min\frac{1}{2}\|\mathbf{w}\|^2+C\sum\xi_i$</div>
-        <div class="f">s.t. $y_i(\mathbf{w}^T\mathbf{x}_i+b)\geq1-\xi_i,\;\xi_i\geq0$</div>
+        <div class="f">
+          <span class="fname">Euclidean Distance</span>
+          <span class="eq">d = √[ (p₁−q₁)² + (p₂−q₂)² + … + (pₙ−qₙ)² ]</span>
+          <span class="note">Straight-line distance. Default for KNN.</span>
+        </div>
+        <div class="f">
+          <span class="fname">Manhattan Distance</span>
+          <span class="eq">d = |p₁−q₁| + |p₂−q₂| + … + |pₙ−qₙ|</span>
+          <span class="note">Sum of absolute differences. More robust to outliers.</span>
+        </div>
+        <div class="f">
+          <span class="fname">Minkowski Distance (general)</span>
+          <span class="eq">d = ( |p₁−q₁|ʳ + |p₂−q₂|ʳ + … )^(1/r)</span>
+          <span class="note">r=1 → Manhattan · r=2 → Euclidean</span>
+        </div>
         <ul>
-          <li>$\xi_i=0$: correct, outside margin</li>
-          <li>$0&lt;\xi_i&lt;1$: inside margin, correct side</li>
-          <li>$\xi_i\geq1$: misclassified</li>
-          <li>Large C → small margin, hard (→ overfit)</li>
-          <li>Small C → large margin, soft (→ underfit)</li>
+          <li>KNN → majority vote of K nearest (classification) or mean (regression)</li>
+          <li>Small K → overfits (jagged boundary) · Large K → underfits</li>
+          <li>Rule of thumb: K ≈ √N · Use odd K to avoid ties</li>
+          <li>⚠️ Always scale features before KNN</li>
         </ul>
       </div>
       <div class="cs-card">
-        <h4>Kernel Trick</h4>
-        <div class="f">$K(\mathbf{x}_i,\mathbf{x}_j)=\langle\phi(\mathbf{x}_i),\phi(\mathbf{x}_j)\rangle$</div>
-        <div class="f">Linear: $\mathbf{x}_i^T\mathbf{x}_j$</div>
-        <div class="f">Poly: $(\mathbf{x}_i^T\mathbf{x}_j+c)^d$</div>
-        <div class="f">RBF: $\exp(-\gamma\|\mathbf{x}_i-\mathbf{x}_j\|^2)$</div>
-        <ul><li>RBF → ∞-dim space, $O(d)$ compute</li><li>Dual: replace $\langle\mathbf{x}_i,\mathbf{x}_j\rangle$ with $K(\mathbf{x}_i,\mathbf{x}_j)$</li><li>Dual: $0\leq\alpha_i\leq C$</li></ul>
+        <h4>Feature Scaling</h4>
+        <div class="f">
+          <span class="fname">Min-Max Normalisation → range [0, 1]</span>
+          <span class="eq">x' = (x − x_min) / (x_max − x_min)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Z-Score Standardisation → mean=0, std=1</span>
+          <span class="eq">x' = (x − μ) / σ</span>
+          <span class="note">μ = mean of feature · σ = standard deviation</span>
+        </div>
+        <h4 style="margin-top:0.8rem">Gradient Descent</h4>
+        <div class="f">
+          <span class="fname">Parameter Update Rule</span>
+          <span class="eq">θ  :=  θ  −  α × ∂J/∂θ</span>
+          <span class="note">α = learning rate · ∂J/∂θ = gradient of cost w.r.t. θ</span>
+        </div>
+        <ul>
+          <li>Too large α → overshoots, may diverge</li>
+          <li>Too small α → converges very slowly</li>
+          <li>Update ALL θⱼ simultaneously using old values</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- ===== 4. DECISION TREES ===== -->
+  <!-- =============================== W2 REGRESSION =============================== -->
   <div class="cs-section">
-    <div class="cs-title" style="opacity:0.45">🌳 W5 — Decision Trees <span style="font-size:0.68rem;font-weight:800;padding:2px 9px;border-radius:20px;background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.4);color:#f85149;margin-left:6px">🚫 EXCLUDED FROM FINAL</span></div>
+    <div class="cs-title">
+      📈 Week 2 — Regression &amp; Regularization
+      <span class="inbadge">✅ Linear Regression in Final</span>
+      <span class="exbadge">🚫 Poly Reg &amp; Ridge/Lasso NOT in Final</span>
+    </div>
+    <div class="cs-3col">
+      <div class="cs-card">
+        <h4>Linear Regression</h4>
+        <div class="f">
+          <span class="fname">Hypothesis (Prediction)</span>
+          <span class="eq">ŷ = θ₀ + θ₁x₁ + θ₂x₂ + … + θₙxₙ</span>
+        </div>
+        <div class="f">
+          <span class="fname">MSE Cost Function</span>
+          <span class="eq">J(θ) = (1/2m) × Σᵢ (ŷᵢ − yᵢ)²</span>
+          <span class="note">m = number of training examples · Sum over all i</span>
+        </div>
+        <div class="f">
+          <span class="fname">Normal Equation (closed-form)</span>
+          <span class="eq">θ = (XᵀX)⁻¹ Xᵀy</span>
+          <span class="note">No iterations needed · Slow for many features (O(n³))</span>
+        </div>
+        <div class="f">
+          <span class="fname">GD Gradient for θ₀</span>
+          <span class="eq">∂J/∂θ₀ = (1/m) × Σ (ŷᵢ − yᵢ)</span>
+        </div>
+        <div class="f">
+          <span class="fname">GD Gradient for θ₁</span>
+          <span class="eq">∂J/∂θ₁ = (1/m) × Σ (ŷᵢ − yᵢ) × xᵢ</span>
+        </div>
+        <ul>
+          <li>MSE is convex → gradient descent always finds global min</li>
+          <li>GD preferred when n (features) &gt; 10,000</li>
+        </ul>
+      </div>
+
+      <div class="cs-card">
+        <h4>Bias-Variance Tradeoff</h4>
+        <div class="f">
+          <span class="fname">Total Error Decomposition</span>
+          <span class="eq">Total Error = Bias² + Variance + σ² (noise)</span>
+          <span class="note">σ² = irreducible noise — cannot be eliminated</span>
+        </div>
+        <ul>
+          <li><strong style="color:#58a6ff">High Bias = Underfitting</strong> — high train AND test error, model too simple</li>
+          <li><strong style="color:#f85149">High Variance = Overfitting</strong> — low train error, HIGH test error, memorises noise</li>
+          <li>More data helps variance, NOT bias</li>
+          <li>Regularisation reduces variance</li>
+        </ul>
+        <div class="f" style="margin-top:0.6rem">
+          <span class="fname">Gradient Descent vs Normal Equation</span>
+          <span class="eq">GD: needs α · iterative · scales to large n</span>
+          <span class="eq">Normal: no α · one-step · slow for large n</span>
+        </div>
+      </div>
+
+      <div class="cs-card excluded-cs">
+        <h4>Regularization <span style="font-size:0.62rem;color:#f85149;font-weight:800">🚫 NOT IN FINAL</span></h4>
+        <div class="f">
+          <span class="fname">Ridge L2 — cost + penalty</span>
+          <span class="eq">J(θ) + λ × (θ₁² + θ₂² + … + θₙ²)</span>
+          <span class="note">Shrinks weights toward 0 but never exactly 0</span>
+        </div>
+        <div class="f">
+          <span class="fname">Lasso L1 — cost + penalty</span>
+          <span class="eq">J(θ) + λ × (|θ₁| + |θ₂| + … + |θₙ|)</span>
+          <span class="note">Can set weights to exactly 0 → feature selection</span>
+        </div>
+        <table class="rtable" style="margin-top:0.5rem">
+          <tr><th></th><th>Ridge</th><th>Lasso</th></tr>
+          <tr><td>→ exactly 0?</td><td>No</td><td>Yes ✅</td></tr>
+          <tr><td>Feature select.</td><td>No</td><td>Yes ✅</td></tr>
+          <tr><td>Closed form</td><td>Yes</td><td>No</td></tr>
+        </table>
+        <div class="alert"><strong>Trap:</strong> Never regularise θ₀ (bias term). λ → ∞ means all weights → 0 (extreme underfit).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== W3-W4 SVM =============================== -->
+  <div class="cs-section excluded-cs">
+    <div class="cs-title">✂️ Week 3–4 — Support Vector Machines <span class="exbadge">🚫 EXCLUDED FROM FINAL</span></div>
+    <div class="cs-3col">
+      <div class="cs-card">
+        <h4>Hard Margin SVM</h4>
+        <div class="f">
+          <span class="fname">Decision boundary</span>
+          <span class="eq">w · x + b = 0</span>
+        </div>
+        <div class="f">
+          <span class="fname">Margin width</span>
+          <span class="eq">margin = 2 / ‖w‖</span>
+        </div>
+        <div class="f">
+          <span class="fname">Objective — minimise</span>
+          <span class="eq">½ ‖w‖² subject to: yᵢ(w·xᵢ + b) ≥ 1</span>
+        </div>
+        <ul>
+          <li>Predict: sign(w·x + b)</li>
+          <li>Support vectors: yᵢ(w·xᵢ + b) = 1 exactly</li>
+        </ul>
+      </div>
+      <div class="cs-card">
+        <h4>Soft Margin (C-SVM)</h4>
+        <div class="f">
+          <span class="fname">Objective — minimise</span>
+          <span class="eq">½‖w‖² + C × Σ ξᵢ</span>
+        </div>
+        <div class="f">
+          <span class="fname">Constraint</span>
+          <span class="eq">yᵢ(w·xᵢ + b) ≥ 1 − ξᵢ,  ξᵢ ≥ 0</span>
+        </div>
+        <ul>
+          <li>ξᵢ = 0 → correct, outside margin</li>
+          <li>0 &lt; ξᵢ &lt; 1 → inside margin, correct side</li>
+          <li>ξᵢ ≥ 1 → misclassified</li>
+          <li>Large C → small margin (→ overfit)</li>
+          <li>Small C → large margin (→ underfit)</li>
+        </ul>
+      </div>
+      <div class="cs-card">
+        <h4>Kernels</h4>
+        <div class="f"><span class="fname">Linear</span><span class="eq">K(x, z) = xᵀz</span></div>
+        <div class="f"><span class="fname">Polynomial</span><span class="eq">K(x, z) = (xᵀz + c)^d</span></div>
+        <div class="f"><span class="fname">RBF / Gaussian</span><span class="eq">K(x, z) = exp(−γ ‖x − z‖²)</span></div>
+        <ul>
+          <li>RBF → maps to infinite-dimensional space</li>
+          <li>Large γ → narrow, overfits · Small γ → underfits</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== W5 DECISION TREES =============================== -->
+  <div class="cs-section excluded-cs">
+    <div class="cs-title">🌳 Week 5 — Decision Trees <span class="exbadge">🚫 EXCLUDED FROM FINAL</span></div>
     <div class="cs-2col">
       <div class="cs-card">
         <h4>Impurity Measures</h4>
-        <div class="f">Entropy: $H(S)=-\sum_k p_k\log_2 p_k$</div>
-        <div class="f">Info Gain: $\text{IG}(S,A)=H(S)-\sum_v\frac{|S_v|}{|S|}H(S_v)$</div>
-        <div class="f">SplitInfo: $-\sum_v\frac{|S_v|}{|S|}\log_2\frac{|S_v|}{|S|}$</div>
-        <div class="f">Gain Ratio: $\text{IG}/\text{SplitInfo}$</div>
-        <div class="f">Gini: $1-\sum_k p_k^2$</div>
-        <ul><li>Pure node: H=0 | Max H=1 (binary 50/50)</li><li>ID3 → max IG | C4.5 → Gain Ratio | CART → Gini</li></ul>
+        <div class="f">
+          <span class="fname">Entropy (Shannon)</span>
+          <span class="eq">H(S) = − Σ pₖ × log₂(pₖ)</span>
+          <span class="note">Pure node → H=0 · 50/50 split → H=1 bit</span>
+        </div>
+        <div class="f">
+          <span class="fname">Information Gain (ID3 criterion)</span>
+          <span class="eq">IG(S, A) = H(S) − Σᵥ (|Sᵥ|/|S|) × H(Sᵥ)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Gain Ratio (C4.5 — fixes IG bias)</span>
+          <span class="eq">GainRatio = IG(S,A) / SplitInfo(S,A)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Gini Index (CART / sklearn)</span>
+          <span class="eq">Gini = 1 − Σ pₖ²</span>
+        </div>
+        <ul>
+          <li>ID3 → max IG · C4.5 → Gain Ratio · sklearn → Gini</li>
+          <li>Boundaries: always axis-parallel rectangles</li>
+        </ul>
       </div>
       <div class="cs-card">
         <h4>Pruning</h4>
-        <div class="f">Cost-Complexity: $R_\alpha(T)=R(T)+\alpha|T|$</div>
-        <table class="rtable" style="margin-top:0.4rem">
+        <div class="f">
+          <span class="fname">Cost-Complexity Pruning</span>
+          <span class="eq">Rα(T) = R(T) + α × |T|</span>
+          <span class="note">R(T) = error rate · |T| = leaf count · α = complexity penalty</span>
+        </div>
+        <table class="rtable">
           <tr><th></th><th>Pre-Pruning</th><th>Post-Pruning</th></tr>
           <tr><td>When</td><td>During growth</td><td>After full tree</td></tr>
-          <tr><td>Risk</td><td>Short-sighted</td><td>Hindsight (better)</td></tr>
-          <tr><td>Speed</td><td>Fast</td><td>Slower</td></tr>
+          <tr><td>Risk</td><td>"Short-sighted"</td><td>"Hindsight" (better)</td></tr>
         </table>
-        <ul style="margin-top:0.4rem"><li>DT boundaries: always axis-parallel rectangles</li><li>Can represent any boolean function</li><li>Modern: use both (XGBoost: max_depth + gamma)</li></ul>
-        <div class="alert-box"><strong>Trap:</strong> IG biased toward many-valued features → use Gain Ratio (C4.5).</div>
       </div>
     </div>
   </div>
 
-  <!-- ===== 5. CLUSTERING ===== -->
+  <!-- =============================== W6 K-MEANS =============================== -->
   <div class="cs-section">
-    <div class="cs-title">⚙️ W6–W7 — Clustering</div>
+    <div class="cs-title">⚙️ Week 6–7 — Clustering</div>
     <div class="cs-3col">
       <div class="cs-card">
-        <h4>K-Means</h4>
-        <div class="f">Objective (Inertia): $J=\sum_k\sum_{i\in C_k}\|\mathbf{x}_i-\mu_k\|^2$</div>
-        <div class="f">Assign: $c_i=\arg\min_k\|\mathbf{x}_i-\mu_k\|^2$</div>
-        <div class="f">Update: $\mu_k=\frac{1}{|C_k|}\sum_{i\in C_k}\mathbf{x}_i$</div>
-        <ul><li>Converges to local optimum (non-convex J)</li><li>More K → always lower inertia (trivial at K=N)</li><li>Elbow method → heuristic for K</li></ul>
-        <div class="alert-box"><strong>Fails on:</strong> concentric rings, elongated shapes, unequal cluster sizes.</div>
+        <h4>K-Means Algorithm</h4>
+        <div class="f">
+          <span class="fname">Objective — Inertia (WCSS)</span>
+          <span class="eq">J = Σₖ Σ(xᵢ in Cₖ) ‖xᵢ − μₖ‖²</span>
+        </div>
+        <div class="f">
+          <span class="fname">Assignment step</span>
+          <span class="eq">cᵢ = argmin_k ‖xᵢ − μₖ‖²</span>
+          <span class="note">Assign each point to the nearest centroid</span>
+        </div>
+        <div class="f">
+          <span class="fname">Update step</span>
+          <span class="eq">μₖ = (1/|Cₖ|) × Σ(xᵢ in Cₖ) xᵢ</span>
+          <span class="note">New centroid = arithmetic mean of all assigned points</span>
+        </div>
+        <ul>
+          <li>Converges to local optimum (non-convex J)</li>
+          <li>More K → always lower inertia — use Elbow method</li>
+          <li>⚠️ Fails on concentric rings / elongated shapes</li>
+          <li>⚠️ Always standardise features first</li>
+        </ul>
+        <div class="alert"><strong>Exam:</strong> Concentric rings → K-Means fails because it minimises Euclidean distance and assumes spherical clusters. Inner and outer ring centroids overlap.</div>
       </div>
+
       <div class="cs-card">
         <h4>K-Means++ &amp; X-Means</h4>
-        <h4 style="font-size:0.78rem;color:var(--green);margin-top:0.3rem">K-Means++</h4>
-        <div class="f">$P(\mathbf{x}\text{ chosen})\propto d(\mathbf{x})^2$</div>
-        <ul><li>Far points → higher probability of selection</li><li>Avoids bad local optima. Default in sklearn.</li></ul>
-        <h4 style="font-size:0.78rem;color:var(--purple);margin-top:0.6rem">X-Means</h4>
-        <div class="f">BIC: $-2\ln\hat{L}+p\cdot\ln n$</div>
-        <ul><li>Auto-selects K by splitting if BIC improves</li><li>No need to specify K upfront</li></ul>
+        <div class="f">
+          <span class="fname">K-Means++ — initialisation probability</span>
+          <span class="eq">P(x chosen) ∝ d(x)²</span>
+          <span class="note">d(x) = distance to nearest already-chosen centroid</span>
+        </div>
+        <ul>
+          <li>Picks far-apart initial centroids → avoids bad local optima</li>
+          <li>Default in sklearn: init='k-means++'</li>
+        </ul>
+        <div class="f" style="margin-top:0.6rem">
+          <span class="fname">X-Means — auto-selects K using BIC</span>
+          <span class="eq">BIC = −2 × ln(L̂) + p × ln(n)</span>
+          <span class="note">Lower BIC = better model · Split cluster if BIC improves</span>
+        </div>
+        <ul>
+          <li>Starts at K=2, splits clusters if BIC improves</li>
+          <li>No need to specify K upfront</li>
+        </ul>
+        <h4 style="margin-top:0.6rem">Distance Metrics for Clustering</h4>
+        <ul>
+          <li><strong>Euclidean</strong>: straight-line, scale-sensitive, default</li>
+          <li><strong>Manhattan</strong>: sum of absolute diffs, more outlier-robust</li>
+          <li><strong>Cosine</strong>: measures angle not magnitude → good for text/NLP</li>
+        </ul>
       </div>
+
       <div class="cs-card">
-        <h4>Hierarchical Clustering</h4>
-        <ul><li>Each point = own cluster → merge two closest → repeat</li><li>Result: dendrogram. Cut at height → K clusters.</li></ul>
-        <table class="rtable" style="margin-top:0.4rem">
-          <tr><th>Linkage</th><th>Distance</th><th>Geometry</th></tr>
-          <tr><td>Single</td><td>min dist</td><td>Elongated, rings ✅</td></tr>
-          <tr><td>Complete</td><td>max dist</td><td>Compact, spherical</td></tr>
-          <tr><td>Average</td><td>mean dist</td><td>Balanced</td></tr>
+        <h4>Hierarchical (Agglomerative)</h4>
+        <ul>
+          <li>Start: each point = own cluster</li>
+          <li>Repeat: merge two closest clusters</li>
+          <li>Result: dendrogram — cut at height → K clusters</li>
+          <li>No need to specify K upfront ✅</li>
+        </ul>
+        <table class="rtable" style="margin-top:0.5rem">
+          <tr><th>Linkage</th><th>Distance = ?</th><th>Good for</th></tr>
+          <tr><td><strong>Single</strong></td><td>min distance any pair</td><td>Elongated, rings ✅</td></tr>
+          <tr><td><strong>Complete</strong></td><td>max distance any pair</td><td>Compact, spherical</td></tr>
+          <tr><td><strong>Average</strong></td><td>mean of all pairs</td><td>Balanced</td></tr>
         </table>
-        <div class="alert-box"><strong>Exam:</strong> For concentric rings → single-linkage. Complete-linkage fails because max inter-cluster distance between rings is large → sees them as one cluster.</div>
+        <div class="alert" style="margin-top:0.5rem">
+          <strong>Exam Q2 (Assignment mirror):</strong> For concentric rings → use <strong>single-linkage</strong>. Complete-linkage uses the <em>maximum</em> distance between cluster members — the far side of the outer ring is very far from the inner ring → merges fail. Single-linkage only needs one close pair → can chain along the ring.
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== 6. ANOMALY ===== -->
+  <!-- =============================== W8 ANOMALY =============================== -->
   <div class="cs-section">
-    <div class="cs-title">🚨 W8 — Anomaly Detection</div>
+    <div class="cs-title">🚨 Week 8 — Anomaly Detection</div>
     <div class="cs-2col">
       <div class="cs-card">
         <h4>Isolation Forest</h4>
-        <div class="f">$s(x,n)=2^{-E[h(x)]/c(n)}$, $c(n)=2H(n-1)-\frac{2(n-1)}{n}$</div>
-        <ul><li>$s\approx1$ → anomaly | $s\approx0.5$ → normal | $s\approx0$ → very normal</li><li>Anomalies isolated in fewer splits → short path length</li></ul>
+        <div class="f">
+          <span class="fname">Anomaly Score</span>
+          <span class="eq">s(x, n) = 2 ^ (−E[h(x)] / c(n))</span>
+          <span class="note">E[h(x)] = average path length in random trees</span>
+        </div>
+        <div class="f">
+          <span class="fname">Normalisation factor c(n)</span>
+          <span class="eq">c(n) = 2H(n−1) − 2(n−1)/n</span>
+          <span class="note">H = harmonic number H(k) = 1 + 1/2 + 1/3 + … + 1/k</span>
+        </div>
+        <ul>
+          <li>Score ≈ 1 → anomaly (isolated early, short path)</li>
+          <li>Score ≈ 0.5 → normal</li>
+          <li>Score ≈ 0 → very normal (buried deep)</li>
+          <li>Anomalies isolated in fewer splits than normal points</li>
+        </ul>
       </div>
       <div class="cs-card">
         <h4>Gaussian Model</h4>
-        <div class="f">$p(\mathbf{x})=\prod_j\frac{1}{\sqrt{2\pi\sigma_j^2}}\exp\!\left(-\frac{(x_j-\mu_j)^2}{2\sigma_j^2}\right)$</div>
-        <ul><li>Flag anomaly if $p(\mathbf{x})&lt;\epsilon$</li><li>Anomaly detection preferred when positives are rare (0–20 examples), future anomalies may look different</li></ul>
+        <div class="f">
+          <span class="fname">Product of per-feature Gaussians</span>
+          <span class="eq">p(x) = p(x₁; μ₁, σ₁²) × p(x₂; μ₂, σ₂²) × … × p(xₙ; μₙ, σₙ²)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Gaussian PDF for feature j</span>
+          <span class="eq">p(xⱼ; μⱼ, σⱼ²) = (1 / √(2πσⱼ²)) × exp(−(xⱼ−μⱼ)² / 2σⱼ²)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Decision rule</span>
+          <span class="eq">Flag as anomaly if  p(x) &lt; ε  (threshold)</span>
+        </div>
+        <ul>
+          <li>μⱼ = mean of feature j · σⱼ² = variance of feature j</li>
+          <li>Use anomaly detection (not supervised) when positives are rare (0–20 examples) and future anomalies may look different from past ones</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- ===== 7. EVALUATION ===== -->
+  <!-- =============================== W10 EVALUATION =============================== -->
   <div class="cs-section">
-    <div class="cs-title">📊 W10 — Model Evaluation</div>
+    <div class="cs-title">📊 Week 10 — Model Evaluation (⭐ High Priority)</div>
     <div class="cs-3col">
       <div class="cs-card">
         <h4>Confusion Matrix</h4>
         <table class="rtable">
-          <tr><th></th><th>Pred +</th><th>Pred −</th></tr>
-          <tr><td><strong>Act +</strong></td><td style="color:#3fb950">TP</td><td style="color:#f85149">FN</td></tr>
-          <tr><td><strong>Act −</strong></td><td style="color:#f85149">FP</td><td style="color:#3fb950">TN</td></tr>
+          <tr><th></th><th>Predicted +</th><th>Predicted −</th></tr>
+          <tr><td><strong>Actual +</strong></td><td style="color:#3fb950;font-weight:700">TP</td><td style="color:#f85149;font-weight:700">FN</td></tr>
+          <tr><td><strong>Actual −</strong></td><td style="color:#f85149;font-weight:700">FP</td><td style="color:#3fb950;font-weight:700">TN</td></tr>
         </table>
-        <div class="f" style="margin-top:0.4rem">Accuracy $=\frac{TP+TN}{TP+TN+FP+FN}$</div>
-        <div class="alert-box"><strong>Fails when:</strong> imbalanced classes (99% TN → 99% acc, 0% recall).</div>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">Accuracy</span>
+          <span class="eq">Accuracy = (TP + TN) / (TP + TN + FP + FN)</span>
+        </div>
+        <div class="alert">
+          <strong>Accuracy fails on imbalanced data.</strong> If 9,950 negatives and 50 positives — predicting all negative gives 99.5% accuracy but 0% recall. Useless!
+        </div>
+        <div class="f">
+          <span class="fname">Classic Exam Scenario (Assignment Q1)</span>
+          <span class="eq">10,000 transactions · 50 fraud · predict all negative:</span>
+          <span class="eq">TP=0 · FP=0 · FN=50 · TN=9950</span>
+          <span class="eq">Accuracy = 9950/10000 = 99.5% ← misleading</span>
+          <span class="eq">Recall = 0/50 = 0% ← catches zero fraud</span>
+        </div>
       </div>
       <div class="cs-card">
         <h4>Precision, Recall, F1</h4>
-        <div class="f">Precision $=\frac{TP}{TP+FP}$ — "how exact"</div>
-        <div class="f">Recall $=\frac{TP}{TP+FN}$ — "how complete"</div>
-        <div class="f">F1 $=\frac{2PR}{P+R}=\frac{2TP}{2TP+FP+FN}$</div>
-        <ul><li>F1 is harmonic mean — penalises if P or R is very low</li><li>Use F1 when classes are imbalanced</li></ul>
+        <div class="f">
+          <span class="fname">Precision — "how exact are my positive predictions?"</span>
+          <span class="eq">Precision = TP / (TP + FP)</span>
+        </div>
+        <div class="f">
+          <span class="fname">Recall (Sensitivity) — "how many positives did I catch?"</span>
+          <span class="eq">Recall = TP / (TP + FN)</span>
+        </div>
+        <div class="f">
+          <span class="fname">F1-Score — harmonic mean of Precision &amp; Recall</span>
+          <span class="eq">F1 = 2 × (Precision × Recall) / (Precision + Recall)</span>
+          <span class="eq">   = 2×TP / (2×TP + FP + FN)</span>
+          <span class="note">F1 = 0 if either Precision or Recall is 0</span>
+        </div>
+        <ul>
+          <li>Use F1 when classes are imbalanced</li>
+          <li>Precision↑ → fewer false alarms (FP)</li>
+          <li>Recall↑ → fewer missed positives (FN)</li>
+        </ul>
       </div>
       <div class="cs-card">
-        <h4>SMOTE &amp; Cost-Sensitive</h4>
-        <div class="f">SMOTE: $\mathbf{x}_{new}=\mathbf{x}_i+\lambda(\mathbf{x}_{nn}-\mathbf{x}_i)$, $\lambda\in[0,1]$</div>
-        <ul><li>Interpolates between minority neighbours in feature space</li><li>Cost-sensitive: modify loss function weight, not data</li></ul>
-        <table class="rtable" style="margin-top:0.4rem">
+        <h4>SMOTE &amp; Cost-Sensitive Learning</h4>
+        <div class="f">
+          <span class="fname">SMOTE synthetic sample formula</span>
+          <span class="eq">x_new = xᵢ + λ × (x_neighbour − xᵢ)</span>
+          <span class="note">λ ∈ [0, 1] random · x_neighbour = KNN within minority class</span>
+        </div>
+        <ul>
+          <li>Interpolates <em>between</em> two minority class neighbours in feature space</li>
+          <li>Creates new synthetic minority points along the line segment</li>
+          <li>Not random noise — stays in the minority feature region</li>
+        </ul>
+        <table class="rtable" style="margin-top:0.5rem">
           <tr><th></th><th>SMOTE</th><th>Cost-Sensitive</th></tr>
-          <tr><td>Modifies</td><td>Data</td><td>Loss function</td></tr>
-          <tr><td>New samples</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Modifies</td><td>Data (adds samples)</td><td>Loss function (weights)</td></tr>
+          <tr><td>New samples?</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Advantage</td><td>Better minority density</td><td>No augmentation risk</td></tr>
+          <tr><td>Limitation</td><td>Noisy synthetics if overlap</td><td>Hard to pick weights</td></tr>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ===== 8. OPTIMIZATION & ENCODING ===== -->
+  <!-- =============================== W11 OPTIMIZATION =============================== -->
   <div class="cs-section">
-    <div class="cs-title">🔧 W11 — HPO, Leakage &amp; Feature Engineering</div>
+    <div class="cs-title">🔧 Week 11 — Hyperparameter Optimization &amp; Feature Engineering (⭐ High Priority)</div>
     <div class="cs-3col">
       <div class="cs-card">
         <h4>HPO Methods</h4>
         <table class="rtable">
-          <tr><th>Method</th><th>How</th></tr>
-          <tr><td>Grid</td><td>All combos</td></tr>
-          <tr><td>Random</td><td>Random sample</td></tr>
-          <tr><td>Bayesian (Optuna)</td><td>TPE: learn from history</td></tr>
+          <tr><th>Method</th><th>How</th><th>Best for</th></tr>
+          <tr><td><strong>Grid Search</strong></td><td>Try all combos</td><td>Small search space</td></tr>
+          <tr><td><strong>Random Search</strong></td><td>Random combos</td><td>Large search space</td></tr>
+          <tr><td><strong>Bayesian (Optuna)</strong></td><td>Learn from history using TPE</td><td>Efficient, fewer trials</td></tr>
         </table>
-        <ul><li>Optuna: good dist $l(x)$ vs bad dist $g(x)$</li><li>Picks next point: high $l(x)$, low $g(x)$</li></ul>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">Optuna TPE — Two distributions</span>
+          <span class="eq">l(x) = "good" distribution (top trials)</span>
+          <span class="eq">g(x) = "bad" distribution (rest)</span>
+          <span class="eq">Pick next: maximise l(x) / g(x)</span>
+        </div>
       </div>
       <div class="cs-card">
-        <h4>Data Leakage</h4>
-        <div class="alert-box"><strong>Train-Test Contamination:</strong> Fit scaler/encoder on full data before split → test stats leak into training.</div>
-        <div class="alert-box"><strong>Target Leakage:</strong> Using features only available after the event (post-diagnosis data to predict diagnosis).</div>
-        <div class="ok-box">✅ Correct: Split → Fit transformers on TRAIN only → Apply to test</div>
+        <h4>Data Leakage ⭐ Most Tested</h4>
+        <div class="alert">
+          <strong>Definition:</strong> Including target-variable information in training data that won't be available at prediction time.
+        </div>
+        <p><strong style="color:#f85149">Type 1 — Train-Test Contamination:</strong> Fitting scaler/encoder on full dataset before splitting → test statistics contaminate training.</p>
+        <p style="margin-top:0.4rem"><strong style="color:#f85149">Type 2 — Target Leakage:</strong> Using features only available after the event (e.g., post-diagnosis data to predict a diagnosis).</p>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">✅ Correct pipeline order</span>
+          <span class="eq">1. Split data into train / test FIRST</span>
+          <span class="eq">2. Fit StandardScaler on TRAIN only</span>
+          <span class="eq">3. Transform (apply) scaler to both train and test</span>
+          <span class="eq">4. Fit TargetEncoder on TRAIN only</span>
+          <span class="eq">5. Transform test with train-fitted encoder</span>
+          <span class="eq">6. Train model on transformed train set</span>
+        </div>
       </div>
       <div class="cs-card">
-        <h4>Encoding &amp; Cyclical</h4>
-        <ul><li>Label enc → false ordinal (bad for nominal)</li><li>One-hot → no false order, high dim</li><li>Target enc → mean(target) per category, but leakage risk</li></ul>
-        <div class="f">Cyclical: $x_{\sin}=\sin(\frac{2\pi x}{T}),\;x_{\cos}=\cos(\frac{2\pi x}{T})$</div>
-        <ul><li>T=24 for hours; fixes 23→0 discontinuity</li></ul>
+        <h4>Feature Encoding &amp; Cyclical</h4>
+        <table class="rtable">
+          <tr><th>Encoding</th><th>Problem</th></tr>
+          <tr><td>Label Encoding</td><td>Creates false order: Karachi(2) &gt; Lahore(1)</td></tr>
+          <tr><td>One-Hot</td><td>High dimensionality: 1000 cities → 1000 columns</td></tr>
+          <tr><td>Target Encoding</td><td>Replace category with mean(target) — leakage risk if fit on all data</td></tr>
+        </table>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">Cyclical Encoding (hours, days, seasons)</span>
+          <span class="eq">x_sin = sin( 2π × x / T )</span>
+          <span class="eq">x_cos = cos( 2π × x / T )</span>
+          <span class="note">T = period (24 for hours, 7 for days, 12 for months)</span>
+          <span class="note">Fixes: hour 23 and hour 0 appear far apart numerically but are 1hr apart</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== 9. MLOPS ===== -->
+  <!-- =============================== W12 MLOPS =============================== -->
   <div class="cs-section">
-    <div class="cs-title">🚀 W12 — MLOps &amp; FastAPI</div>
+    <div class="cs-title">🚀 Week 12 — MLOps &amp; FastAPI</div>
     <div class="cs-2col">
       <div class="cs-card">
-        <h4>MLOps Lifecycle</h4>
-        <p style="font-size:0.8rem;color:var(--text2)">Data Collection → Data Prep → Model Training → Model Evaluation → Model Packaging → <strong>Deploy &amp; Serve → Monitor &amp; Retrain</strong> ← feedback loop</p>
-        <p class="mt" style="font-size:0.8rem">87% of models never reach production (Gartner). MLOps = ML + DevOps + Data Engineering.</p>
+        <h4>MLOps Lifecycle — 7 Stages</h4>
+        <div class="f">
+          <span class="eq">1. Data Collection → 2. Data Prep → 3. Model Training</span>
+          <span class="eq">→ 4. Model Evaluation → 5. Model Packaging</span>
+          <span class="eq">→ 6. Deploy &amp; Serve → 7. Monitor &amp; Retrain ← feedback loop</span>
+        </div>
+        <ul>
+          <li>87% of ML models never reach production (Gartner)</li>
+          <li>MLOps = ML + DevOps + Data Engineering</li>
+          <li>Model serialisation: joblib.dump(model, "model.pkl")</li>
+        </ul>
       </div>
       <div class="cs-card">
-        <h4>FastAPI &amp; REST</h4>
-        <ul><li>REST = architecture style (rules). FastAPI = framework (tool).</li><li>HTTP POST for predictions (sending data to server)</li><li>Serialise model: <code>joblib.dump(model, "model.pkl")</code></li><li><code>model.predict([features.data])</code> → return JSON</li><li>Swagger UI auto-generated at <code>/docs</code></li></ul>
+        <h4>FastAPI &amp; REST API</h4>
+        <ul>
+          <li><strong>REST</strong> = architecture style (rules of the road)</li>
+          <li><strong>FastAPI</strong> = Python framework to build REST APIs (the car)</li>
+          <li>HTTP <strong>POST</strong> for predictions — sending data to server</li>
+          <li>HTTP <strong>GET</strong> for retrieving data</li>
+          <li>Swagger UI auto-generated at /docs</li>
+          <li>Load model: model = joblib.load("model.pkl")</li>
+          <li>Endpoint: @app.post("/predict") → return JSON</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- ===== 10. DRIFT & KS TEST ===== -->
+  <!-- =============================== W13-14 DRIFT & KS =============================== -->
   <div class="cs-section">
-    <div class="cs-title">📉 W13–W14 — Drift &amp; KS Test</div>
+    <div class="cs-title">📉 Week 13–14 — Model Drift &amp; KS Test (⭐ High Priority)</div>
     <div class="cs-3col">
       <div class="cs-card">
         <h4>Data Drift vs Concept Drift</h4>
-        <table class="rtable">
-          <tr><th></th><th>Data Drift</th><th>Concept Drift</th></tr>
-          <tr><td>Changes</td><td>$P(X)$</td><td>$P(Y|X)$</td></tr>
-          <tr><td>Risk</td><td>Medium</td><td>High</td></tr>
-          <tr><td>Detect</td><td>KS test</td><td>Accuracy metrics</td></tr>
-        </table>
-        <ul style="margin-top:0.4rem"><li>Sudden / Gradual / Incremental / Recurring</li></ul>
-      </div>
-      <div class="cs-card">
-        <h4>KS Test</h4>
-        <div class="f">$D=\sup_x|F_{train}(x)-F_{prod}(x)|$</div>
+        <div class="f">
+          <span class="fname">Data Drift (Covariate Shift)</span>
+          <span class="eq">P(X) changes — input distribution shifts</span>
+          <span class="eq">P(Y|X) stays same — true relationship unchanged</span>
+        </div>
+        <div class="f">
+          <span class="fname">Concept Drift</span>
+          <span class="eq">P(Y|X) changes — the true mapping changes</span>
+          <span class="eq">Same inputs now give different correct outputs</span>
+        </div>
         <table class="rtable" style="margin-top:0.4rem">
-          <tr><th>D</th><th>Status</th></tr>
-          <tr><td>&lt;0.1</td><td style="color:#3fb950">No drift</td></tr>
-          <tr><td>0.1–0.2</td><td style="color:#d29922">Mild drift</td></tr>
-          <tr><td>≥0.2</td><td style="color:#f85149">Significant drift!</td></tr>
+          <tr><th></th><th>Data Drift</th><th>Concept Drift</th></tr>
+          <tr><td>Changes</td><td>P(X)</td><td>P(Y|X)</td></tr>
+          <tr><td>Risk</td><td>Medium</td><td>High</td></tr>
+          <tr><td>Detected by</td><td>KS test on features</td><td>Accuracy metrics</td></tr>
+          <tr><td>Action</td><td>Monitor, maybe retrain</td><td>Retrain immediately</td></tr>
         </table>
-        <ul style="margin-top:0.4rem"><li>p&lt;0.05 → drift confirmed</li><li>Lecture example: {1,2,3,4} vs {3,4,5,6} → D=0.5</li></ul>
+        <ul style="margin-top:0.4rem">
+          <li>Sudden · Gradual · Incremental · Recurring</li>
+        </ul>
       </div>
       <div class="cs-card">
-        <h4>Other Drift Tests</h4>
+        <h4>KS Test — Kolmogorov–Smirnov</h4>
+        <div class="f">
+          <span class="fname">KS Statistic D</span>
+          <span class="eq">D = max | F_train(x) − F_prod(x) |</span>
+          <span class="note">F = empirical CDF · sup = maximum gap between the two CDFs</span>
+        </div>
+        <table class="rtable" style="margin-top:0.4rem">
+          <tr><th>D value</th><th>Status</th><th>Action</th></tr>
+          <tr><td>D &lt; 0.1</td><td style="color:#3fb950">No drift</td><td>Keep monitoring</td></tr>
+          <tr><td>0.1 ≤ D &lt; 0.2</td><td style="color:#d29922">Mild drift</td><td>Monitor closely</td></tr>
+          <tr><td>D ≥ 0.2</td><td style="color:#f85149">Significant!</td><td>Investigate, retrain</td></tr>
+          <tr><td>p &lt; 0.05</td><td style="color:#f85149">Statistically sig.</td><td>Drift confirmed</td></tr>
+        </table>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">Lecture example — Reference {1,2,3,4} vs Production {3,4,5,6}</span>
+          <span class="eq">At x=3: F_train(3)=0.75, F_prod(3)=0.25 → gap = 0.50</span>
+          <span class="eq">At x=4: F_train(4)=1.00, F_prod(4)=0.50 → gap = 0.50</span>
+          <span class="eq">D = max gap = 0.5 → Significant drift (D ≥ 0.2) ✅</span>
+        </div>
+      </div>
+      <div class="cs-card">
+        <h4>Other Drift Detection Tests</h4>
         <table class="rtable">
           <tr><th>Test</th><th>Best for</th></tr>
-          <tr><td>KS test</td><td>Continuous features</td></tr>
-          <tr><td>Chi-square</td><td>Categorical features</td></tr>
-          <tr><td>Jensen-Shannon</td><td>Any distribution</td></tr>
-          <tr><td>PSI</td><td>Banking/credit models</td></tr>
+          <tr><td>KS Test</td><td>Continuous numeric features</td></tr>
+          <tr><td>Chi-Square</td><td>Categorical features</td></tr>
+          <tr><td>Jensen-Shannon Div.</td><td>Any distribution, bounded 0–1</td></tr>
+          <tr><td>PSI</td><td>Banking / credit models</td></tr>
           <tr><td>Wasserstein</td><td>Multi-modal, heavy tails</td></tr>
-          <tr><td>MMD</td><td>High-dimensional (NLP/vision)</td></tr>
+          <tr><td>MMD</td><td>High-dimensional (NLP, vision)</td></tr>
+          <tr><td>Anderson-Darling</td><td>Sensitive to tail differences</td></tr>
+        </table>
+        <h4 style="margin-top:0.6rem">KS Test in Production Pipeline</h4>
+        <ul>
+          <li>(a) Compare: F_train (training data) vs F_prod (production data)</li>
+          <li>(b) Measures: max vertical gap between the two CDFs</li>
+          <li>(c) p &lt; 0.05 → trigger alert → investigate root cause → schedule retraining</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== W14 OBSERVABILITY =============================== -->
+  <div class="cs-section">
+    <div class="cs-title">👁️ Week 14 — Observability &amp; Monitoring</div>
+    <div class="cs-2col">
+      <div class="cs-card">
+        <h4>Three Pillars of Observability</h4>
+        <div class="f">
+          <span class="fname">Monitoring (Metrics)</span>
+          <span class="eq">Numbers that trigger alerts — CPU 99%, latency high, KS &gt; 0.2</span>
+        </div>
+        <div class="f">
+          <span class="fname">Logging (Events)</span>
+          <span class="eq">Granular text records for debugging — "line 42 crashed, user_id was null"</span>
+        </div>
+        <div class="f">
+          <span class="fname">Distributed Tracing</span>
+          <span class="eq">Track single request across multiple microservices</span>
+        </div>
+        <h4 style="margin-top:0.6rem">Alerting Priority P1–P4</h4>
+        <table class="rtable">
+          <tr><th>Priority</th><th>Trigger</th><th>Action</th></tr>
+          <tr><td style="color:#f85149"><strong>P1</strong></td><td>Accuracy drop &gt;15% or KS &gt;0.3</td><td>Page on-call, rollback</td></tr>
+          <tr><td style="color:#d29922"><strong>P2</strong></td><td>KS 0.2–0.3, missing &gt;10%</td><td>4-hour ticket</td></tr>
+          <tr><td style="color:#58a6ff"><strong>P3</strong></td><td>KS 0.1–0.2, mild schema change</td><td>Log, next sprint</td></tr>
+          <tr><td style="color:#3fb950"><strong>P4</strong></td><td>Minor fluctuation</td><td>Log only</td></tr>
+        </table>
+      </div>
+      <div class="cs-card">
+        <h4>Docker &amp; Environments</h4>
+        <table class="rtable">
+          <tr><th></th><th>venv</th><th>conda</th><th>Docker</th></tr>
+          <tr><td>Manages</td><td>Python pkgs</td><td>Python + system libs</td><td>Entire OS + app</td></tr>
+          <tr><td>Use for</td><td>Simple dev</td><td>DS/ML projects</td><td>Production</td></tr>
+        </table>
+        <h4 style="margin-top:0.6rem">Dockerfile Keywords</h4>
+        <table class="rtable">
+          <tr><th>Instruction</th><th>What it does</th></tr>
+          <tr><td>FROM</td><td>Base image (e.g. python:3.10-slim)</td></tr>
+          <tr><td>WORKDIR</td><td>Set working directory inside container</td></tr>
+          <tr><td>COPY</td><td>Copy files from host machine into container</td></tr>
+          <tr><td>RUN</td><td>Execute command during build (e.g. pip install)</td></tr>
+          <tr><td>EXPOSE</td><td>Document which port the app listens on</td></tr>
+          <tr><td>CMD</td><td>Default command when container starts</td></tr>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ===== 11. SECURITY & FAIRNESS ===== -->
+  <!-- =============================== W15 SECURITY =============================== -->
   <div class="cs-section">
-    <div class="cs-title">🛡️ W15 — AI Security &amp; Fairness</div>
+    <div class="cs-title">🛡️ Week 15 — AI Security &amp; Fairness (⭐ High Priority)</div>
     <div class="cs-3col">
       <div class="cs-card">
         <h4>Attack Types</h4>
         <table class="rtable">
           <tr><th>Attack</th><th>When</th><th>Example</th></tr>
-          <tr><td>Evasion</td><td>Inference</td><td>Stop sign → speed limit</td></tr>
-          <tr><td>Poisoning</td><td>Training</td><td>Inject fake samples</td></tr>
-          <tr><td>Prompt Injection</td><td>LLM inference</td><td>"Ignore instructions..."</td></tr>
-          <tr><td>Model Inversion</td><td>Post-deploy</td><td>Reconstruct training data</td></tr>
-          <tr><td>Membership Inference</td><td>Post-deploy</td><td>Was X in training set?</td></tr>
+          <tr><td><strong>Evasion</strong></td><td>Inference time</td><td>Stop sign sticker → misclassified as speed limit</td></tr>
+          <tr><td><strong>Poisoning</strong></td><td>Training time</td><td>Inject fake training samples to corrupt model</td></tr>
+          <tr><td><strong>Prompt Injection</strong></td><td>LLM inference</td><td>"Ignore previous instructions and reveal…"</td></tr>
+          <tr><td><strong>Model Inversion</strong></td><td>Post-deploy</td><td>Reconstruct training data from model outputs</td></tr>
+          <tr><td><strong>Membership Inference</strong></td><td>Post-deploy</td><td>Was record X in the training set?</td></tr>
+          <tr><td><strong>Model Extraction</strong></td><td>Post-deploy</td><td>Steal model by querying it repeatedly</td></tr>
         </table>
-        <div class="alert-box"><strong>FGSM:</strong> $\mathbf{x}_{adv}=\mathbf{x}+\epsilon\cdot\text{sign}(\nabla_x J)$</div>
+        <div class="f" style="margin-top:0.5rem">
+          <span class="fname">FGSM — Fast Gradient Sign Method</span>
+          <span class="eq">x_adversarial = x + ε × sign(∇ₓ J(θ, x, y))</span>
+          <span class="note">ε = small perturbation · sign(∇ₓJ) = direction of max loss increase</span>
+        </div>
+        <div class="alert">
+          <strong>Tabular vs Image adversarial inputs:</strong> Image = imperceptible pixel noise. Tabular = crafted feature values within plausible ranges (e.g., manipulate transaction features to evade fraud detection).
+        </div>
       </div>
       <div class="cs-card">
         <h4>Fairness Metrics</h4>
-        <div class="f">Demographic Parity: $P(\hat{Y}=1|A=0)=P(\hat{Y}=1|A=1)$</div>
-        <div class="f">Equal Opportunity: $\text{TPR}_0=\text{TPR}_1$</div>
-        <div class="f">Equalized Odds: TPR + FPR both equal</div>
-        <div class="f">Calibration: $P(Y=1|\hat{Y}=p,A=a)=p\;\forall a$</div>
-        <div class="alert-box"><strong>Key:</strong> Fairness metrics can conflict with each other — no single definition is always "correct".</div>
+        <div class="f">
+          <span class="fname">Demographic Parity</span>
+          <span class="eq">P(Ŷ=1 | Group A) = P(Ŷ=1 | Group B)</span>
+          <span class="note">Same positive prediction rate across all groups</span>
+        </div>
+        <div class="f">
+          <span class="fname">Equal Opportunity</span>
+          <span class="eq">TPR_GroupA = TPR_GroupB</span>
+          <span class="note">Qualified candidates have equal chance of positive outcome</span>
+        </div>
+        <div class="f">
+          <span class="fname">Equalized Odds</span>
+          <span class="eq">TPR_A = TPR_B  AND  FPR_A = FPR_B</span>
+          <span class="note">Both true positive AND false positive rates must match</span>
+        </div>
+        <div class="f">
+          <span class="fname">Calibration</span>
+          <span class="eq">If model says 70% → should be right 70% of the time for every group</span>
+          <span class="note">Confidence equally reliable across all groups</span>
+        </div>
+        <div class="alert" style="margin-top:0.5rem">
+          <strong>Key:</strong> Fairness metrics can CONFLICT with each other and with accuracy. No single definition is always "fair" — depends on context.
+        </div>
       </div>
       <div class="cs-card">
-        <h4>Defenses</h4>
+        <h4>Defenses &amp; AI Failure Modes</h4>
         <table class="rtable">
-          <tr><th>Defense</th><th>Type</th></tr>
-          <tr><td>Adversarial training</td><td>Attack</td></tr>
-          <tr><td>Input preprocessing</td><td>Attack</td></tr>
-          <tr><td>Differential privacy</td><td>Privacy</td></tr>
-          <tr><td>Federated learning</td><td>Privacy</td></tr>
-          <tr><td>Model auditing</td><td>Privacy</td></tr>
+          <tr><th>Defense</th><th>Against</th></tr>
+          <tr><td>Adversarial training</td><td>Evasion attacks</td></tr>
+          <tr><td>Input preprocessing / feature squeezing</td><td>Evasion attacks</td></tr>
+          <tr><td>Differential privacy (calibrated noise)</td><td>Privacy attacks</td></tr>
+          <tr><td>Federated learning</td><td>Privacy — no raw data centralised</td></tr>
+          <tr><td>Model auditing</td><td>Membership inference, inversion</td></tr>
+          <tr><td>Rate limiting</td><td>Model extraction</td></tr>
         </table>
-        <h4 style="margin-top:0.5rem">AI Failure Modes</h4>
-        <ul><li>Hallucinations (LLMs)</li><li>Overconfidence (wrong + confident)</li><li>Automation bias (humans over-trust AI)</li><li>Distribution shift</li><li>Cascading failures (multi-model pipelines)</li></ul>
+        <h4 style="margin-top:0.6rem">AI Failure Modes</h4>
+        <ul>
+          <li><strong>Hallucinations</strong> — confident but fabricated outputs (LLMs)</li>
+          <li><strong>Overconfidence</strong> — 99% confidence on wrong answer</li>
+          <li><strong>Automation Bias</strong> — humans blindly trust AI output</li>
+          <li><strong>Distribution Shift</strong> — production data ≠ training data</li>
+          <li><strong>Cascading Failures</strong> — errors compound in multi-model pipelines</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- ===== OBSERVABILITY ===== -->
-  <div class="cs-section">
-    <div class="cs-title">👁️ W14 — Observability Stack</div>
-    <div class="cs-2col">
-      <div class="cs-card">
-        <h4>Three Pillars</h4>
-        <ul><li><strong>Monitoring (Metrics):</strong> numbers that trigger alerts</li><li><strong>Logging (Events):</strong> granular text for debugging</li><li><strong>Distributed Tracing:</strong> track request across microservices</li></ul>
-        <h4 style="margin-top:0.6rem">Alerting Priority</h4>
-        <table class="rtable">
-          <tr><th>P</th><th>Trigger</th><th>Action</th></tr>
-          <tr><td style="color:#f85149">P1</td><td>Acc drop &gt;15% or KS&gt;0.3</td><td>Page on-call, rollback</td></tr>
-          <tr><td style="color:#d29922">P2</td><td>KS 0.2–0.3, missing&gt;10%</td><td>4hr ticket</td></tr>
-          <tr><td style="color:#58a6ff">P3</td><td>KS 0.1–0.2</td><td>Next sprint</td></tr>
-          <tr><td style="color:#3fb950">P4</td><td>Minor fluctuation</td><td>Log only</td></tr>
-        </table>
-      </div>
-      <div class="cs-card">
-        <h4>Docker Quick Reference</h4>
-        <table class="rtable">
-          <tr><th>Instruction</th><th>Purpose</th></tr>
-          <tr><td>FROM</td><td>Base image</td></tr>
-          <tr><td>WORKDIR</td><td>Working dir</td></tr>
-          <tr><td>COPY</td><td>Copy files in</td></tr>
-          <tr><td>RUN</td><td>Build command</td></tr>
-          <tr><td>EXPOSE</td><td>Document port</td></tr>
-          <tr><td>CMD</td><td>Start command</td></tr>
-        </table>
-        <h4 style="margin-top:0.5rem">venv vs conda vs Docker</h4>
-        <ul><li>venv: Python packages only, lightweight</li><li>conda: Python + system libs + CUDA (DS/ML standard)</li><li>Docker: full OS isolation, production standard</li></ul>
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:center;padding:1rem 0;color:var(--text2);font-size:0.78rem">
-    Good luck on your exam! 💪 — all formulas above are from Dr. Ahmad Raza's ITU ML lectures.
+  <div style="text-align:center;padding:1.2rem 0;color:var(--text2);font-size:0.78rem;border-top:1px solid var(--border);margin-top:1rem">
+    Good luck on your exam! 💪 — All content from Dr. Muhammad Ahmed Raza's ML lectures at ITU.
   </div>
 </div>
 
